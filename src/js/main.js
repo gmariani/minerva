@@ -1,5 +1,5 @@
 var util = {};
-var debug = true;
+var debug = false;
 var googlead = '<span class="googlead"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>'+
 				'<!-- Minerva Footer 728x90 -->'+
 				'<ins class="adsbygoogle"'+
@@ -301,6 +301,11 @@ $(function () {
 				value = (callState == 'TreeNode') ? child.data.value : child.value,
 				keyValue = (callState == 'Dictionary') ? child.key : null;
 			key = (callState == 'Array' || callState == 'Dictionary') ? parseInt(key) : (callState == 'Object') ? String(key) : child.text;
+			
+			if (debug) console.log('tree2Obj child key', key);
+			if (debug) console.log('tree2Obj child child', child);
+			if (debug) console.log('tree2Obj child type', type);
+			if (debug) console.log('tree2Obj child value', value);
 			switch (type) {
 				case 'Integer' :
 				case 'Number' :
@@ -314,7 +319,7 @@ $(function () {
 					o[key] = value;
 					break;
 				case 'Array':
-					if (value.length != child.children.length) {
+					if (child.children && value.length != child.children.length) {
 						// ECMA Array
 						// Since an associative array in JavaScript is an object, 
 						// we have to convert this into an object
@@ -327,9 +332,10 @@ $(function () {
 					break;
 				case 'Object':
 				case 'Vector':
-				if (debug) console.log('convert Object', child, child.children, child.data);
-					//o[key] = tree2Obj({}, value, 'Object');
-					o[key] = tree2Obj({}, child.children, 'TreeNode');
+					o[key] = tree2Obj({}, value, 'Object');
+					if (child.children) {
+						o[key] = tree2Obj(o[key], child.children, 'TreeNode');
+					}
 					break;
 				case 'Dictionary':
 					o[key] = tree2Obj([], value, 'Dictionary');
@@ -506,16 +512,21 @@ $(function () {
 		clearInterval(rotYINT);
 	});
 	
-    sortSetting = $.cookie(cbEnableSort.attr('name'));
+	var cookieSortName = cbEnableSort.attr('name');
+    sortSetting = $.cookie(cookieSortName);
+	if (undefined === sortSetting) sortSetting = 'false';
+	if (debug) console.log('sortSetting', sortSetting);
     if (sortSetting && sortSetting == "true") {
-        cbEnableSort.prop('checked', sortSetting);
+        cbEnableSort.prop('checked', !!sortSetting);
     };
+	
 	cbEnableSort.change(function() {
-		$.cookie(cbEnableSort.attr("name"), cbEnableSort.prop('checked'), {
+		$.cookie(cookieSortName, cbEnableSort.prop('checked'), {
 			path: '/',
 			expires: 365
 		});
-		sortSetting = $.cookie(cbEnableSort.attr('name'));
+		sortSetting = $.cookie(cookieSortName);
+		if (debug) console.log('set cookie to ' + sortSetting, cookieSortName, cbEnableSort.prop('checked'));
 	});
 	
 	function rotateYDIV() {
