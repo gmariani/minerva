@@ -1,0 +1,115 @@
+<?xml version="1.0" ?>
+<project default="default" basedir=".">
+ 
+    <target name="default" depends="load.properties, css.minify, css.concatenate, js.concatenate, js.minify" />
+ 
+    <target name="load.properties">
+        <echo>Initialize Variables</echo>
+		<property name="css.version" value="1" />
+		<property name="js.version" value="1" />	
+ 
+        <property name="css.path" value="../css" />
+        <echo message="css.path:                   ${css.path}" />
+ 
+        <property name="js.path" value="../js" />
+        <echo message="js.path:                    ${js.path}" />
+ 
+        <property name="build.path" value="build" />
+        <echo message="build.path:                 ${build.path}" />
+ 
+        <property name="yuiCompressor.path" value="yuicompressor-2.4.8.jar" />
+        <echo message="yuiCompressor.path:         ${yuiCompressor.path}" />
+ 
+        <property name="googleClosureCompiler.path" value="google-closure-compiler.jar" />
+        <echo message="googleClosureCompiler.path: ${googleClosureCompiler.path}" />
+    </target>
+ 
+    <target name="css.minify" depends="load.properties">
+        <echo># Minify CSS using YUI Compressor:</echo>
+        <echo>java -jar ${yuiCompressor.path} ${css.path}/main.css -o ${css.path}/main.min.css</echo>
+ 
+        <apply executable="java" parallel="false">
+            <fileset dir="${css.path}" includes="main.css" />
+            <mapper type="glob" from="main.css" to="${css.path}/main.min.css" />
+            <arg line="-jar" />
+            <arg path="${yuiCompressor.path}" />
+            <srcfile />
+            <arg line="-o" />
+            <targetfile />
+        </apply>
+    </target>
+ 
+    <target name="css.concatenate" depends="load.properties">
+        <echo># Concatenate CSS files</echo>
+ 
+        <concat destfile="${build.path}/main.min.css" encoding="UTF-8" eol="lf" fixlastline="yes" outputencoding="UTF-8">
+			<filelist dir="${css.path}">
+				<file name="themes\default\style.min.css" />
+				<file name="jquery-ui.min.css" />
+				<file name="main.min.css" />
+			</filelist>
+        </concat>
+    </target>
+ 
+    <target name="js.concatenate" depends="load.properties">
+        <echo># Concatenate JS files:</echo>
+ 
+        <concat destfile="${build.path}/scripts.js" encoding="UTF-8" eol="lf" fixlastline="yes" outputencoding="UTF-8">
+            <filelist dir="${js.path}" files="jquery.js" />
+        	<filelist dir="${js.path}" files="bootstrap.js" />
+        	<filelist dir="${js.path}" files="bootstrap-datepicker.js" />
+        	<filelist dir="${js.path}" files="mustache.js" />
+        	<filelist dir="${js.path}" files="toastr.js" />
+        	<filelist dir="${js.path}" files="plugins.js" />
+        	<filelist dir="${js.path}" files="main.js" />
+			
+			<!--<file name="vendor\jquery-2.1.1.js" />
+			<file name="vendor\jquery-ui.min.js" />-->
+			<file name="vendor\jquery.timeago.js" />
+			<file name="vendor\jquery-ui-timepicker-addon.js" />
+			<file name="vendor\jstree.js" />
+			<file name="vendor\Blob.js" />
+			<file name="vendor\FileSaver.js" />
+			<!--<file name="vendor\zlib.min.js" />
+			<file name="vendor\rawdeflate.min.js" />
+			<file name="vendor\rawinflate.min.js" />-->
+			<!--<file name="vendor\lzma.js" />-->
+			<file name="vendor\lzma_worker.js" />
+			<file name="lib\ByteArray.js" />
+			<file name="parsers/SOL.js" />
+			<file name="view\DateView.js" />
+			<file name="view\VectorView.js" />
+			<file name="view\ObjectView.js" />
+			<file name="view\ArrayView.js" />
+			<file name="view\StringView.js" />
+			<file name="view\IntegerView.js" />
+			<file name="view\NumberView.js" />
+			<file name="view\BooleanView.js" />
+			<file name="view\ByteArrayView.js" />
+			<file name="view\DictionaryView.js" />
+			<file name="view\DictionaryItemView.js" />
+			<file name="view\XMLView.js" />
+			<file name="view\Alert.js" />
+			<!--<file name="plugins.js" />-->
+			<file name="main.js" />
+        </concat>
+    </target>
+ 
+ 
+    <target name="js.minify" depends="load.properties">
+        <echo># Minify JavaScript using Google Closure Compiler:</echo>
+        <echo>java -jar ${googleClosureCompiler.path} --js ${build.path}/scripts.js --js_output_file ${build.path}/scripts.min.js</echo>
+ 
+        <apply executable="java" parallel="false">
+            <fileset dir="${build.path}" includes="scripts.js" />
+            <mapper type="glob" from="scripts.js" to="${build.path}/scripts.min.js" />
+            <arg line="-jar" />
+            <arg path="${googleClosureCompiler.path}" />
+            <arg line="--js" />
+            <srcfile />
+            <arg line="--js_output_file" />
+            <targetfile />
+        </apply>
+    </target>	
+ 
+</project>

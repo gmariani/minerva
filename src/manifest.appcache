@@ -1,0 +1,13 @@
+﻿CACHE MANIFEST
+# v1 - %TIMESTAMP%
+# Initial app cache
+# Support: Chrome 4.0 | Firefox (Gecko) 3.5 | IE 10.0 | Opera 10.6 | Safari 4.0
+
+# All other resources (e.g. sites) require the user to be online. 
+NETWORK:
+*
+
+# Fallback content
+#FALLBACK:
+
+CACHE:

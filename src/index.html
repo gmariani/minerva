@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en-US" manifest="manifest.appcache">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>CourseVector .minerva</title>
+		<meta name="author" content="Course Vector LLC. - coursevector.com">
+		<meta name="description" content=".minerva is a online Flash Local Shared Object editor built based on the AMF3 specification and the AMF0 specification">
+		<meta name="viewport" content="width=device-width">
+		<meta name="generator" content="Notepad++" />
+		<meta name="keywords" content="flash shared object, sol, local shared object, lso, edit, editor, minerva, flash game cheater, flash game hack" />
+		
+		<link rel="shortcut icon" href="http://apps.coursevector.com/minerva/favicon.ico">
+		<link rel="apple-touch-icon" sizes="57x57" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="http://apps.coursevector.com/minerva/img/apple-touch-icon-152x152.png">
+		<meta name="apple-mobile-web-app-title" content=".minerva">
+		<link rel="icon" type="image/png" href="http://apps.coursevector.com/minerva/img/favicon-196x196.png" sizes="196x196">
+		<link rel="icon" type="image/png" href="http://apps.coursevector.com/minerva/img/favicon-160x160.png" sizes="160x160">
+		<link rel="icon" type="image/png" href="http://apps.coursevector.com/minerva/img/favicon-96x96.png" sizes="96x96">
+		<link rel="icon" type="image/png" href="http://apps.coursevector.com/minerva/img/favicon-16x16.png" sizes="16x16">
+		<link rel="icon" type="image/png" href="http://apps.coursevector.com/minerva/img/favicon-32x32.png" sizes="32x32">
+		
+		<meta name="msapplication-TileColor" content="#2d89ef">
+		<meta name="msapplication-window" content="width=1024;height=768" />
+		<meta name="msapplication-starturl" content="./" />
+		<meta name="msapplication-tooltip" content="CourseVector .minerva" />
+		<meta name="msapplication-TileImage" content="http://apps.coursevector.com/minerva/img/mstile-144x144.png">
+		<meta name="msapplication-config" content="http://apps.coursevector.com/minerva/browserconfig.xml">
+		<meta name="application-name" content=".minerva">
+		
+		<link rel="stylesheet" href="css/themes/default/style.min.css" />
+		<link rel="stylesheet" href="css/jquery-ui.min.css">
+		<link rel="stylesheet" href="css/main.css">
+		<!-- ANT REPLACE CSS -->
+	</head>
+	<body>
+		<div id="alertOverlay" class="overlay">
+			<section>
+				<div class="controls">
+					<a class="entypo-cancel close-top" href="#"></a>
+				</div>
+				<div class="forms">
+					<div id="alertWindow" class="show">
+						<h1></h1>
+						<p></p>
+						<input type="button" id="btnAlertOk" name="btnAlertOk" class="send cancel" value="Ok" >
+						<input type="button" id="btnAlertCancel" name="btnAlertCancel" class="send cancel" value="Cancel" >
+						<input type="button" id="btnAlertYes" name="btnAlertYes" class="send cancel" value="Yes" >
+						<input type="button" id="btnAlertNo" name="btnAlertNo" class="send cancel" value="No" >
+					</div>
+				</div>
+			</section>
+		</div>
+		
+		<div id="aboutOverlay" class="overlay">
+			<section>
+				<div class="controls">
+					<a class="entypo-cancel close-top" href="#"></a>
+				</div>
+				<div class="forms">
+					<div id="aboutWindow" class="show">
+						<h1>.minerva</h1>
+						
+						<section class="clearfix">
+							<img id="logo" src="http://apps.coursevector.com/minerva/img/favicon-196x196.png" />
+							<h2 style="margin-bottom:0">Version 4.0.0.%BUILD%</h2>
+							<h3><a href="http://blog.coursevector.com/minerva" target="_blank">&raquo; blog.coursevector.com/minerva</a></h3>
+							<p><strong>.minerva</strong> is a Flash Local Shared Object editor built based on the <a href="https://www.adobe.com/go/amfspec/" target="_blank">AMF3 specification</a> and the <a href="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf0-file-format-specification.pdf" target="_blank">AMF0 specification</a>.</p>
+							<p><strong>.minerva</strong> is capable of reading and writing all known data types successfully. Tested against modern browsers and was built using Chrome 38 and Firefox 32. I do not plan on supporting older browsers unless it's a trivial change. Any issues please click on the support button at the top and enjoy!</p>
+							<p><strong>Changelog</strong>
+							<pre class="scroll-box">
+####################################################
+ 4.0.0 - 2014-10-26 - Firefox 33/Chrome39
+####################################################
+    - Added create new file
+    - Added offline mode (application cache)
+    - Patched issue #44, save produces empty file (Chrome x64 bug)
+    - Fixed issue #45, saving file mangles the code
+    - Fixed issue #47, import not working
+    - Fixed array index numbering when removing items
+    - Fixed file saving of complex files (reference tables)
+    - Added saving modal
+    - Added ability to Pin site in IE9+
+    - Added validation for creating new obejcts without a valid name
+    - Added better error handling on file save failure
+    - Added changelog to about window
+    
+####################################################
+ 4.0.0b - 2014-09-19 - Firefox 32/Chrome38
+####################################################
+    - Can now search in object tree structure
+    - Improved support for AS2 LongStrings
+    - Improved support for AS3 Dictionaries
+    - Improved support for AS3 Vectors
+    - Inflate/Deflate ByteArray in display
+    - ZLib uncompress/compress ByteArray in display
+    - LZMA uncompress/compress ByteArray in display
+    - Import/Export ByteArray
+    - Date displays information relative to today
+    - XML has added validation
+    - HTML encode/decode String in display
+    - URL encode/decode String in display
+    - Base64 encode/decode String in display
+    - Hex encode/decode String in display
+    - Binary encode/decode String in display
+    - Added JSON import
+    - Now online for your web browser!
+    - Command line interface removed for obvious reasons
+    - Javascript formatter removed since you can just navigate to jsbeautifier.com just as easily
+	
+####################################################
+ 3.5.0 - 2012-12-22 - Adobe AIR 3.1
+####################################################
+    - Allow ByteArrays to be deflated/inflated in viewer
+    - Display UTFBytes of ByteArray
+    - Added read/write support for Vectors
+
+####################################################
+ 3.4.0 - 2012-12-22 - Adobe AIR 3.1
+####################################################
+	- Fixed issue #27, Error on integer update
+	- Fixed issue #28, Sort by Data Type, Name
+	- Fixed issue #30, Empty object arrays after export
+	- Fixed issue #31, int overflow
+
+####################################################
+ 3.3.4 - 2012-04-19 - Adobe AIR 1.5
+####################################################
+    - Fixed issue #24, error opening and saving Hands of War 2 : Expanded Edition
+    - Updated to AIR 2.5 namespace
+
+####################################################
+ 3.3.3 - 2012-04-16 - Adobe AIR 1.5
+####################################################
+    - Fixed issue #22, sort variable labels alphanumerically
+    - Fixed issue #23, error handling foreign languages
+
+####################################################
+ 3.3.2 - 2012-01-25 - Adobe AIR 1.5
+####################################################
+    - Fixed issue #-, exported JSON broken when used via command flags
+    - Fixed issue #21, booleans not being saved properly
+
+####################################################
+ 3.3.1 - 2011-10-17 - Adobe AIR 1.5
+####################################################
+    - Fixed issue #11, exported JSON not appearing in selected directory
+	- Fixed issue #14, when selecting window after losing focus, root item is selected automatically
+	- Fixed issue #15, sol saving incorrectly
+	- Fixed issue #16, sol saving incorrectly
+	- Fixed issue #17, sol saving incorrectly
+	- Fixed issue #18, item label appearing doubled
+	- Added issue #19, ability to delete items (provided parent node is visible in the scroll box)
+
+####################################################
+ 3.3.0 - 2011-03-27 - Adobe AIR 1.5
+####################################################
+    - Switched to Flex Updater Framework
+    - Fixed object type bug
+    - Added JSON file export
+    - Added JSON command line export
+    - Added null/undefined data type change
+
+####################################################
+ 3.2.6 - 2011-02-26 - Adobe AIR 1.5
+####################################################
+    - Fixed reading and writing Flex objects (ObjectProxy bug)
+    - Updated JS Beautifier
+
+####################################################
+ 3.2.5 - 2011-02-21 - Adobe AIR 1.5
+####################################################
+    - Fixed AMF0 and AMF3 reference bug (caused the missing data issues)
+
+####################################################
+ 3.2.4 - 2010-08-24 - Adobe AIR 1.5
+####################################################
+    - Fixed writing XML bug
+    - Fixed AMF reading bug
+    - Fixed a few typos
+    - Improved AMF reading (clientId, messageId, correlationsIds are now correct)
+
+####################################################
+ 3.2.3 - 2010-06-11 - Adobe AIR 1.5
+####################################################
+    - Fixed drag-n-drop feature
+    - Fixed open with .minerva
+
+####################################################
+ 3.2.2 - 2010-05-18 - Adobe AIR 1.5
+####################################################
+    - Fixed object reference error
+    - Added donate button to About window
+    - Tweaked UI
+
+####################################################
+ 3.2.1 - 2010-03-30 - Adobe AIR 1.5
+####################################################
+    - Removed redundant Flex components
+    - Added filename to window title
+    - Fixed Array lockup bug
+    - Fixed SharedObject name save bug
+    - Fixed SharedObject data save bug
+    - Fixed Date save bug
+    - Fixed associative Array save bug
+    - Fixed editing variable names in inspector view
+    - Handles ï¿½Nullï¿½ correctly now
+    - Handles ï¿½Unsupportedï¿½ correctly now
+    - AMF3 ï¿½ Fixed ByteArray read bug
+    - AMF3 ï¿½ Fixed ByteArray write bug
+    - AMF3 ï¿½ Fixed ByteArray save bug
+    - AMF3 ï¿½ Fixed XMLDocument save bug
+    - AMF3 ï¿½ Can save files byte for byte the same as Flash IDE
+    - AMF0 ï¿½ Tweaked XMLDocument handling
+    - AMF0 ï¿½ Fixed null save bug
+    - AMF0 ï¿½ Fixed Arrays, now always saved as ECMAArray
+    - AMF0 ï¿½ Handles ï¿½Unsupportedï¿½ correctly now
+    - AMF0 ï¿½ Can save files byte for byte the same as Flash IDE
+
+####################################################
+ 3.2.0 - 2010-03-18 - Adobe AIR 1.5
+####################################################
+    - Added Sort dropdown ï¿½ SharedObject can now be sorted by type or name
+    - Fixed "Save" bug ï¿½ Hitting File->Save now works
+    - Fixed tooltip positioning bug
+    - Fixed AMF0 custom object bug
+    - Fixed AMF3 save bug
+    - Updated JS formatter
+    - Updated UI to match .whistler
+    - Added Refresh button to reload a SharedObject
+    - Added ability to parse AMF files saved from AMFExplorer or Flashbug
+
+####################################################
+ 3.1.0 - 2010-01-22 - Adobe AIR 1.5
+####################################################
+    - Fixed saving bug
+    - Added file type association
+    - Filetype icon
+    - Alerts when any errors occur
+
+####################################################
+ 3.0.0 - 2010-01-07 - Adobe AIR 1.5
+####################################################
+    - Edit SOL Files ï¿½ Now supports saving edits of an SOL file!
+    - Added new color theme
+    - Updated JS formatter engine
+    - Updated About Window
+
+####################################################
+ 2.0.1 - 2009-05-26 - Adobe AIR 1.5
+####################################################
+    - Updated AMF0 support of custom typed objects.
+    - Added drag and drop support for opening files
+    - Updated About window
+
+####################################################
+ 2.0.0 - 2008-08-08 - Adobe AIR 1.5
+####################################################
+    - Complete internal overhaul
+    - Support for AS3 (AMF3) Shared Objects finally
+    - Updated support for AMF0
+
+####################################################
+ 1.6.0 - 2008-07-22 - Adobe AIR 1.0
+####################################################
+    - Smoothed images
+	- Embedded fonts for smooth text
+	- Restructured internal code
+	- Updated installed program name
+
+####################################################
+ 1.5.1 - 2008-07-15 - Adobe AIR 1.0
+####################################################
+    - Improved auto updater
+
+####################################################
+ 1.5.0 - ? - Adobe AIR 1.0
+####################################################
+    - Added auto updated
+	- Added about window
+	- No more status bar
+
+####################################################
+ 1.1.0 - ? - Adobe AIR 1.0
+####################################################
+    - Updated for Adobe AIR 1.0
+
+####################################################
+ 1.1.0 - ? - Adobe AIR B3
+####################################################
+    - Added JavaScript code formatter. Updated About window with logo.
+
+####################################################
+ 1.0.0 - ? - Adobe AIR B3
+####################################################
+    - Initial release. Support for AS2 (AMF0) Shared Objects.
+							</pre></p>
+							<small>&copy; %YEAR% <a href="http://coursevector.com" class="cv-logo" title="CourseVector | Web Design, SEO, Hosting">Course Vector LLC.</a></small>
+						</section>
+					</div>
+				</div>
+			</section>
+		</div>
+		
+		<div id="overlay" class="overlay">
+			<section>
+				<div class="controls">
+					<a class="entypo-cancel close-top" href="#"></a>
+				</div>
+				<div class="forms">
+					<div id="newWindow">
+						<h1>New File</h1>
+						<div class="details no-float">
+							<div class="field">
+								<input type="text" id="txtNewName" placeholder="Filename">
+								<span class="entypo-right-circled icon"></span>
+							</div>
+							<div class="field">
+								<p><strong>Select AMF version</strong></p>
+								<fieldset id="radAMFValue" class="blocks">
+									<!-- AMF0 -->
+									<input type="radio" value="0" name="radAMFValue" id="amf-1">
+									<label for="amf-1">AMF0</label>
+									<!-- AMF3 -->
+									<input type="radio" value="3" name="radAMFValue" id="amf-2" checked="checked">
+									<label for="amf-2">AMF3</label>
+								</fieldset>
+							</div>
+							<input type="button" id="btnCreateNew" name="btnCreateNew" class="send" value="Create">
+							<span class="clearfix"></span>
+						</div>
+					</div>
+				
+					<div id="openWindow">
+						<h1>Open File</h1>
+						<div class="clearfix">
+							<div class="field">
+								<input type="file" id="filesFile" name="filesFile"/>
+								<span class="entypo-right-circled icon"></span>
+							</div>
+						</div>
+						<div id="fileProgressBar" class="progressBar">
+							<div class="percent">0%</div>
+						</div>
+						
+						<span id="solPath"></span>
+						
+						<input type="button" id="btnFileCancel" name="btnFileCancel" class="send cancel" value="Cancel" >
+					</div>
+					
+					<div id="saveWindow">
+						<h1>Saving File</h1>
+						<img src="http://apps.coursevector.com/minerva/img/Mega_Man_Running_Gif.gif" height="100px" />
+					</div>
+					
+					<div id="importBinaryWindow">
+						<h1>Import Binary</h1>
+						<div class="details no-float">
+							<div class="field">
+								<input type="file" id="filesBinary" name="filesBinary"/>
+								<span class="entypo-right-circled icon"></span>
+							</div>
+						</div>
+						<div id="binProgressBar" class="progressBar">
+							<div class="percent">0%</div>
+						</div>
+						<div class="details no-float">
+							<input type="button" id="btnBinCancel" name="btnBinCancel" class="send cancel" value="Cancel" >
+							<span class="clearfix"></span>
+						</div>
+					</div>
+					
+					<div id="importJSONWindow">
+						<h1>Import JSON</h1>
+						<div class="details no-float">
+							<div class="field">
+								<input type="text" id="txtJSONName" placeholder="Filename">
+								<span class="entypo-right-circled icon"></span>
+							</div>
+							<div class="field">
+								<textarea id="txtJSONValue" rows="20" cols="50" class="message" placeholder="Valid JSON"></textarea>
+								<span class="entypo-comment icon"></span>
+							</div>
+							<input type="button" id="btnImportJSON" name="btnImportJSON" class="send" value="Import">
+							<span class="clearfix"></span>
+						</div>
+					</div>
+					
+					<div id="createWindow">
+						<h1>Create Item</h1>
+						<div class="details no-float">
+							<!--<div class="field">
+								<input type="text" id="txtNewType" placeholder="Label">
+								<span class="entypo-right-circled icon"></span>
+							</div>-->
+							<h3>Label</h3>
+							<p>
+								Enter in the name for the new variable here. If creating a new entry in a Dictionary, you can enter valid JSON.
+							</p>
+							<div class="field">
+								<input type="text" id="txtNewLabel" placeholder="Key">
+								<span class="entypo-right-circled icon"></span>
+							</div>
+							
+							<h3>Value</h3>
+							<p>
+								Enter in the value for the new variable here. This must be valid JSON. Example data:
+								<ul class="create-example">
+									<li>Boolean<br><code>false</code></li>
+									<li>Integer<br><code>12345</code></li>
+									<li>Number<br><code>3.141592653589793</code></li>
+									<li>Array<br><code>[1,2,3]</code></li>
+									<li>String<br><code>"Hello World"</code></li>
+									<li>Date<br><code>"2011-10-10T14:48:00"</code> <a style="text-decoration:underline;" title="Valid Date Formats" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse">Ref</a></li>
+									<li>Object<br><code>{"p1":5,"p2":6}</code></li>
+								</ul>
+							</p>
+							<div class="field">
+								<textarea id="txtNewValue" rows="5" cols="50" class="message" placeholder="Value"></textarea>
+								<span class="entypo-comment icon"></span>
+							</div>
+							<input type="button" id="btnCreateItem" name="btnCreateItem" class="send" value="Create">
+							<span class="clearfix"></span>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+
+		<div id="application">
+			<nav>
+				<ul>
+					<li><a id="newFile" href="javascript:void(0);" title="Create a new file">New</a></li>
+					<li><a id="openFile" href="javascript:void(0);" title="Open file">Open</a></li>
+					<li><a id="importFile" href="javascript:void(0);" title="Import JSON to file">Import</a></li>
+					<li><a id="exportFile" href="javascript:void(0);" class="disabled" title="Export file to JSON">Export</a></li>
+					<li><a id="saveFile" href="javascript:void(0);" class="disabled" title="Save file">Save</a></li>
+					<li><a id="closeFile" href="javascript:void(0);" class="disabled" title="Close file">Close</a></li>
+				</ul>
+				
+				<ul class="app-nav">
+					<li><a id="support" href="javascript:void(0);" title="Report a bug/issue">Support</a></li>
+					<li><a id="about" href="javascript:void(0);" title="About .minerva">About</a></li>
+				</ul>
+			</nav>
+			
+			<div id="wrapper">
+				<section id="sidebar">
+					<header id="title"></header>
+					<div  class="search clearfix">
+						<div class="field">
+							<input type="search" id="search_tree" placeholder="Search" />
+							<span class="entypo-search icon"></span>
+						</div>
+					</div>
+					<div id="jstree"></div>
+				</section>
+				
+				<section id="details" class="details"></section>
+
+			</div>
+
+			<footer>
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Minerva Footer 728x90 -->
+				<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-4393629565174725" data-ad-slot="3734585686"></ins>
+				<script>(adsbygoogle = window.adsbygoogle || []).push({});</script><br/>
+				<small class="year">&copy; %YEAR% <a href="http://coursevector.com" title="CourseVector | Web Design, SEO, Hosting"  class="cv-logo dark">Course Vector LLC.</a></small><br/>
+				<small>Last built on: %BUILT%</small>
+			</footer>
+		</div>
+		
+		<div id="divPinSite">
+			<img src="img/whiteArrow.png" alt=""/> Drag the site icon to the taskbar to pin site
+		</div>
+
+		<script src="js/vendor/jquery-2.1.1.min.js"></script>
+		<script src="js/vendor/jquery.timeago.min.js"></script>
+		<script src="js/vendor/jquery-ui.min.js"></script>
+		<script src="js/vendor/jquery-ui.timepicker-addon.min.js"></script>
+		<script src="js/vendor/jstree.min.js"></script>
+		<script src="js/vendor/Blob.min.js"></script>
+		<script src="js/vendor/FileSaver.min.js"></script>
+		<script src="js/vendor/zlib.min.js"></script>
+		<script src="js/vendor/rawdeflate.min.js"></script>
+		<script src="js/vendor/rawinflate.min.js"></script>
+		<!--<script src="js/vendor/lzma.js"></script>-->
+		<script src="js/vendor/lzma_worker.min.js"></script>
+		
+		<script src="js/lib/ByteArray.js"></script>
+		<script src="js/parsers/SOL.js"></script>
+		
+		<script src="js/view/DateView.js"></script>
+		<script src="js/view/VectorView.js"></script>
+		<script src="js/view/ObjectView.js"></script>
+		<script src="js/view/ArrayView.js"></script>
+		<script src="js/view/StringView.js"></script>
+		<script src="js/view/IntegerView.js"></script>
+		<script src="js/view/NumberView.js"></script>
+		<script src="js/view/BooleanView.js"></script>
+		<script src="js/view/ByteArrayView.js"></script>
+		<script src="js/view/DictionaryView.js"></script>
+		<script src="js/view/DictionaryItemView.js"></script>
+		<script src="js/view/XMLView.js"></script>
+		<script src="js/view/Alert.js"></script>
+		<script src="js/main.js"></script>
+		<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','//www.google-analytics.com/analytics.js','ga'); ga('create', 'UA-349755-7', 'auto'); ga('send', 'pageview');</script>
+		<!-- ANT REPLACE JS -->
+	</body>
+</html>
