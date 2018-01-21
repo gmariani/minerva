@@ -69,10 +69,14 @@ var NumberView = function() {
 		return input;
 	}
 	
+	// Return true on valid
 	function validate(input/*:Number/String */)/*:Boolean */ {
-		var outOfBounds = (input < Number.MIN_VALUE || input > Number.MAX_VALUE);
+		var minVal = Number.MAX_VALUE * -1;
+		var outOfBounds = (parseFloat(input) < minVal || parseFloat(input) > Number.MAX_VALUE);
+		var negativeMatch = String(input).match(/-/g);
+		var decimalMatch = String(input).match(/\./g);
 		// Input starts from raw as a number, but jQuery returns a string
-		return (!isNaN(parseFloat(input)) && !outOfBounds && (String(input).split('.').length - 1) <= 1 && (String(input).split('-').length - 1) <= 1);
+		return (!isNaN(parseFloat(input)) && !outOfBounds && (decimalMatch === null || decimalMatch.length === 1) && (negativeMatch === null || negativeMatch.length === 1));
 	}
 	
 	// Clear values and clear elements
