@@ -161,7 +161,7 @@ a.disabled {
 .clearfix { display: block; }
 .googlead { margin-top: 30px; display: inline-block; }
 .cv-logo {
-	background-image: url(http://apps.coursevector.com/minerva/img/CourseVector-Footer-Logo.png);
+	background-image: url(../img/CourseVector-Footer-Logo.png);
 	background-size: 125px auto;
     height: 17px;
     width:  125px;
@@ -321,7 +321,7 @@ a.disabled {
 /***** Body Details *****/
 #details {
 	background: none repeat scroll 0 0 #FFFFFF;
-	background-image: url("http://apps.coursevector.com/minerva/img/favicon-196x196.png");
+	background-image: url("../img/favicon-196x196.png");
     background-position: center center;
     background-repeat: no-repeat;
 	display: block;

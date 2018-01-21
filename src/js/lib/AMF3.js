@@ -218,7 +218,7 @@ AMF3.prototype = {
 	
 	readData: function(ba, internal) {
 		var type = ba.readByte();
-		//trace('readData: ' + type + ' : ' + type2Name(type));
+		trace('readData: ' + type + ' : ' + type2Name(type));
 		//trace(this.readStringCache);
 		switch(type) {
 			case UNDEFINED_TYPE 	: return this.readUndefined();
@@ -627,6 +627,7 @@ AMF3.prototype = {
 		
 		// Strict values
 		var l = (ref >> 1);
+		trace('array len--', l);
 		for (var i = 0; i < l; i++) {
 			arr[i] = this.readData(ba);
 		}
@@ -1193,10 +1194,10 @@ AMF3.prototype = {
 			var l = value.length;
 			this.writeUInt29(ba, l << 1 | 1);
 			ba.writeBoolean(traits.weakKeys);
-			
+
 			for (var i = 0; i < l; i++) {
-				this.writeData(ba, value[i].key);
-				this.writeData(ba, value[i].value);
+				this.writeData(ba, value[i].value.Key);
+				this.writeData(ba, value[i].value.Value);
 			};
 		};
 	},

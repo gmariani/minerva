@@ -1,5 +1,5 @@
 ﻿CACHE MANIFEST
-# v1 - 20141229 03:07 PM
+# v1 - 20141228 07:01 AM
 # Initial app cache
 # Support: Chrome 4.0 | Firefox (Gecko) 3.5 | IE 10.0 | Opera 10.6 | Safari 4.0
 
@@ -115,6 +115,6 @@ http://apps.coursevector.com/minerva/index.html
 http://cdn.coursevector.com/minerva/4.0.4/js/lib/AMF0.js
 http://cdn.coursevector.com/minerva/4.0.4/js/lib/AMF3.js
 http://cdn.coursevector.com/minerva/4.0.4/js/lib/ByteArray.js
-http://cdn.coursevector.com/minerva/4.0.4/js/main.min.js
+http://cdn.coursevector.com/minerva/js/main.min.js
 http://apps.coursevector.com/minerva/js/parsers/SOLReaderWorker.js
 http://apps.coursevector.com/minerva/js/parsers/SOLWriterWorker.js

@@ -84,7 +84,7 @@ onmessage = function(event) {
 	}
 	
 	// Read Body
-//trace('header-- ', obj.header);
+trace('header-- ', obj.header);
 	if (obj.header.amfVersion == 0 || obj.header.amfVersion == 3) {
 		obj.body = {};
 		while (ba.getBytesAvailable() > 1) {
@@ -92,12 +92,15 @@ onmessage = function(event) {
 			var varVal;
 			if (obj.header.amfVersion == 3) {
 				varName = amf3.readString(ba).value;
+				trace('varName-- ', varName, ba.position);
 				varVal = amf3.readData(ba);
+				trace('varVal-- ', varVal, varVal.__traits.type, ba.position);
 			} else {
 				varName = ba.readUTF();
 				varVal = amf0.readData(ba);
 			}
 			ba.readUnsignedByte(); // Ending byte
+trace('end-- ', ba.position);
 //trace('variable-- ', varName, varVal, varVal.__traits.type);
 			obj.body[varName] = varVal;
 		}

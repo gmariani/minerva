@@ -273,15 +273,19 @@ $(function () {
 	
 	// Pinned Site detection
 	try {
-		if (external.msIsSiteMode()) {
+		if (window.external.msIsSiteMode()) {
+			// Site mode is supported and active.
 			//initThumbBar();
 		} else {
+			// Site mode is supported, but inactive.
 			$('#divPinSite').show();
 			$('#divPinSite').bind('click', function() {
 				$('#divPinSite').hide();
 			});
 		}
-	} catch (e) { }
+	} catch (e) {
+		// Site mode is not supported.
+	}
 	
 	////////////////
 	// Navigation //
@@ -377,9 +381,11 @@ $(function () {
 					o[key].value = tree2SOL({}, child.children, 'Object');
 					break;
 				case 'DictionaryItem':
-					o[key] = {};
-					o[key].__traits = child.data.__traits;
-					o[key].value = tree2SOL({}, { Key:child.key, Value:child.value }, 'Object');
+					var l = o.length;
+					o[l] = {};
+					o[l].__traits = child.data.__traits;
+					//o[l].value = tree2SOL({}, { Key:child.data.value.key, Value:child.data.value.value }, 'Object');
+					o[l].value = tree2SOL({}, { Key:child.children[0], Value:child.children[1] }, 'Object');
 					break;
 			}
 		}
