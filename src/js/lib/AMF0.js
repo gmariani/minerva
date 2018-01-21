@@ -341,7 +341,7 @@ AMF0.prototype = {
 			arr.push(this.readData(ba));
 		}
 		
-		val = { value:arr, __traits:{ type:'Array' }};
+		val = { value:arr, __traits:{ type:'Array', strict:true }};
 		this.readObjectCache.push(val);
 		return val;
 	},

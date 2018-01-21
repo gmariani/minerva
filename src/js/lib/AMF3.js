@@ -614,13 +614,14 @@ AMF3.prototype = {
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
 		var arr = new Array();
+		var isStrict = true;
 		
 		// Associative values
 		var strKey = this.readString(ba).value;
 		while (strKey != "") {
 			arr[strKey] = this.readData(ba);
 			strKey = this.readString(ba).value;
-			
+			isStrict = false;
 		}
 		
 		// Strict values
@@ -628,7 +629,7 @@ AMF3.prototype = {
 		for (var i = 0; i < l; i++) {
 			arr[i] = this.readData(ba);
 		}
-		var val = { value:arr, __traits:{ type:'Array' }};
+		var val = { value:arr, __traits:{ type:'Array', strict:isStrict }};
 		this.readObjectCache.push(val);
 		return val;
 	},

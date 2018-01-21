@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- http://gpbmike.github.io/refresh-sf/ to compress standalone files -->
 <project basedir="." name="Compress and Concatenate CSS and JS" default="initialize">
 
 	<target name="css.minify">
@@ -120,6 +121,9 @@
 				<file name="vendor\jquery-ui.timepicker-addon.min.js" />
 				<file name="vendor\jquery.timeago.min.js" />
 				<file name="vendor\jstree.min.js" />
+				<file name="vendor\jstree.contextmenu.min.js" />
+				<file name="vendor\jstree.search.min.js" />
+				<file name="vendor\jstree.sort.min.js" />
 				<file name="vendor\Blob.min.js" />
 				<file name="vendor\FileSaver.min.js" />
 				<file name="vendor\zlib.min.js" />

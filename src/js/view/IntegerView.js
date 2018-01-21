@@ -23,7 +23,7 @@ var IntegerView = function() {
 		elValue.on('keydown', function(event/*:KeyboardEvent */)/*:Boolean */ {
 			var c = (event.which) ? event.which : event.keyCode;
 			// Keypad
-			if (c >= 97 && c <= 105) return true;
+			if (c >= 96 && c <= 105) return true;
 			// Number row
 			if (c >= 48 && c <= 57) return true;
 			// Arrow/Home/End Keys
@@ -46,17 +46,17 @@ var IntegerView = function() {
 		elValue.val(sanitize(input));
 	}
 	
-	function validate(input/*:Number/String */)/*:Boolean */ {
-		// Input starts from raw as a number, but jQuery returns a string
-		var outOfBounds = (input < -2147483648 || input > 2147483647);
-		return (!isNaN(parseInt(input)) && !outOfBounds && (String(input).split('.').length - 1) == 0 && (String(input).split('-').length - 1) <= 1);
-	}
-	
 	function sanitize(input) {
 		// Return value back to Number
 		input = parseInt(input);
 		if (isNaN(parseInt(input))) input = 0;
 		return input;
+	}
+	
+	function validate(input/*:Number/String */)/*:Boolean */ {
+		// Input starts from raw as a number, but jQuery returns a string
+		var outOfBounds = (input < -2147483648 || input > 2147483647);
+		return (!isNaN(parseInt(input)) && !outOfBounds && (String(input).split('.').length - 1) == 0 && (String(input).split('-').length - 1) <= 1);
 	}
 	
 	// Clear values and clear elements

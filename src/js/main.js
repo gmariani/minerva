@@ -1045,15 +1045,13 @@ $(function () {
 						return !(obj.data && obj.data.__traits && obj.data.__traits.canRename !== false);
 					},
 					"label"				: "Rename",
-					/*
-					"shortcut"			: 113,
+					/*"shortcut"			: 113,
 					"shortcut_label"	: 'F2',
-					"icon"				: "glyphicon glyphicon-leaf",
-					*/
+					"icon"				: "glyphicon glyphicon-leaf",*/
 					"action"			: function (data) {
 						var tree = $.jstree.reference(data.reference),
 							obj = tree.get_node(data.reference);
-						tree.edit(obj);
+						edit_node(tree, obj);
 					}
 				},
 				"remove" : {
@@ -1066,23 +1064,13 @@ $(function () {
 						return !(obj.data && obj.data.__traits && obj.data.__traits.canDelete !== false);
 					},
 					"label"				: "Delete",
+					/*"shortcut"			: 46,
+					"shortcut_label"	: 'Del',
+					"icon"				: "glyphicon glyphicon-trash",*/
 					"action"			: function (data) {
 						var inst = $.jstree.reference(data.reference),
 							obj = inst.get_node(data.reference);
-						if (inst.is_selected(obj)) {
-							inst.delete_node(inst.get_selected());
-						} else {
-							inst.delete_node(obj);
-						}
-						
-						// Check if parent is an array type and renumber children
-						var par = inst.get_node(obj.parent);	
-						if (par.data && par.data.__traits && par.data.__traits.canBeIndexed) {
-							for (var i = 0, l = par.children.length; i < l; i++) {
-								var child = inst.get_node(par.children[i]);
-								inst.rename_node(child, i.toString());
-							}
-						}
+						delete_node(inst, obj);
 					}
 				},
 				"ccp" : {
@@ -1102,26 +1090,13 @@ $(function () {
 							"separator_before"	: false,
 							"separator_after"	: false,
 							"label"				: "Cut",
+							/*"shortcut"			: 'ctrl-88',
+							"shortcut_label"	: 'Ctrl+X',
+							"icon"				: "glyphicon glyphicon-trash",*/
 							"action"			: function (data) {
 								var inst = $.jstree.reference(data.reference),
 									node = inst.get_node(data.reference);
-
-								if (window.localStorage) {
-									var json = JSON.stringify(inst.get_json(node, { flat:false, no_id:true, no_state:true }));
-									inst.delete_node(node);
-									if (debug) console.log('cut', json);
-									localStorage.setItem("clipboard", json);
-								} else {
-									if (!showCopyOnce) {
-										Alert.show('Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.', Alert.INFO);
-										showCopyOnce = true;
-									}
-									if (inst.is_selected(node)) {
-										inst.cut(inst.get_selected());
-									} else {
-										inst.cut(node);
-									}
-								}
+								cut_node(inst, node);
 							}
 						},
 						"copy" : {
@@ -1129,25 +1104,13 @@ $(function () {
 							"icon"				: false,
 							"separator_after"	: false,
 							"label"				: "Copy",
+							/*"shortcut"			: 'ctrl-67',
+							"shortcut_label"	: 'Ctrl+C',
+							"icon"				: "glyphicon glyphicon-trash",*/
 							"action"			: function (data) {
 								var inst = $.jstree.reference(data.reference),
 									node = inst.get_node(data.reference);
-									
-								if (window.localStorage) {
-									var json = JSON.stringify(inst.get_json(node, { flat:false, no_id:true, no_state:true }));
-									if (debug) console.log('copy', json);
-									localStorage.setItem("clipboard", json);
-								} else {
-									if (!showCopyOnce) {
-										Alert.show('Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.', Alert.INFO);
-										showCopyOnce = true;
-									}
-									if (inst.is_selected(node)) {
-										inst.copy(inst.get_selected());
-									} else {
-										inst.copy(node);
-									}
-								}
+									copy_node(inst, node);
 							}
 						},
 						"paste" : {
@@ -1161,25 +1124,13 @@ $(function () {
 							},
 							"separator_after"	: false,
 							"label"				: "Paste",
+							/*"shortcut"			: 'ctrl-86',
+							"shortcut_label"	: 'Ctrl+V',
+							"icon"				: "glyphicon glyphicon-trash",*/
 							"action"			: function (data) {
 								var inst = $.jstree.reference(data.reference),
 									par = inst.get_node(data.reference);
-									
-								if (window.localStorage) {
-										var json = localStorage.getItem("clipboard"),
-										node = JSON.parse(json);
-									if (debug) console.log('paste', node);
-									// create_node(par, node, pos, callback, is_loaded)
-									inst.create_node(par, node, "last", function (new_node) {
-										//new_node.data = json.original.data;
-										setTimeout(function () { inst.select_node(new_node); },0);
-									});
-									
-									// Clear clipboard
-									localStorage.removeItem("clipboard");
-								} else {
-									inst.paste(par);
-								}
+								paste_node(inst, par);
 							}
 						}
 					}
@@ -1195,8 +1146,173 @@ $(function () {
 			}
 		});
 		
+		function cut_node(tree, node) {
+			var par_node = tree.get_node(node.parent);
+			if (node.data && node.data.__traits && node.data.__traits.canDelete !== false && 
+				((par_node.data && par_node.data.__traits) ? par_node.data.__traits.fixed !== true : true)) {
+				if (node && node.id && node.id !== '#') {
+					
+					if (window.localStorage) {
+						var json = JSON.stringify(tree.get_json(node, { flat:false, no_id:true, no_state:true }));
+						tree.delete_node(node);
+						if (debug) console.log('cut', json);
+						localStorage.setItem("clipboard", json);
+					} else {
+						if (!showCopyOnce) {
+							Alert.show('Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.', Alert.INFO);
+							showCopyOnce = true;
+						}
+						node = tree.is_selected(node) ? tree.get_selected() : node;
+						tree.cut(node);
+					}
+					
+					// Check if parent is an array type and renumber children
+					if (par_node.data && par_node.data.__traits && par_node.data.__traits.canBeIndexed) {
+						for (var i = 0, l = par_node.children.length; i < l; i++) {
+							var child = tree.get_node(par_node.children[i]);
+							if (par_node.data.__traits.type == 'Dictionary') {
+								tree.rename_node(child, 'Item ' + i.toString());
+							} else {
+								tree.rename_node(child, i.toString());
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		function copy_node(tree, node) {
+			if (node && node.id && node.id !== '#') {
+				if (window.localStorage) {
+					var json = JSON.stringify(tree.get_json(node, { flat:false, no_id:true, no_state:true }));
+					if (debug) console.log('copy', json);
+					localStorage.setItem("clipboard", json);
+				} else {
+					if (!showCopyOnce) {
+						Alert.show('Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.', Alert.INFO);
+						showCopyOnce = true;
+					}
+					node = tree.is_selected(node) ? tree.get_selected() : node;
+					tree.copy(node);
+				}
+			}
+		}
+		
+		function paste_node(tree, node) {
+			if (node.data && node.data.__traits && node.data.__traits.canCreate !== false && node.data.__traits.fixed !== true) {
+				if (window.localStorage) {
+					var json = localStorage.getItem("clipboard"),
+						nodeChild = JSON.parse(json);
+					if (debug) console.log('paste', nodeChild);
+					// create_node(node, nodeChild, pos, callback, is_loaded)
+					tree.create_node(node, nodeChild, "last", function (new_node) {
+						//new_node.data = json.original.data;
+						setTimeout(function () { tree.select_node(new_node); },0);
+					});
+					
+					// Clear clipboard
+					//localStorage.removeItem("clipboard");
+				} else {
+					tree.paste(node);
+				}
+				
+				// Check if parent is an array type and renumber children
+				if (node.data && node.data.__traits && node.data.__traits.canBeIndexed) {
+					for (var i = 0, l = node.children.length; i < l; i++) {
+						var child = tree.get_node(node.children[i]);
+						if (node.data.__traits.type == 'Dictionary') {
+							tree.rename_node(child, 'Item ' + i.toString());
+						} else {
+							tree.rename_node(child, i.toString());
+						}
+					}
+				}
+			}
+		}
+		
+		function edit_node(tree, node) {
+			if (node.data && node.data.__traits && node.data.__traits.canRename !== false) {
+				if (node && node.id && node.id !== '#') {
+					tree.edit(node);
+				}
+			}
+		}
+		
+		function delete_node(tree, node) {
+			var par_node = tree.get_node(node.parent);
+			if (node.data && node.data.__traits && node.data.__traits.canDelete !== false && 
+				((par_node.data && par_node.data.__traits) ? par_node.data.__traits.fixed !== true : true)) {
+				if (node && node.id && node.id !== '#') {
+					node = inst.is_selected(node) ? inst.get_selected() : node;
+					tree.delete_node(node);
+					
+					// Check if parent is an array type and renumber children
+					if (par_node.data && par_node.data.__traits && par_node.data.__traits.canBeIndexed) {
+						for (var i = 0, l = par_node.children.length; i < l; i++) {
+							var child = tree.get_node(par_node.children[i]);
+							if (par_node.data.__traits.type == 'Dictionary') {
+								tree.rename_node(child, 'Item ' + i.toString());
+							} else {
+								tree.rename_node(child, i.toString());
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		// triggered when selection changes
+		var inst = $.jstree.reference('#jstree');
 		elJSTree.on("changed.jstree", onTreeChange);
+		elJSTree.on('keydown.jstree', '.jstree-anchor', function (e) {
+			if (e.target.tagName === "INPUT") { return true; }
+			var node = null;
+			/*if (inst._data.core.rtl) {
+				if (e.which === 37) { e.which = 39; }
+				else if (e.which === 39) { e.which = 37; }
+			}*/
+			switch (e.which) {
+				// Cut Ctrl+X
+				case 88:
+					if (e.ctrlKey) {
+						e.preventDefault();
+						node = inst.get_node(e.currentTarget);
+						cut_node(inst, node);
+					}
+					break;
+				// Copy Ctrl+C
+				case 67:
+					if (e.ctrlKey) {
+						e.preventDefault();
+						node = inst.get_node(e.currentTarget);
+						copy_node(inst, node);
+					}
+					break;
+				// Paste Ctrl+V
+				case 86:
+					if (e.ctrlKey) {
+						e.preventDefault();
+						node = inst.get_node(e.currentTarget);
+						paste_node(inst, node);
+					}
+					break;
+				// Delete
+				case 46:
+					e.preventDefault();
+					node = inst.get_node(e.currentTarget);
+					delete_node(inst, node);
+					break;
+				// F2
+				case 113:
+					e.preventDefault();
+					node = inst.get_node(e.currentTarget);
+					edit_node(inst, node);
+					break;
+				default:
+					//console.log(e.which);
+					break;
+			}
+		});
 	}
 	
 	function searchTreeNodes(search, node) {
@@ -1242,6 +1358,13 @@ $(function () {
 		// if node isn't passed, get current node
 		//if (!node) node = data.instance.get_node(data.selected[0]);
 		if (debug) console.log('onValueChange', input, node);
+		
+		// If integer/number update the icon and title
+		if (node.data.__traits.type == 'Integer' || node.data.__traits.type == 'Number') {
+			var tree = $.jstree.reference('#jstree');
+			tree.set_icon(node, node.data.__traits.type.toLowerCase());
+		}
+		
 		if (node) node.data.value = input;
 	};
 	
@@ -1276,10 +1399,11 @@ $(function () {
 					dictionaryItemView.init(elDetailsPane, node, node.data.value, onValueChange);
 					break;
 				case 'number':
-					numberView.init(elDetailsPane, node, node.data.value, onValueChange);
-					break;
+				//	numberView.init(elDetailsPane, node, node.data.value, onValueChange);
+				//	break;
 				case 'integer':
-					integerView.init(elDetailsPane, node, node.data.value, onValueChange);
+					numberView.init(elDetailsPane, node, node.data.value, onValueChange);
+					//integerView.init(elDetailsPane, node, node.data.value, onValueChange);
 					break;
 				case 'bytearray':
 					byteArrayView.init(elDetailsPane, node, node.data.value, onValueChange);

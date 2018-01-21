@@ -31,7 +31,7 @@ var BooleanView = function() {
 	}
 	
 	function validate(input/*:Boolean */)/*:Boolean */ {
-		return (typeof input == 'boolean');
+		return (1 === input || 0 === input);
 	}
 	
 	// Clear values and clear elements

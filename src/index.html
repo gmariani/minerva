@@ -69,12 +69,22 @@
 						
 						<section class="clearfix">
 							<img id="logo" src="http://apps.coursevector.com/minerva/img/favicon-196x196.png" />
-							<h2 style="margin-bottom:0">Version 4.0.0.%BUILD%</h2>
+							<h2 style="margin-bottom:0">Version 4.0.1.%BUILD%</h2>
 							<h3><a href="http://blog.coursevector.com/minerva" target="_blank">&raquo; blog.coursevector.com/minerva</a></h3>
 							<p><strong>.minerva</strong> is a Flash Local Shared Object editor built based on the <a href="https://www.adobe.com/go/amfspec/" target="_blank">AMF3 specification</a> and the <a href="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf0-file-format-specification.pdf" target="_blank">AMF0 specification</a>.</p>
 							<p><strong>.minerva</strong> is capable of reading and writing all known data types successfully. Tested against modern browsers and was built using Chrome 38 and Firefox 32. I do not plan on supporting older browsers unless it's a trivial change. Any issues please click on the support button at the top and enjoy!</p>
 							<p><strong>Changelog</strong>
 							<pre class="scroll-box">
+####################################################
+ 4.0.1 - 2014-10-31 - Firefox 33/Chrome39
+####################################################
+    - Fixed issue #48-1, fixed can't enter keypad zero in number values
+    - Fixed issue #48-2, allow switch between integer/number data types based on value
+    - Fixed issue #48-3, fixed can't rename objects in Chrome
+    - Fixed issue #48-3, fixed can't rename array/ecma array indices
+    - Fixed issue #48-4, fixed can't use shortcut keys in tree sidebar
+    - Fixed issue #48-5, fixed boolean doesn't save value
+	
 ####################################################
  4.0.0 - 2014-10-26 - Firefox 33/Chrome39
 ####################################################
@@ -485,6 +495,9 @@
 		<script src="js/vendor/jquery-ui.min.js"></script>
 		<script src="js/vendor/jquery-ui.timepicker-addon.min.js"></script>
 		<script src="js/vendor/jstree.min.js"></script>
+		<script src="js/vendor/jstree.sort.min.js"></script>
+		<script src="js/vendor/jstree.search.min.js"></script>
+		<script src="js/vendor/jstree.contextmenu.min.js"></script>
 		<script src="js/vendor/Blob.min.js"></script>
 		<script src="js/vendor/FileSaver.min.js"></script>
 		<script src="js/vendor/zlib.min.js"></script>

@@ -135,6 +135,7 @@ var SOL = function () {
 		if (type == 'Object') {
 			o.data.__traits = data.__traits;
 			o.data.__traits.class = val_class;
+			o.data.__traits.canRename = true;
 			val = {};
 		};
 		
@@ -142,7 +143,7 @@ var SOL = function () {
 		// Set vector as an indexed only type, dictionary is but user can't change the index
 		if (normal_type == 'Vector'/* || type == 'Dictionary'*/) {
 			o.data.__traits = data.__traits;
-			o.data.__traits.isIndexed = true;
+			o.data.__traits.canBeIndexed = true;
 			val = [];
 		};
 		
@@ -157,9 +158,13 @@ var SOL = function () {
 		};
 		
 		// AS3 is not like JS, arrays can act like objects
-		if (type == 'ECMAArray' || type == 'Array') {
+		//if (type == 'ECMAArray' || type == 'Array') {
+		/*if (type == 'Array') {
 			o.data.__traits.canBeIndexed = true;
 			val = {};
+		};*/
+		if (type == 'Dictionary') {
+			o.data.__traits.canBeIndexed = true;
 		};
 		
 		// Prevent basic data types from containing children
@@ -206,8 +211,11 @@ var SOL = function () {
 		for (prop in obj) {
 			o = getChild(prop, obj[prop], count++);
 			// Since these items have special name or indices, they cannot be renamed
-			if (parType == 'ECMAArray' || parType == 'Array' || parType.indexOf('Vector') === 0 || parType == 'DictionaryItem') {
+			if (parType.indexOf('Vector') === 0 || parType == 'DictionaryItem') {
 				o.data.__traits.canRename = false;
+			}
+			if (parType == 'Array' || parType == 'ECMAArray') {
+				o.data.__traits.canRename = true;
 			}
 			// DictionaryItem is not a real type and cannot contain any more children
 			// Can't edit the dictionary item children since they don't really exist in AS3
