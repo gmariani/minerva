@@ -84,11 +84,16 @@ onmessage = function(event) {
 		ba.writeByte(0x00);
 		ba.writeByte(0xFF);
 		
-		// Length of the rest of the path and bytes defining string length
-		ba.writeUnsignedInt(event.data.filePath.length + 2);
+		baBody = new ByteArray(null, ByteArray.LITTLE_ENDIAN);
 		
 		// Write file path
-		ba.writeUTF(event.data.filePath);
+		baBody.writeUTF(event.data.filePath);
+		
+		// Length of the rest of the path and bytes defining string length
+		ba.writeUnsignedInt(baBody.position);
+		
+		// Write Body Data
+		ba.writeBytes(baBody);
 	}
 
 	// Convert to an array to escape worker unphased

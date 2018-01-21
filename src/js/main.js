@@ -1,5 +1,5 @@
 var util = {};
-var debug = true;
+var debug = false;
 var googlead = '<span class="googlead"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>'+
 				'<!-- Minerva Footer 728x90 -->'+
 				'<ins class="adsbygoogle"'+
@@ -104,6 +104,7 @@ $(function () {
 	var parser;
 	var file;
 	var fileType;
+	var sortSetting;
 	var createNodeContext;
 	var showCopyOnce = false;
 	var divProgress = document.querySelector('.percent');
@@ -115,6 +116,7 @@ $(function () {
 	var elLogo = document.getElementById('logo');
 
 	var btnAbout = $('#about');
+	var cbEnableSort = $('#enableSort');
 	var btnSupport = $('#support');
 	var btnNewFile = $('#newFile');
 	var btnOpenFile = $('#openFile');
@@ -499,6 +501,18 @@ $(function () {
 		$('#aboutOverlay').removeClass('show');
 		$('#aboutWindow').removeClass('show');
 		clearInterval(rotYINT);
+	});
+	
+    sortSetting = $.cookie(cbEnableSort.attr('name'));
+    if (sortSetting && sortSetting == "true") {
+        cbEnableSort.prop('checked', sortSetting);
+    };
+	cbEnableSort.change(function() {
+		$.cookie(cbEnableSort.attr("name"), cbEnableSort.prop('checked'), {
+			path: '/',
+			expires: 365
+		});
+		sortSetting = $.cookie(cbEnableSort.attr('name'));
 	});
 	
 	function rotateYDIV() {
@@ -1012,8 +1026,15 @@ $(function () {
 		$.jstree.defaults.core.themes.stripes = true;
 		$.jstree.defaults.search.show_only_matches = true;
 		$.jstree.defaults.search.search_callback = searchTreeNodes;
-		$.jstree.defaults.plugins = [ "contextmenu", "sort", "search" ];
-		$.jstree.defaults.sort = naturalSort;
+		
+		if (sortSetting == 'false') {
+			console.log('no sort');
+			$.jstree.defaults.plugins = [ "contextmenu", "search" ];
+		} else {
+			console.log('yes sort');
+			$.jstree.defaults.plugins = [ "contextmenu", "sort", "search" ];
+			$.jstree.defaults.sort = naturalSort;
+		};
 		
 		$.jstree.defaults.contextmenu.items = function (o, cb) { // Could be an object directly
 			return {

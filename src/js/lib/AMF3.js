@@ -395,7 +395,6 @@ AMF3.prototype = {
 	},
 	
 	writeBoolean: function(ba, value) {
-		console.log('writeBoolean', value);
 		ba.writeByte(value ? TRUE_TYPE : FALSE_TYPE);
 	},
 	

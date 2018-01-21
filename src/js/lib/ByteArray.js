@@ -530,8 +530,15 @@ ByteArray.prototype = {
 	},
 	
 	writeUTF: function(value) {
+		var startPos = this.position;
 		this.writeUI16(value.length);
 		this.writeUTFBytes(value);
+		
+		// With UTF characters, the bytes can be longer than the original string
+		// We write the bytes, then subtract the guessed length earlier
+		var utfLen = this.position - startPos - 2;
+		// Here we overwrite the original guess length
+		this._dataview.setUint16(startPos, utfLen);
 	},
 
 	/*

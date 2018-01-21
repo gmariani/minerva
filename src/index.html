@@ -66,16 +66,29 @@
 				</div>
 				<div class="forms">
 					<div id="aboutWindow" class="show">
-						<h1>.minerva</h1>
+						<h1>.minerva (4.1.1.%BUILD%)</h1>
 						
 						<section class="clearfix">
 							<img id="logo" src="img/favicon-196x196.png" />
-							<h2 style="margin-bottom:0">Version 4.1.0.%BUILD%</h2>
-							<h3><a href="http://blog.coursevector.com/minerva" target="_blank">&raquo; blog.coursevector.com/minerva</a></h3>
+							
 							<p><strong>.minerva</strong> is a Flash Local Shared Object editor built based on the <a href="https://www.adobe.com/go/amfspec/" target="_blank">AMF3 specification</a> and the <a href="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf0-file-format-specification.pdf" target="_blank">AMF0 specification</a>.</p>
 							<p><strong>.minerva</strong> is capable of reading and writing all known data types successfully. Tested against modern browsers and was built using Chrome 38 and Firefox 32. I do not plan on supporting older browsers unless it's a trivial change. Any issues please click on the support button at the top and enjoy!</p>
-							<p><strong>Changelog</strong>
+							<a href="http://blog.coursevector.com/minerva" target="_blank">Learn More</a>
+							
+							<h4>Settings</h4>
+							<div>
+								<input type="checkbox" id="enableSort" name="enableSort">
+								<label for="enableSort" class="tick"><span>Enable Sidebar Sort (Re-open file to see change)</span></label>
+							</div>
+							
+							<h4>Changelog</h4>
 							<pre class="scroll-box">
+####################################################
+ 4.1.1 - 2015-1-10 - Firefox 34/Chrome39
+####################################################
+    - Fixed issue #56, UTF-8 write length calculation was incorrect
+    - Added ability to toggle sidebar sort to make files as close to original as possible
+	
 ####################################################
  4.1.0 - 2015-1-7 - Firefox 34/Chrome39
 ####################################################
@@ -244,24 +257,24 @@
     - Fixed Date save bug
     - Fixed associative Array save bug
     - Fixed editing variable names in inspector view
-    - Handles ï¿½Nullï¿½ correctly now
-    - Handles ï¿½Unsupportedï¿½ correctly now
-    - AMF3 ï¿½ Fixed ByteArray read bug
-    - AMF3 ï¿½ Fixed ByteArray write bug
-    - AMF3 ï¿½ Fixed ByteArray save bug
-    - AMF3 ï¿½ Fixed XMLDocument save bug
-    - AMF3 ï¿½ Can save files byte for byte the same as Flash IDE
-    - AMF0 ï¿½ Tweaked XMLDocument handling
-    - AMF0 ï¿½ Fixed null save bug
-    - AMF0 ï¿½ Fixed Arrays, now always saved as ECMAArray
-    - AMF0 ï¿½ Handles ï¿½Unsupportedï¿½ correctly now
-    - AMF0 ï¿½ Can save files byte for byte the same as Flash IDE
+    - Handles -Null- correctly now
+    - Handles -Unsupported- correctly now
+    - AMF3 - Fixed ByteArray read bug
+    - AMF3 - Fixed ByteArray write bug
+    - AMF3 - Fixed ByteArray save bug
+    - AMF3 - Fixed XMLDocument save bug
+    - AMF3 - Can save files byte for byte the same as Flash IDE
+    - AMF0 - Tweaked XMLDocument handling
+    - AMF0 - Fixed null save bug
+    - AMF0 - Fixed Arrays, now always saved as ECMAArray
+    - AMF0 - Handles -Unsupported- correctly now
+    - AMF0 - Can save files byte for byte the same as Flash IDE
 
 ####################################################
  3.2.0 - 2010-03-18 - Adobe AIR 1.5
 ####################################################
-    - Added Sort dropdown ï¿½ SharedObject can now be sorted by type or name
-    - Fixed "Save" bug ï¿½ Hitting File->Save now works
+    - Added Sort dropdown - SharedObject can now be sorted by type or name
+    - Fixed "Save" bug - Hitting File->Save now works
     - Fixed tooltip positioning bug
     - Fixed AMF0 custom object bug
     - Fixed AMF3 save bug
@@ -281,7 +294,7 @@
 ####################################################
  3.0.0 - 2010-01-07 - Adobe AIR 1.5
 ####################################################
-    - Edit SOL Files ï¿½ Now supports saving edits of an SOL file!
+    - Edit SOL Files - Now supports saving edits of an SOL file!
     - Added new color theme
     - Updated JS formatter engine
     - Updated About Window
@@ -334,7 +347,7 @@
  1.0.0 - ? - Adobe AIR B3
 ####################################################
     - Initial release. Support for AS2 (AMF0) Shared Objects.
-							</pre></p>
+							</pre>
 							<small>&copy; %YEAR% <a href="http://coursevector.com" class="cv-logo" title="CourseVector | Web Design, SEO, Hosting">Course Vector LLC.</a></small>
 						</section>
 					</div>
@@ -516,6 +529,7 @@
 
 		<script src="js/vendor/jquery-2.1.1.min.js"></script>
 		<script src="js/vendor/jquery.timeago.min.js"></script>
+		<script src="js/vendor/jquery.cookie.min.js"></script>
 		<script src="js/vendor/jquery-ui.min.js"></script>
 		<script src="js/vendor/jquery-ui.timepicker-addon.min.js"></script>
 		<script src="js/vendor/jstree.min.js"></script>

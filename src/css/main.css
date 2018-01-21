@@ -744,6 +744,53 @@ input.send:focus {
 	background: #333;
 	cursor: pointer;
 }
+/***** Tick checkboxes *****/
+label.tick {
+	width: auto;
+	position: relative;
+	display: inline-block;
+	/*float: left;*/
+}
+label.tick:before {
+	position: absolute;
+	display: inline-block;
+	content: "";
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border: solid 2px #ddd;
+}
+label.tick:after {
+	opacity: 0;
+	visibility: hidden;
+	content: "";
+	position: absolute;
+	width: 8px;
+	height: 4px;
+	background: transparent;
+	top: 6px;
+	left: 5px;
+	border: 2px solid #333;
+	border-top: none;
+	border-right: none;
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}
+input:checked + label.tick:after {
+	opacity: 1;
+	visibility: visible;
+}
+label.tick span {
+	font-size: 11px;
+	color: #999;
+	padding-left: 26px;
+}
+label.tick:hover span {
+	color: #333;
+}
 /* Sliding checkboxes */
 .slide-chk {
 	min-width:75px;
