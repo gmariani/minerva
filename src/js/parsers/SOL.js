@@ -345,6 +345,7 @@ var SOL = function () {
 				//amfVersion: amfVersion,
 				//amfVersion: json.data.value.amfVersion,
 				amfVersion: obj.__traits.amfVersion,
+				filePath: obj.__traits2 ? obj.__traits2.filePath : null,
 				//data: json.children
 				data: obj.value
 			});
@@ -361,7 +362,8 @@ var SOL = function () {
 			text: data.fileName,
 			icon: 'localsharedobject',
 			children: getChildren(data.body, 'lso'),
-			state: { opened: true, disabled: true },
+		//	state: { opened: true, disabled: true },
+			state: { opened: true },
 			data: {
 				__traits: {
 					type: 'localsharedobject',
@@ -370,7 +372,8 @@ var SOL = function () {
 					canDelete: false,
 					canEdit: false
 				},
-				value: data.header
+				value: data.header,
+				value2: data.flex
 			},
 			li_attr: {
 				title: data.header.fileName + ' : AMF' + data.header.amfVersion

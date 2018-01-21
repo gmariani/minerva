@@ -420,59 +420,94 @@ ByteArray.prototype = {
 	
 	/**
 	Reads a single UTF-8 character
-	http://www.codeproject.com/KB/ajax/ajaxunicode.aspx
+	http://en.wikipedia.org/wiki/UTF-8
 	*/
 	readUTFChar: function() {
-		var pos = (this.position++);
-		var code = this._dataview.getUint8(pos);
-		var rawChar = code;//this._dataview[pos];
+		var code_unit1, code_unit2, code_unit3, code_unit4;
 		
-		// needs to be an HTML entity
-		if (code > 255) {
-			// normally we encounter the High surrogate first
-			if (0xD800 <= code && code <= 0xDBFF) {
-				hi  = code;
-				lo = this._dataview.getUint8(pos + 1);
-				// the next line will bend your mind a bit
-				code = ((hi - 0xD800) * 0x400) + (lo - 0xDC00) + 0x10000;
-				this.position++; // we already got low surrogate, so don't grab it again
-			}
-			// what happens if we get the low surrogate first?
-			else if (0xDC00 <= code && code <= 0xDFFF) {
-				hi  = this._dataview.getUint8(pos-1);
-				lo = code;
-				code = ((hi - 0xD800) * 0x400) + (lo - 0xDC00) + 0x10000;
-			}
-			// wrap it up as Hex entity
-			c = "" + code.toString(16).toUpperCase() + ";";
-
-
-
-// enocde into utf-8
-//string = decodeURIComponent(escape(string));
-		} else {
-			c = String.fromCharCode(rawChar);
+		function error4() {
+			this.position -= 3;
+			return error1();
 		}
 		
-		return c;
+		function error3() {
+			this.position -= 2;
+			return error1();
+		}
+		
+		function error2() {
+			this.position -= 1;
+			return error1();
+		}
+		
+		function error1() {
+			return String.fromCharCode(code_unit1 + 0xDC00);
+		}
+		
+		code_unit1 = this.readUI8();
+		if (code_unit1 < 0x80) {
+			return String.fromCharCode(code_unit1);
+		} else if (code_unit1 < 0xC2) {
+			/* continuation or overlong 2-byte sequence */
+			return error1();
+		} else if (code_unit1 < 0xE0) {
+			/* 2-byte sequence */
+			code_unit2 = this.readUI8();
+			if ((code_unit2 & 0xC0) != 0x80) return error2();
+			return String.fromCharCode((code_unit1 << 6) + code_unit2 - 0x3080);
+		} else if (code_unit1 < 0xF0) {
+			/* 3-byte sequence */
+			code_unit2 = this.readUI8();
+			if ((code_unit2 & 0xC0) != 0x80) return error2();
+			if (code_unit1 == 0xE0 && code_unit2 < 0xA0) return error2(); /* overlong */
+			code_unit3 = this.readUI8();
+			if ((code_unit3 & 0xC0) != 0x80) return error3();
+			return String.fromCharCode((code_unit1 << 12) + (code_unit2 << 6) + code_unit3 - 0xE2080);
+		} else if (code_unit1 < 0xF5) {
+			/* 4-byte sequence */
+			code_unit2 = this.readUI8();
+			if ((code_unit2 & 0xC0) != 0x80) return error2();
+			if (code_unit1 == 0xF0 && code_unit2 < 0x90) return error2();/* overlong */
+			if (code_unit1 == 0xF4 && code_unit2 >= 0x90) return error2(); /* > U+10FFFF */
+			code_unit3 = this.readUI8();
+			if ((code_unit3 & 0xC0) != 0x80) return error3();
+			code_unit4 = this.readUI8();
+			if ((code_unit4 & 0xC0) != 0x80) return error4();
+			return String.fromCharCode((code_unit1 << 18) + (code_unit2 << 12) + (code_unit3 << 6) + code_unit4 - 0x3C82080);
+		} else {
+			/* > U+10FFFF */
+			return error1();
+		};
+
+		return error1();
 	},
 	
 	writeUTFChar: function(rawChar) {
-		var code = rawChar.charCodeAt(0);
-		// if an HTML entity
-		if (code > 255) {
-			this.writeUI8((code >>> 8) & 0xFF);
-			this.writeUI8(code);
+		var code_point = rawChar.charCodeAt(0);
+		if (code_point < 0x80) {
+			this.writeUI8(code_point);
+		} else if (code_point <= 0x7FF) {
+			this.writeUI8((code_point >> 6) + 0xC0);
+			this.writeUI8((code_point & 0x3F) + 0x80);
+		} else if (code_point <= 0xFFFF) {
+			this.writeUI8((code_point >> 12) + 0xE0);
+			this.writeUI8(((code_point >> 6) & 0x3F) + 0x80);
+			this.writeUI8((code_point & 0x3F) + 0x80);
+		} else if (code_point <= 0x10FFFF) {
+			this.writeUI8((code_point >> 18) + 0xF0);
+			this.writeUI8(((code_point >> 12) & 0x3F) + 0x80);
+			this.writeUI8(((code_point >> 6) & 0x3F) + 0x80);
+			this.writeUI8((code_point & 0x3F) + 0x80);
 		} else {
-			this.writeUI8(code);
+			throw error("writeUTFChar: Invalid char code");
 		}
 	},
 	
-	readUTFBytes: function(numChars) {
+	readUTFBytes: function(numChars, doTrace) {
 		var t = this, str = null, chars = [];
 		var endPos = t.position + numChars;
 		while (t.position < endPos) {
-			chars.push(this.readUTFChar());
+			chars.push(this.readUTFChar(doTrace));
 		}
 		str = chars.join('');
 		return str;

@@ -38,6 +38,128 @@ var WARNING = function() {
     });
 }
 
+var TAGS = {};
+TAGS[-1] = {name:'Header',	func:DefineHeader };
+TAGS[2] = {name:'LSO',			func:DefineLSO };
+TAGS[3] = {name:'FilePath',	func:DefineFilePath };
+
+var TAG_CODES = {
+	Header: -1,
+	LSO: 2,
+	FilePath: 3
+};
+
+function DefineLSO(ba, obj) {
+	this.header = new DefineHeader(ba);
+	var pos = ba.position;
+	
+	// Signature, 'TCSO'
+	var sig = ba.readUTFBytes(4);
+	if ('TCSO' != sig) {
+		throw 'Missing TCSO signature, not a SOL file';
+		return;
+	};
+	
+	// Unknown, 6 bytes long 0x00 0x04 0x00 0x00 0x00 0x00 0x00
+	ba.readUTFBytes(6);
+	
+	// Read SOL Name
+	this.header.fileName = ba.readUTFBytes(ba.readUnsignedShort());
+	
+	// AMF Encoding
+	this.header.amfVersion = ba.readUnsignedInt();
+	
+	if (this.header.amfVersion === 0 || this.header.amfVersion === 3) {
+		if (this.header.fileName == "undefined") this.header.fileName = "[SOL Name not Set]";
+	} else {
+		this.header.fileName = "[Unsupported SOL format]";
+	};
+	
+	// Read Body
+//trace('header-- ', this.header);
+	if (this.header.amfVersion == 0 || this.header.amfVersion == 3) {
+		this.body = {};
+		while (ba.getBytesAvailable() > 1 && ba.position < this.header.contentLength) {
+			var varName = "";
+			var varVal;
+			if (this.header.amfVersion == 3) {
+				varName = amf3.readString(ba).value;
+				varVal = amf3.readData(ba);
+			} else {
+				varName = ba.readUTF();
+				varVal = amf0.readData(ba);
+			}
+			ba.readUnsignedByte(); // Ending byte
+//trace('variable-- ', varName, varVal, varVal.__traits.type);
+			this.body[varName] = varVal;
+		};
+	};
+};
+
+function DefineFilePath(ba, obj) {
+	this.header = new DefineHeader(ba);
+	this.filePath = ba.readUTFBytes(ba.readUnsignedShort(), true);
+}
+
+function DefineHeader(ba) {
+	if (!ba) return;
+	var pos = ba.position;
+	this.tagTypeAndLength = ba.readUI16();
+	this.contentLength = this.tagTypeAndLength & 0x3F;
+	
+	// Long header
+	if (this.contentLength == 0x3F) this.contentLength = ba.readSI32();
+	
+	this.type = this.tagTypeAndLength >> 6;
+	this.headerLength = ba.position - pos; // *
+	this.tagLength = this.headerLength + this.contentLength; // *
+	this.name = TAGS[this.type] ? TAGS[this.type].name : '?'; // *
+}
+
+function readTags(ba) {
+	// Peek at header
+	var startPos = ba.position,
+		obj = {},
+		header = new DefineHeader(ba);
+	ba.position = startPos;
+	
+	while (header) {
+		var o = TAGS[header.type];
+		if (o) {
+			var strTrace = 'LOG - ' + ba.position + ' - ' + TAGS[header.type].name + ' (' + header.type + ') - ' + header.contentLength;
+			var tag = new o.func(ba, obj);
+			trace(strTrace, tag);
+			switch(header.type) {
+				case TAG_CODES.LSO :
+					obj.header = tag.header;
+					obj.body = tag.body;
+					break;
+				case TAG_CODES.FilePath :
+					obj.flex = tag;
+					break;
+			};
+			
+			// Re-align in the event a tag was read improperly
+			if (0 != (header.tagLength - (ba.position - startPos))) trace('Error reading ' + TAGS[header.type].name + ' tag! Start:' + startPos + ' End:' + ba.position + ' BytesAvailable:' + (header.tagLength - (ba.position - startPos)), tag);
+			ba.seek(header.tagLength - (ba.position - startPos));
+		} else {
+			trace('Unknown tag type', header.type);
+			ba.seek(header.tagLength); // Skip bytes
+		}
+		
+		// End Tag
+		//if (header.type == 0) break;
+		if (ba.getBytesAvailable() <= 0) break;
+		
+		// Peek at header
+		startPos = ba.position;
+		header = new DefineHeader(ba);
+		ba.position = startPos;
+	}
+	
+	return obj;
+};
+
 // Parse the individual file
 onmessage = function(event) {
 	var id = event.data.fileID;
@@ -46,65 +168,7 @@ onmessage = function(event) {
 	amf0.reset();
 	amf3.reset();
 	
-	// Read Header
-	var nLenFile = ba.getBytesAvailable();
-	obj.header = {};
-	
-	// Unknown header 0x00 0xBF
-	ba.readUnsignedShort();
-	
-	// Length of the rest of the file (filesize - 6)
-	obj.header.dataLength = ba.readUnsignedInt();
-
-	if (nLenFile != obj.header.dataLength + 6) {
-		WARNING('Warning: Data Length Mismatch (File Size:' + nLenFile + ' != Reported Size:' + (obj.header.dataLength + 6) + ')' );
-		//return;
-	}
-	
-	// Signature, 'TCSO'
-	var sig = ba.readUTFBytes(4);
-	if ('TCSO' != sig) {
-		throw 'Missing TCSO signature, not a SOL file';
-		return;
-	}
-	
-	// Unknown, 6 bytes long 0x00 0x04 0x00 0x00 0x00 0x00 0x00
-	ba.readUTFBytes(6);
-	
-	// Read SOL Name
-	obj.header.fileName = ba.readUTFBytes(ba.readUnsignedShort());
-	
-	// AMF Encoding
-	obj.header.amfVersion = ba.readUnsignedInt();
-	
-	if(obj.header.amfVersion === 0 || obj.header.amfVersion === 3) {
-		if(obj.header.fileName == "undefined") obj.header.fileName = "[SOL Name not Set]";
-	} else {
-		obj.header.fileName = "[Not yet supported SOL format]";
-	}
-	
-	// Read Body
-trace('header-- ', obj.header);
-	if (obj.header.amfVersion == 0 || obj.header.amfVersion == 3) {
-		obj.body = {};
-		while (ba.getBytesAvailable() > 1) {
-			var varName = "";
-			var varVal;
-			if (obj.header.amfVersion == 3) {
-				varName = amf3.readString(ba).value;
-				trace('varName-- ', varName, ba.position);
-				varVal = amf3.readData(ba);
-				trace('varVal-- ', varVal, varVal.__traits.type, ba.position);
-			} else {
-				varName = ba.readUTF();
-				varVal = amf0.readData(ba);
-			}
-			ba.readUnsignedByte(); // Ending byte
-trace('end-- ', ba.position);
-//trace('variable-- ', varName, varVal, varVal.__traits.type);
-			obj.body[varName] = varVal;
-		}
-	}
+	obj = readTags(ba);
 
 	postMessage({fileID:id, data:obj});
 };

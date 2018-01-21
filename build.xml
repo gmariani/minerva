@@ -30,6 +30,7 @@
 		<concat destfile="${js.dist.path}\temp.js" encoding="UTF-8" eol="lf" fixlastline="yes" outputencoding="UTF-8">
 			<filelist id="files" dir="${js.src.path}">
 				<file name="parsers\SOL.js" />
+				<file name="view\SOLView.js" />
 				<file name="view\DateView.js" />
 				<file name="view\VectorView.js" />
 				<file name="view\ObjectView.js" />

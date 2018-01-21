@@ -72,11 +72,24 @@ onmessage = function(event) {
 	ba.writeByte(0x00);
 	ba.writeByte(0xBF);
 
-	// Length of the rest of the file (filesize - 6)
+	// Length of the rest of the tag (filesize - 6)
 	ba.writeUnsignedInt(baBody.position);
 
 	// Write Body Data
 	ba.writeBytes(baBody);
+	
+	// If Flex Data, write tag
+	if (event.data.filePath) {
+		// Unknown header 0x00 0xBF
+		ba.writeByte(0x00);
+		ba.writeByte(0xFF);
+		
+		// Length of the rest of the path and bytes defining string length
+		ba.writeUnsignedInt(event.data.filePath.length + 2);
+		
+		// Write file path
+		ba.writeUTF(event.data.filePath);
+	}
 
 	// Convert to an array to escape worker unphased
 	var arrReturn = new Int8Array(ba._buffer.slice(0, ba.position));

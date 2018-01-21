@@ -2,6 +2,7 @@
 <html lang="en-US" manifest="manifest.appcache">
 	<head>
 		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<title>CourseVector .minerva</title>
 		<meta name="author" content="Course Vector LLC. - coursevector.com">
@@ -69,12 +70,18 @@
 						
 						<section class="clearfix">
 							<img id="logo" src="img/favicon-196x196.png" />
-							<h2 style="margin-bottom:0">Version 4.0.4.%BUILD%</h2>
+							<h2 style="margin-bottom:0">Version 4.1.0.%BUILD%</h2>
 							<h3><a href="http://blog.coursevector.com/minerva" target="_blank">&raquo; blog.coursevector.com/minerva</a></h3>
 							<p><strong>.minerva</strong> is a Flash Local Shared Object editor built based on the <a href="https://www.adobe.com/go/amfspec/" target="_blank">AMF3 specification</a> and the <a href="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf0-file-format-specification.pdf" target="_blank">AMF0 specification</a>.</p>
 							<p><strong>.minerva</strong> is capable of reading and writing all known data types successfully. Tested against modern browsers and was built using Chrome 38 and Firefox 32. I do not plan on supporting older browsers unless it's a trivial change. Any issues please click on the support button at the top and enjoy!</p>
 							<p><strong>Changelog</strong>
 							<pre class="scroll-box">
+####################################################
+ 4.1.0 - 2015-1-7 - Firefox 34/Chrome39
+####################################################
+    - Fixed issue #53 and #37, New SOL data tag discovered
+    - Fixed issue #55, UTF-8 encoding/decoding improved/fixed
+	
 ####################################################
  4.0.4 - 2014-12-16 - Firefox 34/Chrome39
 ####################################################
@@ -526,6 +533,7 @@
 		<script src="js/lib/ByteArray.js"></script>
 		<script src="js/parsers/SOL.js"></script>
 		
+		<script src="js/view/SOLView.js"></script>
 		<script src="js/view/DateView.js"></script>
 		<script src="js/view/VectorView.js"></script>
 		<script src="js/view/ObjectView.js"></script>

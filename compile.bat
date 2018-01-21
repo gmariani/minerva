@@ -1,2 +1,2 @@
-d:/ant/bin/ant
+e:/ant/bin/ant
 pause

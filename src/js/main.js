@@ -435,6 +435,7 @@ $(function () {
 		try {
 			var o = {};
 			o.__traits = treeJSON[0].data.value;
+			o.__traits2 = treeJSON[0].data.value2;
 			o.value = tree2SOL({}, treeJSON[0].children, 'TreeNode');
 		} catch(e) {
 			console.log(e);
@@ -916,6 +917,7 @@ $(function () {
 	// Sidebar //
 	/////////////
 	
+	var solView = new SOLView();
 	var arrayView = new ArrayView();
 	var booleanView = new BooleanView();
 	var objectView = new ObjectView();
@@ -1406,6 +1408,9 @@ $(function () {
 			var node = data.node;//instance.get_node(data.selected[0]);
 			var lower_type = node.data.__traits.type ? node.data.__traits.type.toLowerCase() : '';
 			switch (lower_type) {
+				case 'localsharedobject' :
+					solView.init(elDetailsPane, node, file, node.data.value, node.data.value2);
+					break;
 				case 'array':
 					arrayView.init(elDetailsPane, node, node.data.value, onValueChange);
 					break;
