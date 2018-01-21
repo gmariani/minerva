@@ -231,8 +231,8 @@
 		<property name="build" location="${basedir}\build"/>
 		<property name="dist"  location="${basedir}\dist"/>
 		<basename property="app.version" file="${basedir}"/>
-		<property name="site.path"  value="http://apps.coursevector.com/minerva"/>
-		<property name="cdn.path"  value="http://cdn.coursevector.com/minerva/${app.version}"/>
+		<property name="site.path"  value="https://mariani.life/projects/minerva"/>
+		<property name="cdn.path"  value="https://d4bmb2q7s5m2n.cloudfront.net/minerva/${app.version}"/>
 		
 		<property name="css.dist.path" value=".\dist\css" />
 		<echo message="css.dist.path:                   ${css.dist.path}" />
