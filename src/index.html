@@ -66,13 +66,13 @@
 				</div>
 				<div class="forms">
 					<div id="aboutWindow" class="show">
-						<h1>.minerva (4.1.1.%BUILD%)</h1>
+						<h1>.minerva (4.1.2.%BUILD%)</h1>
 						
 						<section class="clearfix">
 							<img id="logo" src="img/favicon-196x196.png" />
 							
 							<p><strong>.minerva</strong> is a Flash Local Shared Object editor built based on the <a href="https://www.adobe.com/go/amfspec/" target="_blank">AMF3 specification</a> and the <a href="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/amf/pdf/amf0-file-format-specification.pdf" target="_blank">AMF0 specification</a>.</p>
-							<p><strong>.minerva</strong> is capable of reading and writing all known data types successfully. Tested against modern browsers and was built using Chrome 38 and Firefox 32. I do not plan on supporting older browsers unless it's a trivial change. Any issues please click on the support button at the top and enjoy!</p>
+							<p><strong>.minerva</strong> is capable of reading and writing all known data types successfully. Tested against modern browsers and was built using Chrome 42 and Firefox 38. I do not plan on supporting older browsers unless it's a trivial change. Any issues please click on the support button at the top and enjoy!</p>
 							<a href="http://blog.coursevector.com/minerva" target="_blank">Learn More</a>
 							
 							<h4>Settings</h4>
@@ -83,6 +83,12 @@
 							
 							<h4>Changelog</h4>
 							<pre class="scroll-box">
+####################################################
+ 4.1.2 - 2015-5-15 - Firefox 38/Chrome42
+####################################################
+    - Fixed issue #60, memory leak on complex files
+    - Fixed JSON export of objects
+	
 ####################################################
  4.1.1 - 2015-1-10 - Firefox 34/Chrome39
 ####################################################
@@ -527,7 +533,7 @@
 			<img src="img/whiteArrow.png" alt=""/> Drag the site icon to the taskbar to pin site
 		</div>
 
-		<script src="js/vendor/jquery-2.1.1.min.js"></script>
+		<script src="js/vendor/jquery-2.1.4.min.js"></script>
 		<script src="js/vendor/jquery.timeago.min.js"></script>
 		<script src="js/vendor/jquery.cookie.min.js"></script>
 		<script src="js/vendor/jquery-ui.min.js"></script>

@@ -4,8 +4,11 @@ importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
 
 var amf0 = new AMF0();
 var amf3 = new AMF3();
+var debug = false;
 
 function trace() {
+	if (!debug) return;
+	
 	var str = '';
 	var arr = [];
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -16,26 +19,11 @@ function trace() {
 	str += '\n';
 	
 	postMessage({
-        type: "debug",
-        message: arr
-    });
+		type: "debug",
+		message: arr
+	});
 	
 	//dump(str);
-}
-var WARNING = function() {
-	var str = '';
-	var arr = [];
-	for (var i = 0, l = arguments.length; i < l; i++) {
-		str += arguments[i];
-		arr[i] = arguments[i];
-		if (i != (l - 1)) str += ', ';
-	}
-	str += '\n';
-	
-	postMessage({
-        type: "warning",
-        message: arr
-    });
 }
 
 var TAGS = {};
@@ -76,7 +64,7 @@ function DefineLSO(ba, obj) {
 	};
 	
 	// Read Body
-//trace('header-- ', this.header);
+	//trace('header-- ', this.header);
 	if (this.header.amfVersion == 0 || this.header.amfVersion == 3) {
 		this.body = {};
 		while (ba.getBytesAvailable() > 1 && ba.position < this.header.contentLength) {
@@ -90,7 +78,7 @@ function DefineLSO(ba, obj) {
 				varVal = amf0.readData(ba);
 			}
 			ba.readUnsignedByte(); // Ending byte
-//trace('variable-- ', varName, varVal, varVal.__traits.type);
+			//trace('variable-- ', varName, varVal, varVal.__traits.type);
 			this.body[varName] = varVal;
 		};
 	};

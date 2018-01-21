@@ -4,8 +4,11 @@ importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
 
 var amf0 = new AMF0();
 var amf3 = new AMF3();
+var debug = false;
 
 function trace() {
+	if (!debug) return;
+	
 	var str = '';
 	var arr = [];
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -16,15 +19,17 @@ function trace() {
 	str += '\n';
 	
 	postMessage({
-        type: "debug",
-        message: arr
-    });
+		type: "debug",
+		message: arr
+	});
 	
 	//dump(str);
 }
+
 function traceByteArray(ba) {
 	trace(ba.position, Array.apply([], new Int8Array(ba._buffer.slice(0, ba.position))));
 }
+
 var ERROR = trace;
 	
 // Parse the individual file
@@ -72,7 +77,7 @@ onmessage = function(event) {
 	ba.writeByte(0x00);
 	ba.writeByte(0xBF);
 
-	// Length of the rest of the tag (filesize - 6)
+	// Length of the rest of the tag (file size - 6)
 	ba.writeUnsignedInt(baBody.position);
 
 	// Write Body Data

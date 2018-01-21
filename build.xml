@@ -117,7 +117,7 @@
 		<echo># Concatenate JS files 2:</echo>
 		<concat destfile="${js.dist.path}\main.min.js" encoding="UTF-8" eol="lf" fixlastline="yes" outputencoding="UTF-8">
 			<filelist dir="${js.src.path}">
-				<file name="vendor\jquery-2.1.1.min.js" />
+				<file name="vendor\jquery-2.1.4.min.js" />
 				<file name="vendor\jquery-ui.min.js" />
 				<file name="vendor\jquery-ui.timepicker-addon.min.js" />
 				<file name="vendor\jquery.cookie.js" />

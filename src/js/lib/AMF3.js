@@ -24,8 +24,10 @@ readUTFBytes : moves specified amount
 NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity (7F F0 00 00 00 00 00 00) are read in as 0
 
 */
-
+var debug = false;
 function trace() {
+	if (!debug) return;
+	
 	var str = '';
 	var arr = [];
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -36,11 +38,17 @@ function trace() {
 	str += '\n';
 	
 	postMessage({
-        type: "debug",
-        message: arr
-    });
+		type: "debug",
+		message: arr
+	});
+	
+	//dump(str);
 }
-var WARNING = function() {
+var ERROR = trace;
+
+function WARNING() {
+	if (!debug) return;
+	
 	var str = '';
 	var arr = [];
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -51,11 +59,14 @@ var WARNING = function() {
 	str += '\n';
 	
 	postMessage({
-        type: "warning",
-        message: arr
-    });
+		type: "warning",
+		message: arr
+	});
 }
-var ALERT = function() {
+
+function ALERT() {
+	if (!debug) return;
+	
 	var str = '';
 	var arr = [];
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -66,104 +77,19 @@ var ALERT = function() {
 	str += '\n';
 	
 	postMessage({
-        type: "alert",
-        message: arr
-    });
+		type: "alert",
+		message: arr
+	});
 }
 
-// AMF marker constants
-var UNDEFINED_TYPE = 0;
-var NULL_TYPE = 1;
-var FALSE_TYPE = 2;
-var TRUE_TYPE = 3;
-var INTEGER_TYPE = 4;
-var DOUBLE_TYPE = 5;
-var STRING_TYPE = 6;
-var XML_DOC_TYPE = 7;
-var DATE_TYPE = 8;
-var ARRAY_TYPE = 9;
-var OBJECT_TYPE = 10;
-var XML_TYPE = 11;
-var BYTE_ARRAY_TYPE = 12;
-// Added in Flash Player 10
-var VECTOR_INT_TYPE = 13;
-var VECTOR_UINT_TYPE = 14;
-var VECTOR_DOUBLE_TYPE = 15;
-var VECTOR_OBJECT_TYPE = 16;
-var DICTIONARY_TYPE = 17;
-
-// AbstractMessage Serialization Constants
-var HAS_NEXT_FLAG = 128;
-var BODY_FLAG = 1;
-var CLIENT_ID_FLAG = 2;
-var DESTINATION_FLAG = 4;
-var HEADERS_FLAG = 8;
-var MESSAGE_ID_FLAG = 16;
-var TIMESTAMP_FLAG = 32;
-var TIME_TO_LIVE_FLAG = 64;
-var CLIENT_ID_BYTES_FLAG = 1;
-var MESSAGE_ID_BYTES_FLAG = 2;
-
-//AsyncMessage Serialization Constants
-var CORRELATION_ID_FLAG = 1;
-var CORRELATION_ID_BYTES_FLAG = 2;
-
-// CommandMessage Serialization Constants
-var OPERATION_FLAG = 1;
-
-var temp_count3 = 0;
-var temp_count4 = 0;
-
-/**
- * The maximum value for an <code>int</code> that will avoid promotion to an
- * ActionScript Number when sent via AMF 3 is 2<sup>28</sup> - 1, or <code>0x0FFFFFFF</code>.
- */
-var INT28_MAX_VALUE = 268435455;
-
-/**
- * The minimum value for an <code>int</code> that will avoid promotion to an
- * ActionScript Number when sent via AMF 3 is -2<sup>28</sup> or <code>0xF0000000</code>.
- */
-var INT28_MIN_VALUE = -268435456;
-
-var EMPTY_STRING = "";
-
-/**
- * Internal use only.
- * @exclude
- */
-var UINT29_MASK = 0x1FFFFFFF; // 2^29 - 1 : 536 870 911
-
-// Simplified implementaiton of the class alias registry 
-var CLASS_ALIAS_REGISTRY = {	
-	"DSK": "flex.messaging.messages.AcknowledgeMessageExt",
-	"DSA": "flex.messaging.messages.AsyncMessageExt",
-	"DSC": "flex.messaging.messages.CommandMessageExt"	
-};
-
-function type2Name(type) {
-	switch(type) {
-			case UNDEFINED_TYPE : return 'UNDEFINED_TYPE';
-			case NULL_TYPE 		: return 'NULL_TYPE';
-			case FALSE_TYPE 	: return 'FALSE_TYPE';
-			case TRUE_TYPE 		: return 'TRUE_TYPE';
-			case INTEGER_TYPE 	: return 'INTEGER_TYPE';
-			case DOUBLE_TYPE 	: return 'DOUBLE_TYPE';
-			case STRING_TYPE 	: return 'STRING_TYPE';
-			case XML_DOC_TYPE 	: return 'XML_DOC_TYPE';
-			case DATE_TYPE 		: return 'DATE_TYPE';
-			case ARRAY_TYPE 	: return 'ARRAY_TYPE';
-			case OBJECT_TYPE 	: return 'OBJECT_TYPE';
-			case XML_TYPE 		: return 'XML_TYPE';
-			case BYTE_ARRAY_TYPE : return 'BYTE_ARRAY_TYPE';
-			case VECTOR_INT_TYPE : return 'VECTOR_INT_TYPE';
-			case VECTOR_UINT_TYPE : return 'VECTOR_UINT_TYPE';
-			case VECTOR_DOUBLE_TYPE : return 'VECTOR_DOUBLE_TYPE';
-			case VECTOR_OBJECT_TYPE : return 'VECTOR_OBJECT_TYPE';
-			case DICTIONARY_TYPE : return 'DICTIONARY_TYPE';
-			default: return '?';
-	}
+function traceByteArray(ba) {
+	trace(ba.position, Array.apply([], new Int8Array(ba._buffer.slice(0, ba.position))));
 }
+
+/*var temp_count3 = 0;
+	temp_count4 = 0;*/
+
+
 
 AMF3 = function() {
 	
@@ -197,6 +123,78 @@ AMF3 = function() {
 
 AMF3.prototype = {
 	
+	// AMF marker constants
+	UNDEFINED_TYPE : 0,
+	NULL_TYPE : 1,
+	FALSE_TYPE : 2,
+	TRUE_TYPE : 3,
+	INTEGER_TYPE : 4,
+	DOUBLE_TYPE : 5,
+	STRING_TYPE : 6,
+	XML_DOC_TYPE : 7,
+	DATE_TYPE : 8,
+	ARRAY_TYPE : 9,
+	OBJECT_TYPE : 10,
+	XML_TYPE : 11,
+	BYTE_ARRAY_TYPE : 12,
+	// Added in Flash Player 10
+	VECTOR_INT_TYPE : 13,
+	VECTOR_UINT_TYPE : 14,
+	VECTOR_DOUBLE_TYPE : 15,
+	VECTOR_OBJECT_TYPE : 16,
+	DICTIONARY_TYPE : 17,
+
+	/**
+	 * The maximum value for an <code>int</code> that will avoid promotion to an
+	 * ActionScript Number when sent via AMF 3 is 2<sup>28</sup> - 1, or <code>0x0FFFFFFF</code>.
+	 */
+	INT28_MAX_VALUE : 268435455,
+
+	/**
+	 * The minimum value for an <code>int</code> that will avoid promotion to an
+	 * ActionScript Number when sent via AMF 3 is -2<sup>28</sup> or <code>0xF0000000</code>.
+	 */
+	INT28_MIN_VALUE : -268435456,
+
+	EMPTY_STRING : "",
+
+	/**
+	 * Internal use only.
+	 * @exclude
+	 */
+	UINT29_MASK : 0x1FFFFFFF, // 2^29 - 1 : 536 870 911
+
+	// Simplified implementaiton of the class alias registry 
+	CLASS_ALIAS_REGISTRY : {	
+		"DSK": "flex.messaging.messages.AcknowledgeMessageExt",
+		"DSA": "flex.messaging.messages.AsyncMessageExt",
+		"DSC": "flex.messaging.messages.CommandMessageExt"	
+	},
+	
+	type2Name: function(type) {
+		switch(type) {
+				case this.UNDEFINED_TYPE : return 'UNDEFINED_TYPE';
+				case this.NULL_TYPE 		: return 'NULL_TYPE';
+				case this.FALSE_TYPE 	: return 'FALSE_TYPE';
+				case this.TRUE_TYPE 		: return 'TRUE_TYPE';
+				case this.INTEGER_TYPE 	: return 'INTEGER_TYPE';
+				case this.DOUBLE_TYPE 	: return 'DOUBLE_TYPE';
+				case this.STRING_TYPE 	: return 'STRING_TYPE';
+				case this.XML_DOC_TYPE 	: return 'XML_DOC_TYPE';
+				case this.DATE_TYPE 		: return 'DATE_TYPE';
+				case this.ARRAY_TYPE 	: return 'ARRAY_TYPE';
+				case this.OBJECT_TYPE 	: return 'OBJECT_TYPE';
+				case this.XML_TYPE 		: return 'XML_TYPE';
+				case this.BYTE_ARRAY_TYPE : return 'BYTE_ARRAY_TYPE';
+				case this.VECTOR_INT_TYPE : return 'VECTOR_INT_TYPE';
+				case this.VECTOR_UINT_TYPE : return 'VECTOR_UINT_TYPE';
+				case this.VECTOR_DOUBLE_TYPE : return 'VECTOR_DOUBLE_TYPE';
+				case this.VECTOR_OBJECT_TYPE : return 'VECTOR_OBJECT_TYPE';
+				case this.DICTIONARY_TYPE : return 'DICTIONARY_TYPE';
+				default: return '?';
+		}
+	},
+	
 	// Reads the amf3 data
 	deserialize: function(data) {
 		this.reset();
@@ -218,27 +216,27 @@ AMF3.prototype = {
 	
 	readData: function(ba, internal) {
 		var type = ba.readByte();
-		//trace('readData: ' + type + ' : ' + type2Name(type));
+		trace('readData: ' + type + ' : ' + this.type2Name(type));
 		//trace(this.readStringCache);
 		switch(type) {
-			case UNDEFINED_TYPE 	: return this.readUndefined();
-			case NULL_TYPE 			: return this.readNull();
-			case FALSE_TYPE 		: return this.readBoolean(false);
-			case TRUE_TYPE 			: return this.readBoolean(true);
-			case INTEGER_TYPE 		: return this.readInt(ba);
-			case DOUBLE_TYPE 		: return this.readDouble(ba);
-			case STRING_TYPE 		: return this.readString(ba);
-			case XML_DOC_TYPE 		: return this.readXMLDoc(ba);
-			case DATE_TYPE 			: return this.readDate(ba);
-			case ARRAY_TYPE 		: return this.readArray(ba);
-			case OBJECT_TYPE 		: return this.readObject(ba, internal);
-			case XML_TYPE 			: return this.readXML(ba);
-			case BYTE_ARRAY_TYPE	: return this.readByteArray(ba);
-			case VECTOR_INT_TYPE	: return this.readVectorInt(ba); // Vector.<int>
-			case VECTOR_UINT_TYPE	: return this.readVectorUInt(ba); // Vector.<uint>
-			case VECTOR_DOUBLE_TYPE : return this.readVectorDouble(ba); // Vector.<Number>
-			case VECTOR_OBJECT_TYPE : return this.readVectorObject(ba); // Vector.<Object>
-			case DICTIONARY_TYPE 	: return this.readDictionary(ba);
+			case this.UNDEFINED_TYPE 		: return this.readUndefined();
+			case this.NULL_TYPE 			: return this.readNull();
+			case this.FALSE_TYPE 			: return this.readBoolean(false);
+			case this.TRUE_TYPE 			: return this.readBoolean(true);
+			case this.INTEGER_TYPE 			: return this.readInt(ba);
+			case this.DOUBLE_TYPE 			: return this.readDouble(ba);
+			case this.STRING_TYPE 			: return this.readString(ba);
+			case this.XML_DOC_TYPE 			: return this.readXMLDoc(ba);
+			case this.DATE_TYPE 			: return this.readDate(ba);
+			case this.ARRAY_TYPE 			: return this.readArray(ba);
+			case this.OBJECT_TYPE 			: return this.readObject(ba, internal);
+			case this.XML_TYPE 				: return this.readXML(ba);
+			case this.BYTE_ARRAY_TYPE		: return this.readByteArray(ba);
+			case this.VECTOR_INT_TYPE		: return this.readVectorInt(ba); // Vector.<int>
+			case this.VECTOR_UINT_TYPE		: return this.readVectorUInt(ba); // Vector.<uint>
+			case this.VECTOR_DOUBLE_TYPE 	: return this.readVectorDouble(ba); // Vector.<Number>
+			case this.VECTOR_OBJECT_TYPE 	: return this.readVectorObject(ba); // Vector.<Object>
+			case this.DICTIONARY_TYPE 		: return this.readDictionary(ba);
 			default: throw Error("Undefined AMF3 type encountered '" + type + "'");
 		}
 	},
@@ -255,7 +253,7 @@ AMF3.prototype = {
 			case "Integer" 			: this.writeInt(ba, node.value); break;
 			case "Number" 			: this.writeDouble(ba, node.value); break;
 			case "String" 			: 
-									ba.writeByte(STRING_TYPE);
+									ba.writeByte(this.STRING_TYPE);
 									this.writeString(ba, node.value);
 									break;
 			case "XMLDocument" 		: this.writeXMLDoc(ba, node.value); break;
@@ -295,17 +293,14 @@ AMF3.prototype = {
 		
 		result = (b & 0x7F) << 7;
 		b = ba.readUnsignedByte();
-		
 		if (b < 128) return (result | b);
 		
 		result = (result | (b & 0x7F)) << 7;
 		b = ba.readUnsignedByte();
-		
 		if (b < 128) return (result | b);
 		
 		result = (result | (b & 0x7F)) << 8;
 		b = ba.readUnsignedByte();
-		
 		return (result | b);
 	},
 	
@@ -356,7 +351,7 @@ AMF3.prototype = {
 	},
 	
 	writeUndefined: function(ba) {
-		ba.writeByte(UNDEFINED_TYPE);
+		ba.writeByte(this.UNDEFINED_TYPE);
 	},
 	
 	/**
@@ -371,7 +366,7 @@ AMF3.prototype = {
 	},
 	
 	writeNull: function(ba) {
-		ba.writeByte(NULL_TYPE);
+		ba.writeByte(this.NULL_TYPE);
 	},
 	
 	/**
@@ -395,7 +390,7 @@ AMF3.prototype = {
 	},
 	
 	writeBoolean: function(ba, value) {
-		ba.writeByte(value ? TRUE_TYPE : FALSE_TYPE);
+		ba.writeByte(value ? this.TRUE_TYPE : this.FALSE_TYPE);
 	},
 	
 	/**
@@ -403,20 +398,18 @@ AMF3.prototype = {
 	 * -2^28, it will be serialized using the AMF 3 double type
 	 */
 	readInt: function(ba) {
-		var result = this.readUInt29(ba);
 		// Symmetric with writing an integer to fix sign bits for negative values...
-		result = (result << 3) >> 3;
-		return { value:result, __traits:{ type:'Integer' }};
+		return { value:((this.readUInt29(ba) << 3) >> 3), __traits:{ type:'Integer' }};
 	},
 	
 	writeInt: function(ba, value) {
-		if (value >= INT28_MIN_VALUE && value <= INT28_MAX_VALUE && (value % 1 == 0)) {
+		if (value >= this.INT28_MIN_VALUE && value <= this.INT28_MAX_VALUE && (value % 1 == 0)) {
 			// We have to be careful when the MSB is set, as (value >> 3) will sign extend.
 			// We know there are only 29-bits of precision, so truncate. This requires
 			// similar care when reading an integer.
-			//value = ((value >> 3) & UINT29_MASK);
-			value &= UINT29_MASK; // Mask is 2^29 - 1
-			ba.writeByte(INTEGER_TYPE);
+			//value = ((value >> 3) & this.UINT29_MASK);
+			value &= this.UINT29_MASK; // Mask is 2^29 - 1
+			ba.writeByte(this.INTEGER_TYPE);
 			this.writeUInt29(ba, value);
 		} else {
 			// Promote large int to a double
@@ -440,7 +433,7 @@ AMF3.prototype = {
 	},
 	
 	writeDouble: function(ba, value) {
-		ba.writeByte(DOUBLE_TYPE);
+		ba.writeByte(this.DOUBLE_TYPE);
 		ba.writeDouble(value);
 	},
 	
@@ -480,7 +473,7 @@ AMF3.prototype = {
 	writeString: function(ba, value, writeRef) {
 		if (writeRef === undefined) writeRef = true;
 		
-		// Note: Type is not encoded here becuase writeString is used for multiple types
+		// Note: Type is not encoded here because writeString is used for multiple types
 		if (value == "") {
 			// Write 0x01 to specify the empty string
 			ba.writeByte(0x01);
@@ -532,9 +525,9 @@ AMF3.prototype = {
 	},
 	
 	writeXMLDoc: function(ba, value) {
-		ba.writeByte(XML_DOC_TYPE);
+		ba.writeByte(this.XML_DOC_TYPE);
 		
-		if(this.setObjectReference(ba, value)) {
+		if (this.setObjectReference(ba, value)) {
 			var strXML = value.toString();
 			strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
 			strXML = strXML.replace(/\>(\n|\r|\r\n| |\t)*\</g, "><"); // Strip whitespaces
@@ -568,12 +561,12 @@ AMF3.prototype = {
 	},
 	
 	writeDate: function(ba, value) {
-		ba.writeByte(DATE_TYPE);
+		ba.writeByte(this.DATE_TYPE);
 		
 		// Convert numbers to dates
 		if (!(value instanceof Date)) value =  new Date(value);
 		
-		if(this.setObjectReference(ba, value)) {
+		if (this.setObjectReference(ba, value)) {
 			// Write out an invalid reference
 			this.writeUInt29(ba, 1);
 			//ba.writeByte(0x01); // Flag
@@ -613,7 +606,8 @@ AMF3.prototype = {
 		var ref = this.readUInt29(ba);
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
-		var arr = new Array();
+		var l = (ref >> 1);
+		var arr = new Array(l);
 		var isStrict = true;
 		
 		// Associative values
@@ -625,7 +619,6 @@ AMF3.prototype = {
 		}
 		
 		// Strict values
-		var l = (ref >> 1);
 		for (var i = 0; i < l; i++) {
 			arr[i] = this.readData(ba);
 		}
@@ -661,7 +654,7 @@ AMF3.prototype = {
 		isAssociative = Boolean(strLen > 0);
 		
 		// Array tag
-		ba.writeByte(ARRAY_TYPE); 
+		ba.writeByte(this.ARRAY_TYPE); 
 		
 		if (this.setObjectReference(ba, value)) {
 			// This is a mixed array
@@ -675,7 +668,7 @@ AMF3.prototype = {
 				}
 				
 				// Since this is a dynamic object, add closing tag
-				this.writeString(ba, EMPTY_STRING);
+				this.writeString(ba, this.EMPTY_STRING);
 			}
 			
 			// This is just an array
@@ -689,7 +682,7 @@ AMF3.prototype = {
 				}
 				
 				// End start hash
-				this.writeString(ba, EMPTY_STRING);
+				this.writeString(ba, this.EMPTY_STRING);
 				
 				for (i = 0; i < numLen; i++) {
 					this.writeData(ba, arrNumeric[i]);
@@ -754,7 +747,7 @@ AMF3.prototype = {
 	 * @param	value
 	 */
 	readObject: function(ba, internal) {
-	//console.log('readObject');
+	//trace('readObject');
 		var ref = this.readUInt29(ba);
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
@@ -768,9 +761,9 @@ AMF3.prototype = {
 			var className = this.readString(ba).value;
 			
 			var classMemberCount = (ref >> 4); /* uint29 */
-			var classMembers = [];
-			for(var i = 0; i < classMemberCount; ++i) {
-				classMembers.push(this.readString(ba).value);
+			var classMembers = new Array(classMemberCount);
+			for (var i = 0; i < classMemberCount; ++i) {
+				classMembers[i]= this.readString(ba).value;
 			}
 			if (className.length == 0) className = 'Object';
 			traits = { 
@@ -785,9 +778,9 @@ AMF3.prototype = {
 		}
 		
 		// Check for any registered class aliases 
-		var aliasedClass = CLASS_ALIAS_REGISTRY[traits.class];
+		var aliasedClass = this.CLASS_ALIAS_REGISTRY[traits.class];
 		if (aliasedClass != null) traits.class = aliasedClass;
-//		console.log('Object Traits', traits);
+		//trace('Object Traits', traits);
 		var obj = {};
 		if (traits.externalizable) {
 			// Read Externalizable
@@ -834,7 +827,7 @@ AMF3.prototype = {
 		
 		// For use in a different function
 		if (internal) return obj;
-			
+		
 		var val = {};
 		val.__traits = traits;
 		val.value = obj;
@@ -847,7 +840,7 @@ AMF3.prototype = {
 	
 	writeObject: function(ba, value, traits) {
 		// Write the object tag
-		ba.writeByte(OBJECT_TYPE);
+		ba.writeByte(this.OBJECT_TYPE);
 		
 		var v, v2;
 		
@@ -935,7 +928,7 @@ AMF3.prototype = {
 	},
 	
 	writeXML: function(ba, value) {
-		ba.writeByte(XML_TYPE);
+		ba.writeByte(this.XML_TYPE);
 		
 		if(this.setObjectReference(ba, value)) {
 			var strXML = value;// value.toXMLString();
@@ -969,14 +962,13 @@ AMF3.prototype = {
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
 		var l = (ref >> 1);
-		//var ba2 = new ByteArray();
-		var ba2 = [];
+		var ba2 = new Array(l);
 		
-		while(l--) {
+		for (var i = 0; i < l; ++i) {
 			var b = ba.readUnsignedByte();
 			//var b = ba.readUnsignedByte().toString(16).toUpperCase();
 			//if (b.length < 2) b = '0' + b;
-			ba2.push(b);
+			ba2[i] = b;
 			//ba2.push('0x' + b);
 		}
 		//ba.readBytes(ba2, 0, l);
@@ -987,7 +979,7 @@ AMF3.prototype = {
 	},
 	
 	writeByteArray: function(ba, value) {
-		ba.writeByte(BYTE_ARRAY_TYPE);
+		ba.writeByte(this.BYTE_ARRAY_TYPE);
 		
 		if (this.setObjectReference(ba, value)) {
 			this.writeUInt29(ba, (value.length << 1) | 1);
@@ -1004,9 +996,9 @@ AMF3.prototype = {
 	readVectorInt: function(ba) {
 		var ref = this.readUInt29(ba);
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
-			
+		
 		var l = (ref >> 1);
-		var vect = [];
+		var vect = new Array(l);
 		
 		var isFixed = Boolean(ba.readBoolean());
 		for (var i = 0; i < l; i++) {
@@ -1020,7 +1012,7 @@ AMF3.prototype = {
 	},
 	
 	writeVectorInt: function(ba, value, traits) {
-		ba.writeByte(VECTOR_INT_TYPE);
+		ba.writeByte(this.VECTOR_INT_TYPE);
 		if (this.setObjectReference(ba, value)) {
 			this.writeUInt29(ba, value.length << 1 | 1); // Ref | Len
 			ba.writeBoolean(traits.fixed ? 1 : 0); // Fixed Length?
@@ -1041,7 +1033,7 @@ AMF3.prototype = {
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
 		var l = (ref >> 1);
-		var vect = [];
+		var vect = new Array(l);
 		
 		var isFixed = Boolean(ba.readBoolean());
 		for (var i = 0; i < l; i++) {
@@ -1055,7 +1047,7 @@ AMF3.prototype = {
 	},
 	
 	writeVectorUInt: function(ba, value, traits) {
-		ba.writeByte(VECTOR_UINT_TYPE);
+		ba.writeByte(this.VECTOR_UINT_TYPE);
 		
 		if (this.setObjectReference(ba, value)) {
 			this.writeUInt29(ba, value.length << 1 | 1);
@@ -1077,7 +1069,7 @@ AMF3.prototype = {
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
 		var l = (ref >> 1);
-		var vect = [];
+		var vect = new Array(l);
 		
 		var isFixed = Boolean(ba.readBoolean());
 		for (var i = 0; i < l; i++) {
@@ -1091,7 +1083,7 @@ AMF3.prototype = {
 	},
 	
 	writeVectorDouble: function(ba, value, traits) {
-		ba.writeByte(VECTOR_DOUBLE_TYPE);
+		ba.writeByte(this.VECTOR_DOUBLE_TYPE);
 		
 		if (this.setObjectReference(ba, value)) {
 			this.writeUInt29(ba, value.length << 1 | 1);
@@ -1114,7 +1106,7 @@ AMF3.prototype = {
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
 		var l = (ref >> 1);
-		var vect = [];
+		var vect = new Array(l);
 		
 		var isFixed = Boolean(ba.readBoolean());
 		
@@ -1124,7 +1116,7 @@ AMF3.prototype = {
 		var traits = { type:'Vector.<' + className + '>', fixed:isFixed, class:className };
 		
 		// Check for any registered class aliases 
-		var aliasedClass = CLASS_ALIAS_REGISTRY[traits.class];
+		var aliasedClass = this.CLASS_ALIAS_REGISTRY[traits.class];
 		if (aliasedClass != null) traits.class = aliasedClass;
 		
 		// Store traits somewhere
@@ -1138,7 +1130,7 @@ AMF3.prototype = {
 	},
 	
 	writeVectorObject: function(ba, value, traits) {
-		ba.writeByte(VECTOR_OBJECT_TYPE);
+		ba.writeByte(this.VECTOR_OBJECT_TYPE);
 		if (this.setObjectReference(ba, value)) {
 			this.writeUInt29(ba, value.length << 1 | 1);
 			ba.writeBoolean(traits.fixed ? 1 : 0); // Fixed Length?
@@ -1174,7 +1166,7 @@ AMF3.prototype = {
 		if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 		
 		var l = (ref >> 1);
-		var dict = [];
+		var dict = new Array(l);
 		
 		var hasWeakKeys = Boolean(ba.readBoolean());
 		for (var i = 0; i < l; i++) {
@@ -1187,7 +1179,7 @@ AMF3.prototype = {
 	},
 	
 	writeDictionary: function(ba, value, traits) {
-		ba.writeByte(DICTIONARY_TYPE);
+		ba.writeByte(this.DICTIONARY_TYPE);
 		if (this.setObjectReference(ba, value)) {
 			var l = value.length;
 			this.writeUInt29(ba, l << 1 | 1);
@@ -1288,7 +1280,7 @@ AMF3.prototype = {
 	
 	cacheIndexOf: function(arr, o) {
 		for (var i = 0, l = arr.length; i < l; i++) {
-		trace(arr[i], o, arr[i] === o);
+			//trace(arr[i], o, arr[i] === o);
 			if (arr[i] === o) return i;
 		}
 		return -1;
@@ -1355,6 +1347,25 @@ AMF3.Flex.AbstractMessage = function() {
 
 AMF3.Flex.AbstractMessage.prototype = {
 	
+	// AbstractMessage Serialization Constants
+	HAS_NEXT_FLAG : 128,
+	BODY_FLAG : 1,
+	CLIENT_ID_FLAG : 2,
+	DESTINATION_FLAG : 4,
+	HEADERS_FLAG : 8,
+	MESSAGE_ID_FLAG : 16,
+	TIMESTAMP_FLAG : 32,
+	TIME_TO_LIVE_FLAG : 64,
+	CLIENT_ID_BYTES_FLAG : 1,
+	MESSAGE_ID_BYTES_FLAG : 2,
+
+	//AsyncMessage Serialization Constants
+	CORRELATION_ID_FLAG : 1,
+	CORRELATION_ID_BYTES_FLAG : 2,
+
+	// CommandMessage Serialization Constants
+	OPERATION_FLAG : 1,
+	
 	readExternal: function(ba, parser) {
 		var flagsArray = this.readFlags(ba);
 		for (var i = 0; i < flagsArray.length; i++) {
@@ -1362,21 +1373,21 @@ AMF3.Flex.AbstractMessage.prototype = {
 			reservedPosition = 0;
 			
 			if (i == 0) {
-				if ((flags & BODY_FLAG) != 0) this.readExternalBody(ba, parser);
-				if ((flags & CLIENT_ID_FLAG) != 0) this.clientId = parser.readData(ba);
-				if ((flags & DESTINATION_FLAG) != 0) this.destination = parser.readData(ba);
-				if ((flags & HEADERS_FLAG) != 0) this.headers = parser.readData(ba);
-				if ((flags & MESSAGE_ID_FLAG) != 0) this.messageId = parser.readData(ba);
-				if ((flags & TIMESTAMP_FLAG) != 0) this.timestamp = parser.readData(ba);
-				if ((flags & TIME_TO_LIVE_FLAG) != 0) this.timeToLive = parser.readData(ba);
+				if ((flags & this.BODY_FLAG) != 0) this.readExternalBody(ba, parser);
+				if ((flags & this.CLIENT_ID_FLAG) != 0) this.clientId = parser.readData(ba);
+				if ((flags & this.DESTINATION_FLAG) != 0) this.destination = parser.readData(ba);
+				if ((flags & this.HEADERS_FLAG) != 0) this.headers = parser.readData(ba);
+				if ((flags & this.MESSAGE_ID_FLAG) != 0) this.messageId = parser.readData(ba);
+				if ((flags & this.TIMESTAMP_FLAG) != 0) this.timestamp = parser.readData(ba);
+				if ((flags & this.TIME_TO_LIVE_FLAG) != 0) this.timeToLive = parser.readData(ba);
 				reservedPosition = 7;
 			} else if (i == 1) {
-				if ((flags & CLIENT_ID_BYTES_FLAG) != 0) {
+				if ((flags & this.CLIENT_ID_BYTES_FLAG) != 0) {
 					var clientIdBytes = parser.readData(ba);
 					this.clientId = UUIDUtils.fromByteArray(clientIdBytes);
 				}
 				
-				if ((flags & MESSAGE_ID_BYTES_FLAG) != 0) {
+				if ((flags & this.MESSAGE_ID_BYTES_FLAG) != 0) {
 					var messageIdBytes = parser.readData(ba);
 					this.messageId = UUIDUtils.fromByteArray(messageIdBytes);
 				}
@@ -1414,7 +1425,7 @@ AMF3.Flex.AbstractMessage.prototype = {
 			}*/
 			
 			flagsArray[i] = flags;
-			hasNextFlag = ((flags & HAS_NEXT_FLAG) != 0) ? true : false;
+			hasNextFlag = ((flags & this.HAS_NEXT_FLAG) != 0) ? true : false;
 			i++;
 		}
 		
@@ -1439,9 +1450,9 @@ AMF3.Flex.AsyncMessage.prototype.readExternal = function(ba, parser) {
 		reservedPosition = 0;
 		
 		if (i == 0) {
-			if ((flags & CORRELATION_ID_FLAG) != 0) this.correlationId = parser.readData(ba);
+			if ((flags & this.CORRELATION_ID_FLAG) != 0) this.correlationId = parser.readData(ba);
 			
-			if ((flags & CORRELATION_ID_BYTES_FLAG) != 0) {
+			if ((flags & this.CORRELATION_ID_BYTES_FLAG) != 0) {
 				var correlationIdBytes = parser.readData(ba);
 				this.correlationId = UUIDUtils.fromByteArray(correlationIdBytes);
 			}
@@ -1518,7 +1529,7 @@ AMF3.Flex.CommandMessage.prototype.readExternal = function(ba, parser) {
 		];
 		
 		if (i == 0) {
-			if ((flags & OPERATION_FLAG) != 0) {
+			if ((flags & this.OPERATION_FLAG) != 0) {
 				this.operation = parser.readData(ba);
 				if (this.operation < 0 || this.operation >= operationNames.length) {
 					this.operationName = "invalid." + operation + "";

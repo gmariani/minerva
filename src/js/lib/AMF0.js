@@ -1,33 +1,10 @@
 (function() {
 
-// AMF marker constants
-var NUMBER_TYPE = 0;
-var BOOLEAN_TYPE = 1;
-var STRING_TYPE = 2;
-var OBJECT_TYPE = 3;
-var MOVIECLIP_TYPE = 4; // reserved, not supported
-var NULL_TYPE = 5;
-var UNDEFINED_TYPE = 6;
-var REFERENCE_TYPE = 7;
-var ECMA_ARRAY_TYPE = 8; // associative
-var OBJECT_END_TYPE = 9;
-var STRICT_ARRAY_TYPE = 10;
-var DATE_TYPE = 11;
-var LONG_STRING_TYPE = 12; // string.length > 2^16
-var UNSUPPORTED_TYPE = 13;
-var RECORD_SET_TYPE = 14; // reserved, not supported
-var XML_OBJECT_TYPE = 15;
-var TYPED_OBJECT_TYPE = 16;
-var AVMPLUS_OBJECT_TYPE = 17;
-
-/**
- * The maximum number of cached objects
- */
-var MAX_STORED_OBJECTS = 1024;
-
-var EMPTY_STRING = "";
+var debug = false;
 
 function trace() {
+	if (!debug) return;
+	
 	var str = '',
 		arr = [], i, l;
 	for (i = 0, l = arguments.length; i < l; i++) {
@@ -38,9 +15,9 @@ function trace() {
 	str += '\n';
 	
 	postMessage({
-        type: "debug",
-        message: arr
-    });
+		type: "debug",
+		message: arr
+	});
 	
 	//dump(str);
 }
@@ -76,6 +53,33 @@ AMF0 = function() {
 
 AMF0.prototype = {
 	
+	// AMF marker constants
+	NUMBER_TYPE : 0,
+	BOOLEAN_TYPE : 1,
+	STRING_TYPE : 2,
+	OBJECT_TYPE : 3,
+	MOVIECLIP_TYPE : 4, // reserved, not supported
+	NULL_TYPE : 5,
+	UNDEFINED_TYPE : 6,
+	REFERENCE_TYPE : 7,
+	ECMA_ARRAY_TYPE : 8, // associative
+	OBJECT_END_TYPE : 9,
+	STRICT_ARRAY_TYPE : 10,
+	DATE_TYPE : 11,
+	LONG_STRING_TYPE : 12, // string.length > 2^16
+	UNSUPPORTED_TYPE : 13,
+	RECORD_SET_TYPE : 14, // reserved, not supported
+	XML_OBJECT_TYPE : 15,
+	TYPED_OBJECT_TYPE : 16,
+	AVMPLUS_OBJECT_TYPE : 17,
+
+	/**
+	 * The maximum number of cached objects
+	 */
+	MAX_STORED_OBJECTS : 1024,
+
+	EMPTY_STRING : "",
+	
 	deserialize: function(data) {
 		this.reset();
 		
@@ -92,33 +96,33 @@ AMF0.prototype = {
 	readData: function(ba, type) {
 		if (type == null) type = ba.readByte();
 		switch (type) {
-			case NUMBER_TYPE : return this.readNumber(ba);
-			case BOOLEAN_TYPE : return this.readBoolean(ba);
-			case STRING_TYPE : return this.readString(ba);
-			case OBJECT_TYPE : return this.readObject(ba);
-			//case MOVIECLIP_TYPE : return null;
-			case NULL_TYPE : return this.readNull(ba);
-			case UNDEFINED_TYPE : return this.readUndefined(ba);
-			case REFERENCE_TYPE : return this.getObjectReference(ba.readUnsignedShort());
-			case ECMA_ARRAY_TYPE : return this.readECMAArray(ba);
-			case OBJECT_END_TYPE :
+			case this.NUMBER_TYPE : return this.readNumber(ba);
+			case this.BOOLEAN_TYPE : return this.readBoolean(ba);
+			case this.STRING_TYPE : return this.readString(ba);
+			case this.OBJECT_TYPE : return this.readObject(ba);
+			//case this.MOVIECLIP_TYPE : return null;
+			case this.NULL_TYPE : return this.readNull(ba);
+			case this.UNDEFINED_TYPE : return this.readUndefined(ba);
+			case this.REFERENCE_TYPE : return this.getObjectReference(ba.readUnsignedShort());
+			case this.ECMA_ARRAY_TYPE : return this.readECMAArray(ba);
+			case this.OBJECT_END_TYPE :
 				// Unexpected object end tag in AMF stream
 				trace("AMF0::readData - Warning : Unexpected object end tag in AMF stream");
 				return this.readNull(ba);
-			case STRICT_ARRAY_TYPE : return this.readArray(ba);
-			case DATE_TYPE : return this.readDate(ba);
-			case LONG_STRING_TYPE : return this.readLongString(ba);
-			case UNSUPPORTED_TYPE :
+			case this.STRICT_ARRAY_TYPE : return this.readArray(ba);
+			case this.DATE_TYPE : return this.readDate(ba);
+			case this.LONG_STRING_TYPE : return this.readLongString(ba);
+			case this.UNSUPPORTED_TYPE :
 				// Unsupported type found in AMF stream
 				trace("AMF0::readData - Warning : Unsupported type found in AMF stream");
 				return this.readNull(ba);
-			case RECORD_SET_TYPE :
+			case this.RECORD_SET_TYPE :
 				// AMF Recordsets are not supported
 				trace("AMF0::readData - Warning : Unexpected recordset in AMF stream");
 				return this.readNull(ba);
-			case XML_OBJECT_TYPE : return this.readXML(ba);
-			case TYPED_OBJECT_TYPE : return this.readTypedObject(ba);
-			case AVMPLUS_OBJECT_TYPE :
+			case this.XML_OBJECT_TYPE : return this.readXML(ba);
+			case this.TYPED_OBJECT_TYPE : return this.readTypedObject(ba);
+			case this.AVMPLUS_OBJECT_TYPE :
 				if (this._amf3 == null) this._amf3 = new AMF3();
 				return this._amf3.readData(ba);
 			/*
@@ -198,7 +202,7 @@ AMF0.prototype = {
 	 * All numbers passed through remoting are floats.
 	 */
 	writeNumber: function(ba, value) {
-		ba.writeByte(NUMBER_TYPE);
+		ba.writeByte(this.NUMBER_TYPE);
 		ba.writeDouble(value);
 	},
 	
@@ -210,7 +214,7 @@ AMF0.prototype = {
 	 * writeBoolean writes the boolean code (0x01) and the data to the output stream
 	 */
 	writeBoolean: function(ba, value) {
-		ba.writeByte(BOOLEAN_TYPE);
+		ba.writeByte(this.BOOLEAN_TYPE);
 		ba.writeBoolean(value);
 	},
 	
@@ -226,7 +230,7 @@ AMF0.prototype = {
 	 */
 	writeString: function(ba, value) {
 		if (value.length < 65536) {
-			ba.writeByte(STRING_TYPE);
+			ba.writeByte(this.STRING_TYPE);
 			ba.writeUTF(value);
 		} else {
 			this.writeLongString(ba, value);
@@ -240,7 +244,7 @@ AMF0.prototype = {
 			val;
 		
 		// 0x00 0x00 (varname) 0x09 (end object type)
-		while (varName.length > 0 && type != OBJECT_END_TYPE) {
+		while (varName.length > 0 && type != this.OBJECT_END_TYPE) {
 			obj[varName] = this.readData(ba, type);
 			varName = ba.readUTF();
 			type = ba.readByte();
@@ -254,7 +258,7 @@ AMF0.prototype = {
 	
 	writeObject: function(ba, value, traits, internal) {
 		if (internal || this.setObjectReference(ba, value)) {
-			if (internal === undefined) ba.writeByte(OBJECT_TYPE);
+			if (internal === undefined) ba.writeByte(this.OBJECT_TYPE);
 			
 			for (var key in value) {
 				ba.writeUTF(key);
@@ -262,10 +266,10 @@ AMF0.prototype = {
 			};
 			
 			// End tag 00 00 09
-			ba.writeUTF(EMPTY_STRING);
+			ba.writeUTF(this.EMPTY_STRING);
 			//ba.writeByte(0x00);
 			//ba.writeByte(0x00);
-			ba.writeByte(OBJECT_END_TYPE);
+			ba.writeByte(this.OBJECT_END_TYPE);
 		};
 	},
 	
@@ -277,7 +281,7 @@ AMF0.prototype = {
 	 * writeNull writes the null code (0x05) to the output stream
 	 */
 	writeNull: function(ba) {
-		ba.writeByte(NULL_TYPE);
+		ba.writeByte(this.NULL_TYPE);
 	},
 	
 	readUndefined: function(ba) {
@@ -288,7 +292,7 @@ AMF0.prototype = {
 	 * writeNull writes the undefined code (0x06) to the output stream
 	 */
 	writeUndefined: function(ba) {
-		ba.writeByte(UNDEFINED_TYPE);
+		ba.writeByte(this.UNDEFINED_TYPE);
 	},
 	
 	readECMAArray: function(ba) {
@@ -299,7 +303,7 @@ AMF0.prototype = {
 			val;
 		
 		// 0x00 0x00 (varname) 0x09 (end object type)
-		while (varName.length > 0 && type != OBJECT_END_TYPE) {
+		while (varName.length > 0 && type != this.OBJECT_END_TYPE) {
 			arr[varName] = this.readData(ba, type);
 			varName = ba.readUTF();
 			type = ba.readByte();
@@ -313,7 +317,7 @@ AMF0.prototype = {
 	writeECMAArray: function(ba, value) {
 		if (this.setObjectReference(ba, value)) {
 			var l = 0, key;
-			ba.writeByte(ECMA_ARRAY_TYPE);
+			ba.writeByte(this.ECMA_ARRAY_TYPE);
 			
 			// Count only indexes, not prop names
 			for (key in value) {
@@ -329,16 +333,16 @@ AMF0.prototype = {
 			// End tag 00 00 09
 			ba.writeByte(0x00);
 			ba.writeByte(0x00);
-			ba.writeByte(OBJECT_END_TYPE);
+			ba.writeByte(this.OBJECT_END_TYPE);
 		};
 	},
 	
 	readArray: function(ba) {
 		var l = ba.readUnsignedInt(),
-			arr = [],
+			arr = new Array(l),
 			i, val;
 		for (i = 0; i < l; ++i) {
-			arr.push(this.readData(ba));
+			arr[i] = this.readData(ba);
 		}
 		
 		val = { value:arr, __traits:{ type:'Array', strict:true }};
@@ -352,7 +356,7 @@ AMF0.prototype = {
 	writeArray: function(ba, value) {
 		if (this.setObjectReference(ba, value)) {
 			var l = value.length, i;
-			ba.writeByte(STRICT_ARRAY_TYPE);
+			ba.writeByte(this.STRICT_ARRAY_TYPE);
 			ba.writeInt(l);
 			for (i = 0; i < l; ++i) {
 				this.writeData(ba, value[i]);
@@ -380,7 +384,7 @@ AMF0.prototype = {
 	 * writeData writes the date code (0x0B) and the date value to the output stream
 	 */
 	writeDate: function(ba, value) {
-		ba.writeByte(DATE_TYPE);
+		ba.writeByte(this.DATE_TYPE);
 		
 		// Convert numbers to dates
 		if (!(value instanceof Date)) value =  new Date(value);
@@ -398,7 +402,7 @@ AMF0.prototype = {
 		if (value.length < 65536) {
 			this.writeString(ba, value);
 		} else {
-			ba.writeByte(LONG_STRING_TYPE);
+			ba.writeByte(this.LONG_STRING_TYPE);
 			ba.writeUnsignedInt(value.length);
 			ba.writeUTFBytes(value);
 		};
@@ -415,7 +419,7 @@ AMF0.prototype = {
 	 */
 	writeXML: function(ba, value) {
 		if (this.setObjectReference(ba, value)) {
-			ba.writeByte(XML_OBJECT_TYPE);
+			ba.writeByte(this.XML_OBJECT_TYPE);
 			var strXML = value.toString();
 			strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
 			//strXML = strXML.replace(/\>(\n|\r|\r\n| |\t)*\</g, "><"); // Strip whitespaces, not done by native encoder
@@ -439,7 +443,7 @@ AMF0.prototype = {
 	
 	writeTypedObject: function(ba, value, traits) {
 		if (this.setObjectReference(ba, value)) {
-			ba.writeByte(TYPED_OBJECT_TYPE);
+			ba.writeByte(this.TYPED_OBJECT_TYPE);
 			
 			ba.writeUTF(traits.class);
 			this.writeObject(ba, value, traits, true);
@@ -459,12 +463,12 @@ AMF0.prototype = {
 		var refNum;
 		var json = JSON.stringify(o);
 		if (this.writeObjectCache != null && (refNum = this.writeObjectCache.indexOf(json)) != -1) {
-			ba.writeByte(REFERENCE_TYPE);
+			ba.writeByte(this.REFERENCE_TYPE);
 			this.writeUnsignedShort(ba, refNum);
 			return false;
 		} else {
 			if (this.writeObjectCache == null) this.writeObjectCache = [];
-			if (this.writeObjectCache.length < MAX_STORED_OBJECTS) {
+			if (this.writeObjectCache.length < this.MAX_STORED_OBJECTS) {
 				this.writeObjectCache.push(json);
 			}
 			return true;
@@ -482,7 +486,7 @@ AMF0.prototype = {
 	 * writeUnsupported writes the unsupported code (13) to the output stream
 	 */
 	writeUnsupported: function(ba) {
-		ba.writeByte(UNSUPPORTED_TYPE);
+		ba.writeByte(this.UNSUPPORTED_TYPE);
 	}
 };
 

@@ -10,9 +10,12 @@ var fromCharCode = String.fromCharCode,
 	pow = Math.pow,
 	min = Math.min,
 	max = Math.max,
-	TWOeN23 = pow(2, -23);
+	TWOeN23 = pow(2, -23),
+	debug = false;
 
 function trace() {
+	if (!debug) return;
+	
 	var str = '';
 	var arr = [];
 	for (var i = 0, l = arguments.length; i < l; i++) {
@@ -330,7 +333,7 @@ ByteArray.prototype = {
 
 	readEncodedU32: function() {
 		var val = 0;
-		for(var i = 0; i < 5; i++) {
+		for (var i = 0; i < 5; i++) {
 			var num = this.readByteAt(this.position++);
 			val = val | ((num & 0x7f) << (7 * i));
 			if (!(num & 0x80)) break;
@@ -349,7 +352,7 @@ ByteArray.prototype = {
 
 	readUB: function(numBits, lsb) {
 		var t = this, val = 0;
-		for(var i = 0; i < numBits; i++) {
+		for (var i = 0; i < numBits; i++) {
 			if (8 == t._bitPosition) {
 				t._bitBuffer = t.readUI8();
 				t._bitPosition = 0;

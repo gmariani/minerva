@@ -1,5 +1,5 @@
 var util = {};
-var debug = false;
+var debug = true;
 var googlead = '<span class="googlead"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>'+
 				'<!-- Minerva Footer 728x90 -->'+
 				'<ins class="adsbygoogle"'+
@@ -294,6 +294,7 @@ $(function () {
 	////////////////
 	function tree2Obj(o, data, callState) {
 		var count = 0, key;
+		if (debug) console.log('tree2Obj', o, data);
 		for (key in data) {
 			var child = data[key],
 				type = (callState == 'TreeNode') ? child.data.__traits.type : child.__traits.type,
@@ -326,7 +327,9 @@ $(function () {
 					break;
 				case 'Object':
 				case 'Vector':
-					o[key] = tree2Obj({}, value, 'Object');
+				if (debug) console.log('convert Object', child, child.children, child.data);
+					//o[key] = tree2Obj({}, value, 'Object');
+					o[key] = tree2Obj({}, child.children, 'TreeNode');
 					break;
 				case 'Dictionary':
 					o[key] = tree2Obj([], value, 'Dictionary');
@@ -448,7 +451,7 @@ $(function () {
 	});
 	btnCloseFile.on('click', closeFile);
 	btnSupport.on('click', function(event) {
-		window.open("https://code.google.com/p/cv-minerva/issues/list", "minerva_issues");
+		window.open("https://github.com/gmariani/cv-minerva", "minerva_issues");
 	});
 	
 	function onFileAssembled(data) {
