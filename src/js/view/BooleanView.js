@@ -22,7 +22,13 @@ var BooleanView = function() {
 		
 		// Save the value when the checkbox changes
 		elValue.on('change', function(event/*:KeyboardEvent */)/*:void */ {
-			callBack(Boolean(elValue.prop('checked')) ? 1 : 0, node);
+			var val = Boolean(elValue.prop('checked')) ? 1 : 0;
+			if (node.data.__traits.origType == 'True' || node.data.__traits.origType == 'False') {
+				node.data.__traits.origType = val ? 'True' : 'False';
+				node.li_attr.title = val ? 'True' : 'False';
+			}
+			
+			callBack(val, node);
 		});
 		
 		// Sanitize
@@ -31,6 +37,7 @@ var BooleanView = function() {
 	}
 	
 	function validate(input/*:Boolean */)/*:Boolean */ {
+		console.log('boolean input', input);
 		return (1 === input || 0 === input);
 	}
 	

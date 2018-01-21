@@ -1,5 +1,5 @@
 var util = {};
-var debug = false;
+var debug = true;
 var googlead = '<span class="googlead"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>'+
 				'<!-- Minerva Footer 728x90 -->'+
 				'<ins class="adsbygoogle"'+
@@ -940,7 +940,12 @@ $(function () {
 		var type = typeof val;
 		if (debug) console.log('getDataType', type, Object.prototype.toString.call(val));
 		switch (typeof val) {
-			case 'boolean': type = 'Boolean'; break;
+			case 'boolean': 
+				if (parser.getAMFVersion() == 3) {
+					type = val ? 'True' : 'False';
+				} else {
+					type = 'Boolean';
+				}break;
 			case 'number': type = 'Number'; break;
 			case 'string': type = 'String'; break;
 			case 'object': type = 'Object'; break;
@@ -1363,6 +1368,15 @@ $(function () {
 		if (node.data.__traits.type == 'Integer' || node.data.__traits.type == 'Number') {
 			var tree = $.jstree.reference('#jstree');
 			tree.set_icon(node, node.data.__traits.type.toLowerCase());
+		}
+		
+		// If amf3 boolean update the icon and title
+		if (node.data.__traits.origType == 'False' || node.data.__traits.origType == 'True') {
+			var tree = $.jstree.reference('#jstree');
+			tree.set_icon(node, node.data.__traits.origType.toLowerCase());
+			//node.li_attr.title = node.data.__traits.origType;
+			tree.get_node(node.id).li_attr.title = node.data.__traits.origType;
+			//node.getAttr().put("title", node.data.__traits.origType);
 		}
 		
 		if (node) node.data.value = input;

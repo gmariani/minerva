@@ -246,7 +246,7 @@ AMF3.prototype = {
 	writeData: function(ba, node) {
 		var type = node.__traits.type;
 		if (node.__traits.hasOwnProperty('origType')) type = node.__traits.origType;
-		//trace('writeData', type, node);
+		trace('writeData', type, node);
 		switch(type) {
 			case "Undefined" 		: this.writeUndefined(ba); break;
 			case "Null" 			: this.writeNull(ba); break;
@@ -391,10 +391,11 @@ AMF3.prototype = {
 	 * @param	value
 	 */
 	readBoolean: function(bool) {
-		return { value:bool, __traits:{ type:bool ? 'True' : 'False' } };
+		return { value:bool ? 1 : 0, __traits:{ type:bool ? 'True' : 'False' } };
 	},
 	
 	writeBoolean: function(ba, value) {
+		console.log('writeBoolean', value);
 		ba.writeByte(value ? TRUE_TYPE : FALSE_TYPE);
 	},
 	
