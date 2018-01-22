@@ -6,7 +6,7 @@ var assign = require('object-assign');
 var fs = require('graceful-fs');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
-var tmpDir = require('os').tmpDir();
+var tmpDir = require('os').tmpdir();
 
 function CacheSwap(options) {
   this.options = assign({
