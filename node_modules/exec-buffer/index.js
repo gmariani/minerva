@@ -26,8 +26,8 @@ module.exports = opts => {
 		return Promise.reject(new Error('Arguments are required'));
 	}
 
-	const inputPath = tempfile();
-	const outputPath = tempfile();
+	const inputPath = opts.inputPath || tempfile();
+	const outputPath = opts.outputPath || tempfile();
 
 	opts.args = opts.args.map(x => x === input ? inputPath : x === output ? outputPath : x);
 
