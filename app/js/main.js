@@ -781,7 +781,6 @@ $(function() {
         // Reset for new file
         closeFile();
 
-        var t = this;
         file = files[0]; // Read only first file
         var ext = file.name.toLowerCase().slice(-3);
         if (debug) console.log('File: ', file);
@@ -886,8 +885,6 @@ $(function() {
 
         // Show cancel while reading
         btnCancelBinary.addClass('show');
-
-        var t = this;
 
         binaryReader = new FileReader();
         binaryReader.onerror = errorHandler;
