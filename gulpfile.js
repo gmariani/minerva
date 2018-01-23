@@ -6,6 +6,7 @@ var gulpIf = require('gulp-if');
 var cssnano = require('gulp-cssnano');
 var imagemin = require('gulp-imagemin');
 var cache = require('gulp-cache');
+var rename = require('gulp-rename');
 var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace');
@@ -92,24 +93,15 @@ gulp.task('build', function(callback) {
 });
 
 // Copy app to a folder and convert it so it runs safely on localhost
-gulp.task('clean:local', function() {
-    return del.sync('local');
-});
-gulp.task('base_local', function() {
+gulp.task('copy_index', function() {
     return gulp
-        .src(['app/favicon.ico', 'app/browserconfig.xml', 'app/index.html'])
-        .pipe(gulp.dest('local'));
-});
-gulp.task('copy_local', function() {
-    return gulp
-        .src(['app/css/**/*', 'app/js/**/*', 'app/img/**/*', 'app/font/**/*'], {
-            base: 'app',
-        })
-        .pipe(gulp.dest('local'));
+        .src('app/index.html')
+        .pipe(rename('local.html'))
+        .pipe(gulp.dest('app'));
 });
 gulp.task('fix-index_local', function() {
     gulp
-        .src(['local/index.html'])
+        .src(['app/local.html'])
         .pipe(replace(' manifest="manifest.appcache"', ''))
         .pipe(replace('<link rel="manifest" href="manifest.json">', ''))
         .pipe(
@@ -118,21 +110,11 @@ gulp.task('fix-index_local', function() {
                 ''
             )
         )
-        .pipe(gulp.dest('local'));
+        .pipe(gulp.dest('app'));
 });
-gulp.task('fix-service_local', function() {
-    gulp
-        .src(['local/js/main.js'])
-        .pipe(replace("'serviceWorker' in navigator", 'false'))
-        .pipe(gulp.dest('local/js/'));
-});
+
 gulp.task('build_local', function(callback) {
-    runSequence(
-        'clean:local',
-        ['base_local', 'copy_local'],
-        ['fix-index_local', 'fix-service_local'],
-        callback
-    );
+    runSequence('copy_index', 'fix-index_local', callback);
 });
 
 // Empty cached images from gulp-cache

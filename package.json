@@ -1,31 +1,37 @@
 {
-    "name": "minerva",
-    "version": "4.2.0",
-    "description": "Online shared object editor",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": ["shared", "object", "AMF0", "AMF3"],
-    "author": "Gabriel Mariani",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/gmariani/minerva/issues"
-    },
-    "homepage": "https://mariani.life/projects/minerva/",
-    "devDependencies": {
-        "del": "^2.2.2",
-        "gulp": "^3.9.1",
-        "gulp-cache": "^0.4.5",
-        "gulp-cssnano": "^2.1.2",
-        "gulp-imagemin": "^3.1.1",
-        "gulp-minify-inline": "^0.2.1",
-        "gulp-replace": "^0.5.4",
-        "gulp-uglify": "^2.0.1",
-        "gulp-useref": "^3.1.2",
-        "html-minifier": "^3.3.3",
-        "normalize.css": "^5.0.0",
-        "run-sequence": "^1.2.2"
-    },
-    "dependencies": {}
+  "name": "minerva",
+  "version": "4.2.0",
+  "description": "Online shared object editor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "shared",
+    "object",
+    "AMF0",
+    "AMF3"
+  ],
+  "author": "Gabriel Mariani",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gmariani/minerva/issues"
+  },
+  "homepage": "https://mariani.life/projects/minerva/",
+  "devDependencies": {
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-cache": "^0.4.5",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-imagemin": "^3.1.1",
+    "gulp-minify-inline": "^0.2.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-uglify": "^2.0.1",
+    "gulp-useref": "^3.1.2",
+    "html-minifier": "^3.3.3",
+    "normalize.css": "^5.0.0",
+    "run-sequence": "^1.2.2"
+  },
+  "dependencies": {}
 }
