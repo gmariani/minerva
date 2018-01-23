@@ -1192,23 +1192,27 @@ $(function() {
                 type,
                 Object.prototype.toString.call(val)
             );
-        switch (typeof val) {
-            case 'boolean':
-                if (parser.getAMFVersion() == 3) {
-                    type = val ? 'True' : 'False';
-                } else {
-                    type = 'Boolean';
-                }
-                break;
-            case 'number':
-                type = 'Number';
-                break;
-            case 'string':
-                type = 'String';
-                break;
-            case 'object':
-                type = 'Object';
-                break;
+        if (val === null) {
+            type = 'Null';
+        } else {
+            switch (typeof val) {
+                case 'boolean':
+                    if (parser.getAMFVersion() == 3) {
+                        type = val ? 'True' : 'False';
+                    } else {
+                        type = 'Boolean';
+                    }
+                    break;
+                case 'number':
+                    type = 'Number';
+                    break;
+                case 'string':
+                    type = 'String';
+                    break;
+                case 'object':
+                    type = 'Object';
+                    break;
+            }
         }
 
         // Is XML?
@@ -1242,7 +1246,7 @@ $(function() {
     }
 
     function formatObject(val) {
-        var type = getDataType(val.value ? val.value : val);
+        var type = getDataType(val && val.value ? val.value : val);
         if (type == 'Object') {
             var traits = {
                 type: type,
