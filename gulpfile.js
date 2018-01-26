@@ -4,14 +4,34 @@ var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
 var cssnano = require('gulp-cssnano');
-var imagemin = require('gulp-imagemin');
+//var imagemin = require('gulp-imagemin');
+var htmlmin = require('gulp-htmlmin');
 var cache = require('gulp-cache');
 var rename = require('gulp-rename');
 var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
+var dirSync = require('gulp-directory-sync');
+var date = new Date();
 //var minifyInline = require('gulp-minify-inline');
+function pad(n) {
+    return n < 10 ? '0' + n : n;
+}
+var monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+];
 
 // empty dist folder
 gulp.task('clean:dist', function() {
@@ -21,11 +41,7 @@ gulp.task('clean:dist', function() {
 // Copy other php files over to dist except for index.php
 gulp.task('base', function() {
     return gulp
-        .src([
-            'app/favicon.ico',
-            'app/browserconfig.xml',
-            'app/manifest.appcache',
-        ])
+        .src(['app/favicon.ico', 'app/browserconfig.xml'])
         .pipe(gulp.dest('dist'));
 });
 
@@ -46,13 +62,14 @@ gulp.task('useref', function() {
             .pipe(gulpIf('*.js', uglify().on('error', gulpUtil.log)))
             // Minifies only if it's a CSS file
             .pipe(gulpIf('*.css', cssnano()))
+            .pipe(htmlmin({ collapseWhitespace: true }))
             .pipe(gulp.dest('dist')) );
 });
 
 // Add base flickr directory to css and js paths
 gulp.task('fix-index', function() {
     gulp
-        .src(['dist/index.php'])
+        .src(['dist/index.html'])
         .pipe(
             replace(
                 'css/styles.min.css',
@@ -65,16 +82,41 @@ gulp.task('fix-index', function() {
 
         .pipe(replace('.min.js"></script>', '.min.js" async></script>'))
         .pipe(replace('.min.css">', '.min.css" media="screen">'))
+
+        .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
+        .pipe(
+            replace(
+                '%BUILT%',
+                date.getDate() +
+                    '-' +
+                    monthNames[date.getMonth()] +
+                    '-' +
+                    date.getFullYear()
+            )
+        ) // d-MMMM-yyyy
+        .pipe(
+            replace(
+                '%BUILD%',
+                date.getFullYear() +
+                    pad(date.getMonth() + 1) +
+                    pad(date.getDate())
+            )
+        ) // yyyyMMdd
         .pipe(gulp.dest('dist'));
 });
 
 // Copy images, optimize them, and cache the optimized images so
 // it doesn't have to run lots of times
+//gulp.task('images', function() {
+// return gulp
+//.src('app/img/**/*.+(png|jpg|gif|svg)')
+// .pipe(cache(imagemin()))
+// .pipe(gulp.dest('dist/img'));
+//});
 gulp.task('images', function() {
     return gulp
-        .src('app/img/**/*.+(png|jpg|gif|svg)')
-        .pipe(cache(imagemin()))
-        .pipe(gulp.dest('dist/img'));
+        .src('')
+        .pipe(dirSync('app/img', 'dist/img', { printSummary: true }));
 });
 
 // Copy fonts over to dist
@@ -82,10 +124,17 @@ gulp.task('fonts', function() {
     return gulp.src('app/fonts/**/*').pipe(gulp.dest('dist/fonts'));
 });
 
+gulp.task('html', function() {
+    return gulp
+        .src('src/*.html')
+        .pipe(htmlmin({ collapseWhitespace: true }))
+        .pipe(gulp.dest('dist'));
+});
+
 // Run above tasks in sequence
 gulp.task('build', function(callback) {
     runSequence(
-        'clean:dist',
+        //'clean:dist',
         ['base', 'useref', 'images'],
         'fix-index',
         callback
@@ -110,6 +159,25 @@ gulp.task('fix-index_local', function() {
                 ''
             )
         )
+        .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
+        .pipe(
+            replace(
+                '%BUILT%',
+                date.getDate() +
+                    '-' +
+                    monthNames[date.getMonth()] +
+                    '-' +
+                    date.getFullYear()
+            )
+        ) // d-MMMM-yyyy
+        .pipe(
+            replace(
+                '%BUILD%',
+                date.getFullYear() +
+                    pad(date.getMonth() + 1) +
+                    pad(date.getDate())
+            )
+        ) // yyyyMMdd
         .pipe(gulp.dest('app'));
 });
 
