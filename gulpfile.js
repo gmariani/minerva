@@ -1,4 +1,4 @@
-/* jshint node: true */
+/* eslint-env node */
 var gulp = require('gulp');
 var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
@@ -11,7 +11,7 @@ var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
-var minifyInline = require('gulp-minify-inline');
+//var minifyInline = require('gulp-minify-inline');
 
 // empty dist folder
 gulp.task('clean:dist', function() {
@@ -113,7 +113,7 @@ gulp.task('fix-index_local', function() {
         .pipe(gulp.dest('app'));
 });
 
-gulp.task('build_local', function(callback) {
+gulp.task('test', function(callback) {
     runSequence('copy_index', 'fix-index_local', callback);
 });
 

@@ -5,7 +5,16 @@
     "tasks": [
         {
             "type": "gulp",
-            "task": "build_local",
+            "task": "build",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "gulp",
+            "task": "test",
             "problemMatcher": []
         }
     ]
