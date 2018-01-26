@@ -1,4 +1,4 @@
-/* global saveAs, $, Alert, SOL, DictionaryItemView, StringView, VectorView, DateView, ByteArrayView, ArrayView, BooleanView, ObjectView, DictionaryView, SOLView, NumberView, IntegerView, XMLView */
+/* global Int8Array, saveAs, $, Alert, SOL, DictionaryItemView, StringView, VectorView, DateView, ByteArrayView, ArrayView, BooleanView, ObjectView, DictionaryView, SOLView, NumberView, IntegerView, XMLView */
 var util = {};
 var debug = false;
 var isLocal = true;
@@ -502,12 +502,12 @@ $(function() {
         return o;
     }
 
-    function tree2SOL(o, data, callState) {
-        var key, child, type, value;
+    function tree2SOL(o, data) {
+        var key, child, type; //, value;
         for (key in data) {
             child = data[key];
             type = child.data.__traits.type;
-            value = child.data.value;
+            //value = child.data.value;
             key = child.text;
 
             //console.log('tree2SOL', key, type, value, child);
@@ -1305,7 +1305,7 @@ $(function() {
             $.jstree.defaults.sort = naturalSort;
         }
 
-        $.jstree.defaults.contextmenu.items = function(o) {
+        $.jstree.defaults.contextmenu.items = function() {
             // Could be an object directly
             return {
                 create: {
