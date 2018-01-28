@@ -15,8 +15,7 @@ var DateView = function() {
             '<input type="text" id="DateValue"/>' +
             '<span class="right-circled-icon icon"></span>' +
             '</div>' +
-            '<p class="description"></p>' +
-            googlead;
+            '<p class="description"></p>';
         el.html(strHTML);
 
         // Add view class for styling

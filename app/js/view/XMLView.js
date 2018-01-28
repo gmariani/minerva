@@ -18,8 +18,7 @@ var XMLView = function() {
             '<textarea id="XMLValue" rows="20" cols="50" class="message" ></textarea>' +
             '<span class="comment-icon icon"></span>' +
             '</div>' +
-            '<pre class="XMLError" ></pre>' +
-            googlead;
+            '<pre class="XMLError" ></pre>';
         el.html(strHTML);
 
         // Add view class for styling
@@ -30,9 +29,7 @@ var XMLView = function() {
         elError = el.children('.XMLError');
 
         // Validate the input as it's typed
-        elValue.on('input propertychange', function(
-            event /*:KeyBoardEvent */
-        ) /*:void */ {
+        elValue.on('input propertychange', function() /*:void */ {
             if (inputDelay) clearTimeout(inputDelay);
             inputDelay = setTimeout(function() {
                 // For now we save after each input
@@ -60,7 +57,7 @@ var XMLView = function() {
             );
 
             // Remove parsererror tags
-            xmlString = xmlString.replace(/\<parsererror[^\>]+>/g, '');
+            xmlString = xmlString.replace(/<parsererror[^>]+>/g, '');
             xmlString = xmlString.replace('</parsererror>', '');
 
             // Break source text into new line
@@ -72,8 +69,6 @@ var XMLView = function() {
             elError.html('XML is valid');
             return true;
         }
-
-        return false;
     }
 
     // Clear values and clear elements

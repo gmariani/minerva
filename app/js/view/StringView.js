@@ -1,3 +1,4 @@
+/* global debug */
 // Base64 Conversion //
 // https://developer.mozilla.org/en-US/docs/Web/API/Window.btoa
 // IE10+
@@ -47,8 +48,7 @@ var StringView = function() {
             '<div class="field">' +
             '<textarea id="StringValue"  class="message" ></textarea>' +
             '<span class="comment-icon icon"></span>' +
-            '</div>' +
-            googlead;
+            '</div>';
 
         el.html(strHTML);
 
@@ -71,9 +71,7 @@ var StringView = function() {
             .on('click', { callBack: callBack, node: node }, encode);
 
         // Validate the input as it's typed
-        elValue.on('input propertychange', function(
-            event /*:KeyBoardEvent */
-        ) /*:void */ {
+        elValue.on('input propertychange', function() /*:void */ {
             if (inputDelay) clearTimeout(inputDelay);
             inputDelay = setTimeout(function() {
                 // For now we save after each input
@@ -93,12 +91,25 @@ var StringView = function() {
     // Clear values and clear elements
     function reset() /*:void */ {
         if (inputDelay) clearTimeout(inputDelay);
-        elEncodeValue = elAlgorithm = elEncType = elResult = elValue = null;
+        elAlgorithm = elEncType = elValue = null;
+    }
+
+    function padding_left(s, c, n) {
+        if (!s || !c || s.length >= n) {
+            return s;
+        }
+        var max = (n - s.length) / c.length;
+        for (var i = 0; i < max; i++) {
+            s = c + s;
+        }
+        return s;
     }
 
     // Encode the string source into the display
     function encode() {
-        var str = elValue.val();
+        var str = elValue.val(),
+            i,
+            j;
         switch (elAlgorithm.val()) {
             case 'b64ASCII':
                 str = btoa(str);
@@ -121,7 +132,7 @@ var StringView = function() {
                 break;
             case 'hex':
                 var hex = '';
-                for (var i = 0; i < str.length; i++) {
+                for (i = 0; i < str.length; i++) {
                     hex += '' + str.charCodeAt(i).toString(16);
                 }
                 str = hex;
@@ -129,21 +140,11 @@ var StringView = function() {
             case 'binary':
                 var arr = [];
                 var data = '';
-                function padding_left(s, c, n) {
-                    if (!s || !c || s.length >= n) {
-                        return s;
-                    }
-                    var max = (n - s.length) / c.length;
-                    for (var i = 0; i < max; i++) {
-                        s = c + s;
-                    }
-                    return s;
-                }
 
-                for (var i = 0; i < str.length; i++) {
+                for (i = 0; i < str.length; i++) {
                     arr.push(str[i].charCodeAt(0).toString(2));
                 }
-                for (var j = 0; j < arr.length; j++) {
+                for (j = 0; j < arr.length; j++) {
                     var pad = padding_left(arr[j], '0', 8);
                     data += pad; // + ' ';
                 }

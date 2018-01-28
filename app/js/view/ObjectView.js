@@ -74,7 +74,7 @@ var ObjectView = function() {
     }
 
     function validate(input /*:Object */) /*:void */ {
-        return typeof input == 'Object';
+        return typeof input == 'object';
     }
 
     // Clear values and clear elements

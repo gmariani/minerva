@@ -15,7 +15,7 @@ var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
 //var dirSync = require('gulp-directory-sync');
 var date = new Date();
-var cdnPath = `https://cdn.mariani.life/projects/minerva/`;
+var cdnPath = 'https://cdn.mariani.life/projects/minerva/';
 //var cdnPath = `https://d4bmb2q7s5m2n.cloudfront.net/minerva/4.1.4/`;
 //var minifyInline = require('gulp-minify-inline');
 function pad(n) {
@@ -73,20 +73,6 @@ gulp.task('js-2', function() {
         .pipe(uglify())
         .pipe(gulp.dest('dist/js/parsers'));
 });
-
-/*
-<!-- Map dev to cdn urls -->
-		<replace file="${dist}\css\main.css" token='url(../' value='url(${cdn.path}/'/>
-		<replace file="${dist}\css\main.css" token='url(../' value='url(${cdn.path}/'/>
-		<replace file="${dist}\index.html" token='content="browserconfig.xml"' value='content="${cdn.path}/browserconfig.xml"'/>
-		<replace file="${dist}\index.html" token='="img/' value='="${cdn.path}/img/'/>
-		<replace file="${dist}\index.html" token='="css/' value='="${cdn.path}/css/'/>
-		<replace file="${dist}\index.html" token='="js/' value='="${cdn.path}/js/'/>
-		<!-- Fix CORS issues with CDN/S3 -->
-		<replace file="${dist}\js\main.min.js" token='new Worker("' value='new Worker("${site.path}/'/>
-		<replace file="${dist}\js\parsers\SOLReaderWorker.js" token='../lib' value='${cdn.path}/js/lib'/>
-        <replace file="${dist}\js\parsers\SOLWriterWorker.js" token='../lib' value='${cdn.path}/js/lib'/>
-        */
 
 // Concat/minify CSS and JS, copy to dist
 gulp.task('useref', function() {

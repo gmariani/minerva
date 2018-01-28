@@ -1,3 +1,4 @@
+/* global debug, util */
 var SOLView = function() {
     /////////////////
     // Constructor //
@@ -10,7 +11,7 @@ var SOLView = function() {
         flexData /*:Object */
     ) /*:void */ {
         // Generate HTML
-        el.html('<h1>' + escape(fileData.name) + '</h1><div></div>' + googlead);
+        el.html('<h1>' + escape(fileData.name) + '</h1><div></div>');
 
         // Add view class for styling
         el.addClass('ObjectType');
@@ -76,7 +77,7 @@ var SOLView = function() {
     }
 
     function validate(input /*:Object */) /*:void */ {
-        return typeof input == 'Object';
+        return typeof input == 'object';
     }
 
     // Clear values and clear elements

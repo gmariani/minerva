@@ -1,4 +1,4 @@
-/* global DataView, Int8Array, ArrayBuffer, error */
+/* global DataView, Int8Array, ArrayBuffer, error, ByteArray */
 /**
  * @author Gabriel Mariani
  *

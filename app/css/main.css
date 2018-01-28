@@ -2,18 +2,11 @@
 
 - Headings: Lato
 - Content: Lato
-- Code/Pre: PT Mono
+- Code/Pre: Menlo, Consolas, Monaco, monospace
 
 *****************************************************/
 
 /***** Fonts *****/
-@font-face {
-    font-family: 'PT Mono';
-    font-style: normal;
-    font-weight: 400;
-    src: local('PT Mono'), local('PTMono-Regular'),
-        url('../font/PT-Mono.woff') format('woff');
-}
 @font-face {
     font-family: 'Lato';
     font-style: normal;
@@ -81,17 +74,13 @@ body {
     font-size: 14px;
     font-family: 'Lato', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-font-smoothing: antialiased;
-    -o-font-smoothing: antialiased;
-    font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }
 h1,
 h2,
 h3,
 h4,
-h5,
-h6 {
+h5 {
     font-family: 'Lato', Helvetica, Arial, sans-serif;
 }
 h1 {
@@ -119,27 +108,17 @@ h4 {
     margin: 0.5rem 0;
 }
 h3,
-h4,
-h6 {
+h4 {
     font-weight: 500;
-}
-h6 {
-    font-size: 0.69444rem;
-    line-height: 1.4rem;
-    margin-top: 0.7rem;
-    /*color: #aaa;*/
-    font-style: italic;
 }
 code,
 pre {
     font-family: Menlo, Consolas, Monaco, monospace;
-    /*font-family: "PT Mono", monospace;*/
     font-size: 0.9rem;
     line-height: 1.26rem;
     margin: 0;
     color: #24292e;
     word-wrap: normal;
-    /* white-space: pre; */
 }
 pre {
     background-color: #f9f9f9;
@@ -153,35 +132,6 @@ pre {
 strong {
     font-weight: 700;
 }
-em,
-figcaption {
-    font-style: italic;
-}
-figcaption {
-    font-size: 0.69444rem;
-    line-height: 1.4rem;
-    margin-top: 0.35rem;
-    color: #a1a1a1;
-}
-blockquote {
-    font-size: 1rem;
-    line-height: 1.5;
-    padding: 0.7rem 0 0.7rem 1.4rem;
-    border-left: 0.35rem solid #315082;
-    color: #315082;
-}
-
-@media all and (min-width: 640px) {
-    blockquote {
-        font-size: 1.2rem;
-    }
-}
-@media (max-width: 42em) {
-    blockquote {
-        margin-left: 1.4rem;
-        padding-right: 1.4rem;
-    }
-}
 p {
     color: #333333;
     font-family: 'Lato', Helvetica, Arial, sans-serif;
@@ -191,9 +141,6 @@ p {
 a {
     text-decoration: none;
     color: #333;
-    webkit-transition: opacity 1s linear;
-    moz-transition: opacity 1s linear;
-    o-transition: opacity 1s linear;
     transition: opacity 1s linear;
     opacity: 1;
     outline: medium none;
@@ -203,14 +150,6 @@ a.disabled {
     opacity: 0.5;
 }
 /***** Clear Fix *****/
-
-/*.clearfix:before, .clearfix:after {
-    content: " ";
-    display: table;
-}
-.clearfix:after {
-    clear: both;
-}*/
 
 .clearfix:after {
     visibility: hidden;
@@ -235,85 +174,7 @@ a.disabled {
     display: inline-block;
 }
 
-/***** Application *****/
-/*#application {
-    margin: 0 auto;
-	position: relative;
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-	height: 100vh;
-	width: 100vw;
-}*/
-/***** Application Nav *****/
-/*#application > nav {
-    background: linear-gradient(#56585d, #2f3034) repeat scroll 0 0
-        rgba(0, 0, 0, 0);
-    border-bottom: 1px solid #000000;
-    height: 45px;
-    max-height: 45px;
-    position: relative;
-    width: 100%;
-}
-#application > nav > ul {
-    float: left;
-    list-style: none outside none;
-    margin: 0;
-    padding: 0;
-}
-#application > nav > ul > li {
-    float: left;
-    position: relative;
-}
-#application > nav > ul > li > a:before {
-    box-shadow: 8px 20px 18px -2px rgba(0, 0, 0, 0.22);
-    content: '';
-    height: 45px;
-    left: -100%;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-#application > nav > ul li a {
-    color: #efefef;
-    display: block;
-    font-size: 1rem;
-    height: 45px;
-    line-height: 45px;
-    overflow: hidden;
-    padding: 0 25px;
-    position: relative;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.22);
-}
-#application > nav li:hover > a,
-#application > nav li a:hover {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-#application > nav > ul.app-nav {
-    float: right;
-}*/
-
-/***** Application Body *****/
-/*#wrapper {
-    display: flex;
-	position: relative;
-	flex: 1;
-}*/
-
 /***** Body Sidebar *****/
-/*#sidebar {
-	background: linear-gradient(180deg,#fafafa,#fafafa) repeat scroll 0 0 transparent;
-	box-shadow: 0 0 10px rgba(0,0,0,.2);
-	overflow: auto;
-	padding: 20px 10px 10px;
-	position: relative;
-	min-height: 100px;
-	padding-bottom: 45px;
-	display: flex;
-	flex: 0.3;
-}*/
 #sidebar > header {
     font-size: 1.3em;
     margin-bottom: 10px;
@@ -352,12 +213,8 @@ a.disabled {
 .jstree-icon.time {
     background-image: url('../img/icons/time.png');
 }
-.jstree-icon.folder {
-    background-image: url('../img/icons/folder.png');
-}
 .jstree-icon.ecmaarray,
 .jstree-icon.array {
-    /*	background-image: url("../img/icons/table.png");*/
     background-image: url('../img/icons/array.png');
 }
 .jstree-icon.false,
@@ -385,12 +242,10 @@ a.disabled {
     background-image: url('../img/icons/dictionary.png');
 }
 .jstree-icon.object {
-    /*	background-image: url("../img/icons/package.png");*/
     background-image: url('../img/icons/object.png');
 }
 .jstree-icon.string,
 .jstree-icon.longstring {
-    /*	background-image: url("../img/icons/font.png");*/
     background-image: url('../img/icons/string.png');
 }
 .jstree-icon.undefined {
@@ -405,18 +260,6 @@ a.disabled {
 }
 
 /***** Body Details *****/
-/*#details {
-    background: none repeat scroll 0 0 #fff;
-	background-image: url(../img/favicon-196x196.png);
-	background-position: 50%;
-	background-repeat: no-repeat;
-	min-height: 100px;
-	padding: 30px;
-	padding-bottom: 45px;
-	overflow-y: auto;
-	display: flex;
-	flex: 1;
-}*/
 #details > nav {
     margin-bottom: 10px;
     display: flex;
@@ -426,7 +269,7 @@ a.disabled {
 #details > nav .vr {
     border-left: 1px solid #bbb;
     display: inline-block;
-    height: 30px;
+    height: 45px;
     margin-left: 5px;
     margin-right: 10px;
     position: relative;
@@ -440,9 +283,6 @@ a.disabled {
     font-size: 1.2em;
     margin: 0 6px 0 0;
     position: relative;
-}
-#details > div.show {
-    display: block;
 }
 #details h1 {
     margin-top: 0;
@@ -474,28 +314,6 @@ a.disabled {
 }
 
 /* String Panel */
-#details.StringType .dataDetails {
-    color: #555;
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
-#details.StringType .dataDetails strong {
-    margin-right: 10px;
-}
-#details.StringType .ratings {
-    float: left;
-    width: auto;
-}
-#details.StringType .slide-chk {
-    width: 110px;
-    float: right;
-}
-#details.StringType .slide-chk:before {
-    content: 'Encode';
-}
-#details.StringType .slide-chk:after {
-    content: 'Decode';
-}
 #details.StringType > div.field {
     height: 80%;
     min-height: 30vh;
@@ -507,52 +325,38 @@ a.disabled {
 }
 
 /* ByteArray Panel */
-#details.ByteArrayType .dataDetails {
-    color: #555;
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
-#details.ByteArrayType .dataDetails strong {
-    margin-right: 10px;
-}
 #details.ByteArrayType .hex {
-    width: 780px;
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.75);
+    width: 978px;
+    background: hsla(0, 0%, 100%, 0.75);
+    border: 1px solid #d8d8d8;
+    background-color: #f9f9f9;
+    padding: 10px;
 }
-#details.ByteArrayType .hexscale,
-#details.ByteArrayType .hexdump,
-#details.ByteArrayType .hextext,
-#details.ByteArrayType .hexoffset pre {
-    font-size: 1.6em;
+.hex .hexBody {
+    display: flex;
+}
+.hex .hexscale,
+.hex .hexdump,
+.hex .hextext,
+.hex .hexoffset pre {
+    font-size: 1.3em;
     line-height: 1.3em;
+    border: none;
+    padding: 0;
 }
-#details.ByteArrayType .hexscale {
-    color: #bbb;
-    padding-left: 140px;
+.hex .hexscale {
+    padding: 10px 0 10px 110px;
     text-transform: uppercase;
-    width: 595px;
-    margin-bottom: 5px;
 }
-#details.ByteArrayType .hexoffset {
-    color: #bbb;
-    float: left;
+.hex .hexoffset pre {
     padding-right: 10px;
-    text-align: right;
-    border: 1px solid transparent;
-    width: 125px;
 }
-#details.ByteArrayType .hexdump {
-    float: left;
-    width: 470px;
-    border: 1px solid #bbb;
-    padding-left: 10px;
+.hex .hextext {
+    padding-left: 0;
 }
-#details.ByteArrayType .hextext {
-    float: left;
-    /*width: 10em;*/
-    padding-left: 10px;
-    border: 1px solid transparent;
+.hex .hexscale,
+.hex .hexoffset pre {
+    color: #bbb;
 }
 
 /* XML Panel */
@@ -563,7 +367,7 @@ a.disabled {
     margin-top: 10px;
 }
 #details.XMLType textarea {
-    font-family: 'PT Mono';
+    font-family: Menlo, Consolas, Monaco, monospace;
     font-size: 1.1rem;
 }
 
@@ -572,39 +376,6 @@ a.disabled {
 #details.VectorType p span {
     text-transform: capitalize;
 }
-#details.ObjectType .field,
-#details.VectorType .field {
-    display: block;
-    float: none;
-}
-
-/***** Application Footer *****/
-/*footer {
-    background-color: #2f3034;
-    display: inline-block;
-    height: 150px;
-    margin-top: -150px;
-    position: absolute;
-    top: 100%;
-    width: 100%;
-    z-index: 10;
-    text-align: center;
-    font-size: 1em;
-    padding: 15px;
-}
-footer a,
-footer .year,
-footer small {
-    color: #999999;
-}
-footer a:visited,
-footer a:hover {
-    text-decoration: underline;
-}
-
-.adsbygoogle {
-    background-color: #cccccc;
-}*/
 
 /***** Forms *****/
 .search-icon {
@@ -683,19 +454,6 @@ input[type='radio'] {
     width: 38px;
     height: 100%;
 }
-/*.field input,
-.field textarea,
-.field div.textarea,
-.field select {
-    padding: 12px 20px 10px 50px;
-    width: 100%;
-    float: left;
-    color: #333;
-    font-size: 1.1rem;
-    border: solid 1px #ddd;
-    background: rgba(255, 255, 255, 0.75);
-    font-family: 'Lato', Helvetica, Arial, sans-serif;
-}*/
 .field > input:hover,
 .field > input:focus,
 .field > select:hover,
@@ -729,15 +487,11 @@ textarea:focus ~ span.icon {
 }
 .field textarea.message,
 .field div.textarea.message {
-    /*height: 159px;
-	max-height: 159px;*/
     height: 100%;
     max-height: 100%;
 }
 .field textarea:focus,
 .field div.textarea:focus {
-    /*height: 200px;
-	max-height: 200px;*/
     height: 100%;
     max-height: 100%;
 }
@@ -784,12 +538,10 @@ textarea ~ span.icon {
     background-color: rgba(0, 0, 0, 0);
     height: auto;
     z-index: 2;
-    /*padding-left: 47px;*/
     padding-left: 10px;
     cursor: pointer;
     -webkit-appearance: none;
     -moz-appearance: none;
-    appearance: none;
 }
 select.grayed {
     color: #999;
@@ -798,7 +550,7 @@ select.grayed {
 .arrow-select-svg {
     background: #fff url('../img/select.png') no-repeat 0 11px;
     width: 44px;
-    height: 38px;
+    height: 43px;
     position: absolute;
     right: 1px;
     top: 1px;
@@ -886,7 +638,6 @@ label.tick {
     width: auto;
     position: relative;
     display: inline-block;
-    /*float: left;*/
 }
 label.tick:before {
     position: absolute;
@@ -975,9 +726,6 @@ label.tick:hover span {
     background: #333;
 }
 /* css for timepicker */
-.ui-timepicker-div .ui-widget-header {
-    margin-bottom: 8px;
-}
 .ui-timepicker-div dl {
     text-align: left;
 }
@@ -988,29 +736,6 @@ label.tick:hover span {
 }
 .ui-timepicker-div dl dd {
     margin: 0 10px 10px 45%;
-}
-.ui-timepicker-div td {
-    font-size: 90%;
-}
-.ui-tpicker-grid-label {
-    background: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-}
-.ui-timepicker-rtl {
-    direction: rtl;
-}
-.ui-timepicker-rtl dl {
-    text-align: right;
-    padding: 0 5px 0 0;
-}
-.ui-timepicker-rtl dl dt {
-    float: right;
-    clear: right;
-}
-.ui-timepicker-rtl dl dd {
-    margin: 0 45% 10px 10px;
 }
 
 /***** Modal Overlay *****/
@@ -1047,7 +772,6 @@ label.tick:hover span {
 .overlay > section .controls {
     position: absolute;
     right: 40px;
-    /*top: 46px;*/
     z-index: 999;
     opacity: 0;
     transition: all 0.3s ease 0.1s;
@@ -1067,12 +791,10 @@ label.tick:hover span {
     width: 24px;
 }
 .overlay > section .controls a.close-top {
-    /*background: none repeat scroll 0 0 #ff2424;*/
     background-color: #ff2424;
     margin-left: 20px;
 }
 .overlay > section .controls a.close-top:hover {
-    /*background: none repeat scroll 0 0 #333;*/
     background-color: #333;
 }
 .overlay .forms {
@@ -1108,13 +830,6 @@ label.tick:hover span {
     position: relative;
     visibility: visible;
     z-index: 10;
-}
-.overlay a.close-overlay {
-    content: '';
-    height: 100%;
-    position: absolute;
-    width: 100%;
-    z-index: 0;
 }
 .overlay .cancel {
     display: none;
@@ -1184,8 +899,6 @@ label.tick:hover span {
     padding-left: 0;
 }
 #createWindow .create-example code {
-    /*line-height:1.6em;
-	padding: 2px;*/
     display: inline-block;
 }
 #createWindow .create-example li {
@@ -1212,11 +925,6 @@ label.tick:hover span {
 }
 #aboutOverlay #aboutWindow img {
     float: left;
-}
-#aboutOverlay #aboutWindow small {
-    text-align: center;
-    width: 100%;
-    display: inline-block;
 }
 #aboutOverlay #aboutWindow a {
     color: #04819f;

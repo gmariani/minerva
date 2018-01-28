@@ -28,7 +28,7 @@ var ArrayView = function() {
 
     function validate(input /*:Array */) /*:void */ {
         return (
-            typeof input == 'Object' &&
+            typeof input == 'object' &&
             Object.prototype.toString.call(input) === '[object Array]'
         );
     }

@@ -2,17 +2,6 @@
 var util = {};
 var debug = false;
 var isLocal = true;
-/*var googlead =
-    '<span class="googlead"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>' +
-    '<!-- Minerva Footer 728x90 -->' +
-    '<ins class="adsbygoogle"' +
-    ' style="display:inline-block;width:728px;height:90px"' +
-    ' data-ad-client="ca-pub-4393629565174725"' +
-    ' data-ad-slot="3734585686"></ins>' +
-    '<script>' +
-    '(adsbygoogle = window.adsbygoogle || []).push({});' +
-    '</script></span>';*/
-var googlead = ''; // Disabled
 
 (function() {
     util.zero = function(num) {
@@ -1844,8 +1833,6 @@ $(function() {
                     );
                     break;
                 case 'number':
-                //	numberView.init(elDetailsPane, node, node.data.value, onValueChange);
-                //	break;
                 case 'integer':
                     numberView.init(
                         elDetailsPane,
@@ -1853,7 +1840,6 @@ $(function() {
                         node.data.value,
                         onValueChange
                     );
-                    // integerView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'bytearray':
                     byteArrayView.init(

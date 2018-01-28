@@ -15,8 +15,7 @@ var IntegerView = function() {
             '<div class="field">' +
             '<input id="IntegerValue" type="text">' +
             '<span class="right-circled-icon icon"></span>' +
-            '</div>' +
-            googlead;
+            '</div>';
         el.html(strHTML);
 
         // Add view class for styling
@@ -42,9 +41,7 @@ var IntegerView = function() {
         });
 
         // Save the value when the input changes
-        elValue.on('input propertychange', function(
-            event /*:KeyboardEvent */
-        ) /*:void */ {
+        elValue.on('input propertychange', function() /*:void */ {
             if (validate(elValue.val())) {
                 elValue.removeClass('error');
                 callBack(sanitize(elValue.val()), node);

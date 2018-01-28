@@ -38,7 +38,7 @@ var VectorView = function() {
     }
 
     function validate(input /*:Array */) /*:void */ {
-        return typeof input == 'Object';
+        return typeof input == 'object';
     }
 
     // Clear value

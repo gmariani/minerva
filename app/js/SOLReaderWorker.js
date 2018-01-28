@@ -1,3 +1,4 @@
+/* global AMF0, AMF3, ByteArray */
 (function() {
     importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
 
@@ -36,16 +37,12 @@
         FilePath: 3,
     };
 
-    function DefineLSO(ba, obj) {
+    function DefineLSO(ba) {
         this.header = new DefineHeader(ba);
-        var pos = ba.position;
 
         // Signature, 'TCSO'
         var sig = ba.readUTFBytes(4);
-        if ('TCSO' != sig) {
-            throw 'Missing TCSO signature, not a SOL file';
-            return;
-        }
+        if ('TCSO' != sig) throw 'Missing TCSO signature, not a SOL file';
 
         // Unknown, 6 bytes long 0x00 0x04 0x00 0x00 0x00 0x00 0x00
         ba.readUTFBytes(6);
@@ -87,7 +84,7 @@
         }
     }
 
-    function DefineFilePath(ba, obj) {
+    function DefineFilePath(ba) {
         this.header = new DefineHeader(ba);
         this.filePath = ba.readUTFBytes(ba.readUnsignedShort(), true);
     }

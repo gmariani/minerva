@@ -57,9 +57,11 @@ var ByteArrayView = function() {
             '<p><strong>Possible Compression:</strong> <span id="compressionType"></span></p>' +
             '<div class="hex clearfix">' +
             '<pre class="hexscale">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F</pre>' +
+            '<div class="hexBody">' +
             '<div id="ByteArrayOffset" class="hexoffset"></div>' +
             '<pre id="ByteArrayValue" class="hexdump" contentEditable="true" rows="20" cols="50"></pre>' +
             '<pre id="ByteArrayString" class="hextext"></pre>' +
+            '</div>' +
             '</div>';
 
         el.html(strHTML);
@@ -141,8 +143,7 @@ var ByteArrayView = function() {
         // Format the bytearray into columns
         var str = '';
         var hex = '';
-        var offsets =
-                '<div><div><pre title="0x0000000000 = 16">0000000000</pre>',
+        var offsets = '<pre title="0x0000000000 = 16">0000000000</pre>',
             l;
         //console.log('Index', 'Decimal', 'Hex', 'Character');
         for (var i = 0, originalLen = (l = ba.length); i < l; i++) {
@@ -187,8 +188,8 @@ var ByteArrayView = function() {
         elCompType.html(getCompType(ba));
     }
 
-    function baExport(event) {
-        var fileName = event.data.node.text,
+    function baExport() {
+        var fileName = treeNode.text,
             blob = new Blob([new Uint8Array(ba)], {
                 type: 'application/octet-binary',
             });
@@ -399,10 +400,8 @@ var ByteArrayView = function() {
         if (input.length < 5) return false;
 
         //  Convert array to arraybuffer to bytearray
-        var ba2 = new ByteArray(
-            Uint8Array(input).buffer,
-            ByteArray.LITTLE_ENDIAN
-        );
+        var u8array = new Uint8Array(input),
+            ba2 = new ByteArray(u8array.buffer, ByteArray.LITTLE_ENDIAN);
 
         var lc,
             lp,
