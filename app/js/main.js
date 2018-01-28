@@ -238,7 +238,8 @@ $(function() {
     // If Linux user running Gnash Flash substitute
     // Others: Shumway, Lightspark, don't know paths
     if (os.short == 'Linux' || os.short == 'Unix') {
-        path += '<strong>Gnash: </strong><code>~/.gnash/SharedObjects/</code>';
+        path +=
+            '<br/><strong>Gnash: </strong><code>~/.gnash/SharedObjects/</code>';
     }
 
     // If using PPAPI Flash Plugin, path is different

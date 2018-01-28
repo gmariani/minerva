@@ -40,16 +40,175 @@
 	<link rel="icon" type="image/png" href="img/favicon-96x96.png" sizes="96x96">
 	<link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
 	<link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
-	<link rel="stylesheet" href="css/themes/default/style.min.css" />
-	<link rel="stylesheet" href="css/jquery-ui.min.css">
-	<link rel="stylesheet" href="css/main.css">
+	<style>
+		/***** Application *****/
+
+		#application {
+			margin: 0 auto;
+			position: relative;
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			height: 100vh;
+			width: 100vw;
+		}
+
+		/***** Application Nav *****/
+
+		#application>nav {
+			background: linear-gradient(#56585d, #2f3034) repeat scroll 0 0 rgba(0, 0, 0, 0);
+			border-bottom: 1px solid #000000;
+			position: relative;
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#application>nav>ul {
+			/*float: left;*/
+			list-style: none outside none;
+			margin: 0;
+			padding: 0;
+
+			display: flex;
+			flex-direction: row;
+			width: 100%;
+			flex-wrap: wrap;
+			flex: 1;
+			max-width: 100vw;
+		}
+
+		#application>nav li.spacer {
+			flex: 1;
+		}
+
+		#application>nav>ul>li {
+			/* float: left; */
+			position: relative;
+			display: flex;
+		}
+
+		#application>nav>ul>li>a:before {
+			box-shadow: 8px 20px 18px -2px rgba(0, 0, 0, 0.22);
+			content: '';
+			height: 45px;
+			left: -100%;
+			position: absolute;
+			top: 0;
+			width: 100%;
+		}
+
+		#application>nav>ul li a {
+			color: #efefef;
+			display: block;
+			font-size: 1rem;
+			height: 45px;
+			line-height: 45px;
+			overflow: hidden;
+			padding: 0 25px;
+			position: relative;
+			text-align: center;
+			text-decoration: none;
+			text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.22);
+		}
+
+		#application>nav li:hover>a,
+		#application>nav li a:hover {
+			background-color: rgba(0, 0, 0, 0.5);
+		}
+
+		#application>nav>ul.app-nav {
+			float: right;
+		}
+
+		/***** Application Body *****/
+
+		#wrapper {
+			display: flex;
+			position: relative;
+			flex: 1;
+		}
+
+		/***** Body Details *****/
+
+		#details {
+			background: none repeat scroll 0 0 #fff;
+			background-image: url(img/favicon-196x196.png);
+			background-position: 50%;
+			background-repeat: no-repeat;
+			min-height: 100px;
+			padding: 30px;
+			padding-bottom: 45px;
+			overflow-y: auto;
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+		}
+
+		/***** Body Sidebar *****/
+
+		#sidebar {
+			background: linear-gradient(180deg, #fafafa, #fafafa) repeat scroll 0 0 transparent;
+			box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+			overflow: auto;
+			padding: 20px 10px 10px;
+			position: relative;
+			min-height: 100px;
+			padding-bottom: 45px;
+			display: flex;
+			flex: 0.3;
+			flex-direction: column;
+		}
+
+		/***** Application Footer *****/
+
+		footer {
+			background-color: #2f3034;
+			width: 100vw;
+			text-align: center;
+			font-size: 1em;
+			padding: 15px;
+			flex-direction: column;
+			align-items: center;
+			display: flex;
+		}
+
+		footer a,
+		footer .year,
+		footer small {
+			color: #999999;
+		}
+
+		footer a:visited,
+		footer a:hover {
+			text-decoration: underline;
+		}
+
+		.adsbygoogle {
+			background-color: #cccccc;
+			max-width: 100%;
+		}
+
+		.field input,
+		.field textarea,
+		.field div.textarea,
+		.field select {
+			padding: 12px 20px 10px 50px;
+			width: 100%;
+			color: #333;
+			font-size: 1.1rem;
+			border: solid 1px #ddd;
+			background: rgba(255, 255, 255, 0.75);
+			font-family: 'Lato', Helvetica, Arial, sans-serif;
+		}
+	</style>
 </head>
 
 <body>
 	<div id="alertOverlay" class="overlay">
 		<section>
 			<div class="controls">
-				<a class="entypo-cancel close-top" href="#"></a>
+				<a class="cancel-icon close-top" href="#"></a>
 			</div>
 			<div class="forms">
 				<div id="alertWindow" class="show">
@@ -67,7 +226,7 @@
 	<div id="aboutOverlay" class="overlay">
 		<section>
 			<div class="controls">
-				<a class="entypo-cancel close-top" href="#"></a>
+				<a class="cancel-icon close-top" href="#"></a>
 			</div>
 			<div class="forms">
 				<div id="aboutWindow" class="show">
@@ -76,7 +235,7 @@
 					<section class="clearfix">
 						<div class="row">
 							<div>
-								<img class="spin" src="img/favicon-196x196.png" />
+								<img class="spin" src="img/favicon-196x196.png" alt=".minerva's logo, a cartoon cloud" />
 							</div>
 							<div class="col about-content">
 								<p>
@@ -413,9 +572,6 @@
 ####################################################
     - Initial release. Support for AS2 (AMF0) Shared Objects.
 </pre>
-						<small>&copy; %YEAR%
-							<a href="https://mariani.life" title="Mariani | Web Design, SEO, Flash">Gabriel Mariani</a>
-						</small>
 					</section>
 				</div>
 			</div>
@@ -425,7 +581,7 @@
 	<div id="overlay" class="overlay">
 		<section>
 			<div class="controls">
-				<a class="entypo-cancel close-top" href="#"></a>
+				<a class="cancel-icon close-top" href="#"></a>
 			</div>
 			<div class="forms">
 				<div id="newWindow">
@@ -433,7 +589,7 @@
 					<div class="details no-float">
 						<div class="field">
 							<input type="text" id="txtNewName" placeholder="Filename">
-							<span class="entypo-right-circled icon"></span>
+							<span class="right-circled-icon icon"></span>
 						</div>
 						<div class="field">
 							<p>
@@ -458,7 +614,7 @@
 					<div class="clearfix">
 						<div class="field">
 							<input type="file" id="filesFile" name="filesFile" />
-							<span class="entypo-right-circled icon"></span>
+							<span class="right-circled-icon icon"></span>
 						</div>
 					</div>
 					<div id="fileProgressBar" class="progressBar">
@@ -472,7 +628,7 @@
 
 				<div id="saveWindow">
 					<h1>Saving File</h1>
-					<img src="img/Mega_Man_Running_Gif.gif" height="100px" />
+					<img src="img/Mega_Man_Running_Gif.gif" height="100px" width="96px" alt="looping loading graphic" />
 				</div>
 
 				<div id="importBinaryWindow">
@@ -480,7 +636,7 @@
 					<div class="details no-float">
 						<div class="field">
 							<input type="file" id="filesBinary" name="filesBinary" />
-							<span class="entypo-right-circled icon"></span>
+							<span class="right-circled-icon icon"></span>
 						</div>
 					</div>
 					<div id="binProgressBar" class="progressBar">
@@ -497,11 +653,11 @@
 					<div class="details no-float">
 						<div class="field">
 							<input type="text" id="txtJSONName" placeholder="Filename">
-							<span class="entypo-right-circled icon"></span>
+							<span class="right-circled-icon icon"></span>
 						</div>
 						<div class="field">
 							<textarea id="txtJSONValue" rows="20" cols="50" class="message" placeholder="Valid JSON"></textarea>
-							<span class="entypo-comment icon"></span>
+							<span class="comment-icon icon"></span>
 						</div>
 						<input type="button" id="btnImportJSON" name="btnImportJSON" class="send" value="Import">
 						<span class="clearfix"></span>
@@ -513,7 +669,7 @@
 					<div class="details no-float">
 						<!--<div class="field">
 						<input type="text" id="txtNewType" placeholder="Label">
-						<span class="entypo-right-circled icon"></span>
+						<span class="right-circled-icon icon"></span>
 					</div>-->
 						<h3>Label</h3>
 						<p>
@@ -521,7 +677,7 @@
 						</p>
 						<div class="field">
 							<input type="text" id="txtNewLabel" placeholder="Key">
-							<span class="entypo-right-circled icon"></span>
+							<span class="right-circled-icon icon"></span>
 						</div>
 
 						<h3>Value</h3>
@@ -561,7 +717,7 @@
 						</p>
 						<div class="field">
 							<textarea id="txtNewValue" rows="5" cols="50" class="message" placeholder="Value"></textarea>
-							<span class="entypo-comment icon"></span>
+							<span class="comment-icon icon"></span>
 						</div>
 						<input type="button" id="btnCreateItem" name="btnCreateItem" class="send" value="Create">
 						<span class="clearfix"></span>
@@ -592,11 +748,9 @@
 				<li>
 					<a id="closeFile" href="javascript:void(0);" class="disabled" title="Close file">Close</a>
 				</li>
-			</ul>
-
-			<ul class="app-nav">
+				<li class="spacer"></li>
 				<li>
-					<a href="https://github.com/gmariani/minerva" target="_blank" title="Report a bug">Support</a>
+					<a href="https://github.com/gmariani/minerva" target="_blank" rel="noopener" title="Report a bug">Support</a>
 				</li>
 				<li>
 					<a id="about" href="javascript:void(0);" title="About .minerva">About</a>
@@ -609,8 +763,9 @@
 				<header id="title"></header>
 				<div class="search clearfix">
 					<div class="field">
+						<label for="search_tree" class="sr-only">Search</label>
 						<input type="search" id="search_tree" placeholder="Search" />
-						<span class="entypo-search icon"></span>
+						<span class="icon search-icon"></span>
 					</div>
 				</div>
 				<div id="jstree"></div>
@@ -622,40 +777,43 @@
 
 		<footer>
 			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-			<!-- Minerva Footer 728x90 -->
 			<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-4393629565174725" data-ad-slot="3734585686"></ins>
 			<script>
 				(adsbygoogle = window.adsbygoogle || []).push({});
 			</script>
-			<br/>
 			<small class="year">&copy; %YEAR%
-				<a href="https://mariani.life" title="Mariani | Web Design, SEO, Flash" class="cv-logo dark">mariani.life</a>
+				<a href="https://mariani.life" title="Mariani | Web Design, SEO, Flash">Gabriel Mariani</a>
 			</small>
-			<br/>
 			<small>Last built on: %BUILT%</small>
 		</footer>
 	</div>
 
 	<div id="divPinSite">
-		<img src="img/whiteArrow.png" alt="" width="16" height="16" /> Drag the site icon to the taskbar to pin site
+		<img src="img/whiteArrow.png" alt="Pin this site" width="16" height="16" /> Drag the site icon to the taskbar to pin site
 	</div>
 
-	<script src="js/vendor/jquery-2.1.4.min.js"></script>
-	<script src="js/vendor/jquery.timeago.min.js"></script>
-	<script src="js/vendor/jquery.cookie.min.js"></script>
-	<script src="js/vendor/jquery-ui.min.js"></script>
-	<script src="js/vendor/jquery-ui.timepicker-addon.min.js"></script>
-	<script src="js/vendor/jstree.min.js"></script>
-	<script src="js/vendor/jstree.sort.min.js"></script>
-	<script src="js/vendor/jstree.search.min.js"></script>
-	<script src="js/vendor/jstree.contextmenu.min.js"></script>
-	<script src="js/vendor/Blob.min.js"></script>
-	<script src="js/vendor/FileSaver.min.js"></script>
+	<!-- build:css css/bundle.css -->
+	<link rel="stylesheet" href="css/theme.css" />
+	<link rel="stylesheet" href="css/jquery-ui.css">
+	<link rel="stylesheet" href="css/main.css" media="screen">
+	<!-- endbuild -->
+
+	<!-- build:js js/bundle.js -->
+	<script src="js/vendor/jquery-3.3.1.js"></script>
+	<script src="js/vendor/jquery.timeago.js"></script>
+	<script src="js/vendor/jquery.cookie.js"></script>
+	<script src="js/vendor/jquery-ui-1.12.1.js"></script>
+	<script src="js/vendor/jquery-ui.timepicker-addon.js"></script>
+	<script src="js/vendor/jstree.js"></script>
+	<script src="js/vendor/jstree.sort.js"></script>
+	<script src="js/vendor/jstree.search.js"></script>
+	<script src="js/vendor/jstree.contextmenu.js"></script>
+	<script src="js/vendor/Blob.js"></script>
+	<script src="js/vendor/FileSaver.js"></script>
 	<script src="js/vendor/zlib.min.js"></script>
 	<script src="js/vendor/rawdeflate.min.js"></script>
 	<script src="js/vendor/rawinflate.min.js"></script>
-	<!--<script src="js/vendor/lzma.js"></script>-->
-	<script src="js/vendor/lzma_worker.min.js"></script>
+	<script src="js/vendor/lzma_worker.js"></script>
 
 	<script src="js/lib/ByteArray.js"></script>
 	<script src="js/lib/AMF0.js"></script>
@@ -677,8 +835,10 @@
 	<script src="js/view/XMLView.js"></script>
 	<script src="js/view/Alert.js"></script>
 	<script src="js/main.js"></script>
+	<!-- endbuild -->
+
 	<script>
-		(function (i, s, o, g, r, a, m) {
+		/*(function (i, s, o, g, r, a, m) {
 			i['GoogleAnalyticsObject'] = r;
 			i[r] = i[r] || function () {
 				(i[r].q = i[r].q || []).push(arguments)
@@ -689,7 +849,7 @@
 			m.parentNode.insertBefore(a, m)
 		})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 		ga('create', 'UA-349755-7', 'auto');
-		ga('send', 'pageview');
+		ga('send', 'pageview');*/
 	</script>
 </body>
 

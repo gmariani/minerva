@@ -1,4 +1,5 @@
 /* eslint-env node */
+//var pckg = require('./package.json');
 var gulp = require('gulp');
 var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
@@ -12,8 +13,10 @@ var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
-var dirSync = require('gulp-directory-sync');
+//var dirSync = require('gulp-directory-sync');
 var date = new Date();
+var cdnPath = `https://cdn.mariani.life/projects/minerva/`;
+//var cdnPath = `https://d4bmb2q7s5m2n.cloudfront.net/minerva/4.1.4/`;
 //var minifyInline = require('gulp-minify-inline');
 function pad(n) {
     return n < 10 ? '0' + n : n;
@@ -41,48 +44,63 @@ gulp.task('clean:dist', function() {
 // Copy other php files over to dist except for index.php
 gulp.task('base', function() {
     return gulp
-        .src(['app/favicon.ico', 'app/browserconfig.xml'])
+        .src(['app/favicon.ico', 'app/browserconfig.xml', 'app/manifest.json'])
         .pipe(gulp.dest('dist'));
 });
+gulp.task('images', function() {
+    return gulp.src('app/img/**/*').pipe(gulp.dest('dist/img'));
+});
+gulp.task('fonts', function() {
+    return gulp.src('app/font/*').pipe(gulp.dest('dist/font'));
+});
+gulp.task('js-1', function() {
+    return gulp
+        .src([
+            'app/js/lib/ByteArray.js',
+            'app/js/lib/AMF0.js',
+            'app/js/lib/AMF3.js',
+        ])
+        .pipe(uglify())
+        .pipe(gulp.dest('dist/js/lib'));
+});
+gulp.task('js-2', function() {
+    return gulp
+        .src([
+            'app/js/parsers/SOLReaderWorker.js',
+            'app/js/parsers/SOLWriterWorker.js',
+        ])
+        .pipe(replace('../', `${cdnPath}js/`))
+        .pipe(uglify())
+        .pipe(gulp.dest('dist/js/parsers'));
+});
 
-// Minify inline css and js
-/*gulp.task('base2', function() {
-	return gulp.src(['app/login.php'])
-		.pipe(minifyInline())
-		.pipe(gulp.dest('dist'))
-});*/
+/*
+<!-- Map dev to cdn urls -->
+		<replace file="${dist}\css\main.css" token='url(../' value='url(${cdn.path}/'/>
+		<replace file="${dist}\css\main.css" token='url(../' value='url(${cdn.path}/'/>
+		<replace file="${dist}\index.html" token='content="browserconfig.xml"' value='content="${cdn.path}/browserconfig.xml"'/>
+		<replace file="${dist}\index.html" token='="img/' value='="${cdn.path}/img/'/>
+		<replace file="${dist}\index.html" token='="css/' value='="${cdn.path}/css/'/>
+		<replace file="${dist}\index.html" token='="js/' value='="${cdn.path}/js/'/>
+		<!-- Fix CORS issues with CDN/S3 -->
+		<replace file="${dist}\js\main.min.js" token='new Worker("' value='new Worker("${site.path}/'/>
+		<replace file="${dist}\js\parsers\SOLReaderWorker.js" token='../lib' value='${cdn.path}/js/lib'/>
+        <replace file="${dist}\js\parsers\SOLWriterWorker.js" token='../lib' value='${cdn.path}/js/lib'/>
+        */
 
 // Concat/minify CSS and JS, copy to dist
 gulp.task('useref', function() {
-    return (gulp
-            .src(['app/index.html'])
-            // Handles file concatenation but not minification
-            .pipe(useref({}))
-            // Minifies only if it's a JavaScript file
-            .pipe(gulpIf('*.js', uglify().on('error', gulpUtil.log)))
-            // Minifies only if it's a CSS file
-            .pipe(gulpIf('*.css', cssnano()))
-            .pipe(htmlmin({ collapseWhitespace: true }))
-            .pipe(gulp.dest('dist')) );
+    return gulp
+        .src('app/index.html')
+        .pipe(useref({}))
+        .pipe(gulpIf('*.js', uglify().on('error', gulpUtil.log)))
+        .pipe(gulpIf('*.css', cssnano()))
+        .pipe(gulp.dest('dist'));
 });
 
-// Add base flickr directory to css and js paths
 gulp.task('fix-index', function() {
     gulp
         .src(['dist/index.html'])
-        .pipe(
-            replace(
-                'css/styles.min.css',
-                '/projects/minerva/css/styles.min.css'
-            )
-        )
-        .pipe(replace('js/main.min.js', '/projects/minerva/js/main.min.js'))
-        .pipe(replace('<script src="js/lib/AMF0.js"></script>', ''))
-        .pipe(replace('<script src="js/lib/AMF3.js"></script>', ''))
-
-        .pipe(replace('.min.js"></script>', '.min.js" async></script>'))
-        .pipe(replace('.min.css">', '.min.css" media="screen">'))
-
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
         .pipe(
             replace(
@@ -102,31 +120,48 @@ gulp.task('fix-index', function() {
                     pad(date.getDate())
             )
         ) // yyyyMMdd
-        .pipe(gulp.dest('dist'));
-});
-
-// Copy images, optimize them, and cache the optimized images so
-// it doesn't have to run lots of times
-//gulp.task('images', function() {
-// return gulp
-//.src('app/img/**/*.+(png|jpg|gif|svg)')
-// .pipe(cache(imagemin()))
-// .pipe(gulp.dest('dist/img'));
-//});
-gulp.task('images', function() {
-    return gulp
-        .src('')
-        .pipe(dirSync('app/img', 'dist/img', { printSummary: true }));
-});
-
-// Copy fonts over to dist
-gulp.task('fonts', function() {
-    return gulp.src('app/fonts/**/*').pipe(gulp.dest('dist/fonts'));
-});
-
-gulp.task('html', function() {
-    return gulp
-        .src('src/*.html')
+        /*.pipe(
+            replace(
+                'content="img/',
+                'content="https://cdn.mariani.life/projects/minerva/img/'
+            )
+        )
+        .pipe(
+            replace(
+                'content="browserconfig',
+                'content="https://cdn.mariani.life/projects/minerva/browserconfig'
+            )
+        )
+        .pipe(
+            replace(
+                'href="img/',
+                'href="https://cdn.mariani.life/projects/minerva/img/'
+            )
+        )
+        .pipe(
+            replace(
+                'href="css/',
+                'href="https://cdn.mariani.life/projects/minerva/css/'
+            )
+        )
+        .pipe(
+            replace(
+                'href="manifest',
+                'href="https://cdn.mariani.life/projects/minerva/manifest'
+            )
+        )
+        .pipe(
+            replace(
+                'href="favicon',
+                'href="https://cdn.mariani.life/projects/minerva/favicon'
+            )
+        )
+        .pipe(
+            replace(
+                'script src="',
+                'script src="https://cdn.mariani.life/projects/minerva/'
+            )
+        )*/
         .pipe(htmlmin({ collapseWhitespace: true }))
         .pipe(gulp.dest('dist'));
 });
@@ -134,9 +169,9 @@ gulp.task('html', function() {
 // Run above tasks in sequence
 gulp.task('build', function(callback) {
     runSequence(
-        //'clean:dist',
-        ['base', 'useref', 'images'],
-        'fix-index',
+        'clean:dist',
+        ['base', 'useref'],
+        ['images', 'fonts', 'js-1', 'js-2', 'fix-index'],
         callback
     );
 });
@@ -151,8 +186,6 @@ gulp.task('copy_index', function() {
 gulp.task('fix-index_local', function() {
     gulp
         .src(['app/local.html'])
-        .pipe(replace(' manifest="manifest.appcache"', ''))
-        .pipe(replace('<link rel="manifest" href="manifest.json">', ''))
         .pipe(
             replace(
                 '<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>',
