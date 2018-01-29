@@ -204,6 +204,57 @@ a.disabled {
     background-position: center center;
     background-size: auto auto;
 }
+.jstree-icon.ecmaarray,
+.jstree-icon.array,
+.jstree-icon.false,
+.jstree-icon.true,
+.jstree-icon.boolean,
+.jstree-icon.bytearray,
+.jstree-icon.date,
+.jstree-icon.integer,
+.jstree-icon.null,
+.jstree-icon.double,
+.jstree-icon.number,
+.jstree-icon.dictionary,
+.jstree-icon.object,
+.jstree-icon.string,
+.jstree-icon.longstring,
+.jstree-icon.undefined,
+.jstree-icon.vector,
+.jstree-icon.xmldocument,
+.jstree-icon.xml {
+    border-radius: 50px;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 4px;
+}
+.jstree-icon.ecmaarray:before,
+.jstree-icon.array:before,
+.jstree-icon.false:before,
+.jstree-icon.true:before,
+.jstree-icon.boolean:before,
+.jstree-icon.bytearray:before,
+.jstree-icon.date:before,
+.jstree-icon.integer:before,
+.jstree-icon.null:before,
+.jstree-icon.double:before,
+.jstree-icon.number:before,
+.jstree-icon.dictionary:before,
+.jstree-icon.object:before,
+.jstree-icon.string:before,
+.jstree-icon.longstring:before,
+.jstree-icon.undefined:before,
+.jstree-icon.vector:before,
+.jstree-icon.xmldocument:before,
+.jstree-icon.xml:before {
+    content: '-';
+    font-style: normal;
+    line-height: 14px;
+    margin: 0;
+    padding: 0;
+    display: block;
+    font-size: 14px;
+}
 .jstree-icon.localsharedobject {
     background-image: url('../img/icons/SOL_16.png');
 }
@@ -215,48 +266,93 @@ a.disabled {
 }
 .jstree-icon.ecmaarray,
 .jstree-icon.array {
-    background-image: url('../img/icons/array.png');
+    background-color: #30dfc4;
+}
+.jstree-icon.ecmaarray:before,
+.jstree-icon.array:before {
+    content: 'A';
 }
 .jstree-icon.false,
 .jstree-icon.true,
 .jstree-icon.boolean {
-    background-image: url('../img/icons/boolean.png');
+    background-color: #3fd0d5;
 }
 .jstree-icon.bytearray {
-    background-image: url('../img/icons/bytearray.png');
+    background-color: #b8b8b8;
+}
+.jstree-icon.false:before,
+.jstree-icon.true:before,
+.jstree-icon.boolean:before,
+.jstree-icon.bytearray:before {
+    content: 'b';
 }
 .jstree-icon.date {
-    background-image: url('../img/icons/date.png');
+    background-color: #be9d7f;
+}
+.jstree-icon.date:before {
+    content: 'd';
 }
 .jstree-icon.integer {
-    background-image: url('../img/icons/int.png');
+    background-color: #fc5530;
 }
+.jstree-icon.integer:before {
+    content: 'I';
+    line-height: 15px;
+}
+.jstree-icon.undefined,
 .jstree-icon.null {
-    background-image: url('../img/icons/null.png');
+    background-color: white;
+    border: 2px solid #f023ff;
+}
+.jstree-icon.null:before {
+    content: 'n';
+    line-height: 10px;
+}
+.jstree-icon.undefined:before {
+    content: 'u';
+    line-height: 10px;
 }
 .jstree-icon.double,
 .jstree-icon.number {
-    background-image: url('../img/icons/number.png');
+    background-color: #fff001;
 }
-.jstree-icon.dictionary {
-    background-image: url('../img/icons/dictionary.png');
+.jstree-icon.double:before,
+.jstree-icon.number:before {
+    content: 'N';
 }
+.jstree-icon.dictionary,
 .jstree-icon.object {
-    background-image: url('../img/icons/object.png');
+    background-color: #575fd6;
+}
+.jstree-icon.dictionary:before {
+    content: 'd';
+    color: white;
+}
+.jstree-icon.object:before {
+    content: 'o';
+    color: white;
 }
 .jstree-icon.string,
 .jstree-icon.longstring {
-    background-image: url('../img/icons/string.png');
+    background-color: #49da07;
 }
-.jstree-icon.undefined {
-    background-image: url('../img/icons/undefined.png');
+.jstree-icon.string:before,
+.jstree-icon.longstring:before {
+    content: 'S';
 }
 .jstree-icon.vector {
-    background-image: url('../img/icons/vector.png');
+    background-color: #659900;
+}
+.jstree-icon.vector:before {
+    content: 'v';
 }
 .jstree-icon.xmldocument,
 .jstree-icon.xml {
-    background-image: url('../img/icons/xml.png');
+    background-color: #ed64c9;
+}
+.jstree-icon.xmldocument:before,
+.jstree-icon.xml:before {
+    content: 'x';
 }
 
 /***** Body Details *****/
@@ -365,6 +461,9 @@ a.disabled {
     float: left;
     font-size: 1.1em;
     margin-top: 10px;
+}
+#details.XMLType .XMLError p {
+    font-size: 1em;
 }
 #details.XMLType textarea {
     font-family: Menlo, Consolas, Monaco, monospace;
@@ -776,10 +875,8 @@ label.tick:hover span {
     opacity: 0;
     transition: all 0.3s ease 0.1s;
 }
-.overlay > section .controls a {
+.overlay > section .controls button {
     background-color: #ddd;
-
-    /*background: none repeat scroll 0 0 #ddd;*/
     color: #fff;
     display: inline-block;
     font-size: 1.1em;
@@ -789,13 +886,16 @@ label.tick:hover span {
     position: relative;
     text-align: center;
     width: 24px;
+    border: none;
+    cursor: pointer;
 }
-.overlay > section .controls a.close-top {
+.overlay > section .controls .close-top {
     background-color: #ff2424;
     margin-left: 20px;
 }
-.overlay > section .controls a.close-top:hover {
+.overlay > section .controls .close-top:hover {
     background-color: #333;
+    cursor: pointer;
 }
 .overlay .forms {
     background: none repeat scroll 0 0 #fff;

@@ -5,6 +5,7 @@ var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
 var cssnano = require('gulp-cssnano');
+var minifyInline = require('gulp-minify-inline');
 //var imagemin = require('gulp-imagemin');
 var htmlmin = require('gulp-htmlmin');
 var cache = require('gulp-cache');
@@ -44,7 +45,12 @@ gulp.task('clean:dist', function() {
 // Copy other php files over to dist except for index.php
 gulp.task('base', function() {
     return gulp
-        .src(['app/favicon.ico', 'app/browserconfig.xml', 'app/manifest.json'])
+        .src([
+            'app/favicon.ico',
+            'app/browserconfig.xml',
+            'app/manifest.json',
+            'app/service-worker.js',
+        ])
         .pipe(gulp.dest('dist'));
 });
 gulp.task('images', function() {
@@ -87,6 +93,7 @@ gulp.task('useref', function() {
 gulp.task('fix-index', function() {
     gulp
         .src(['dist/index.html'])
+        .pipe(minifyInline())
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
         .pipe(
             replace(
@@ -152,12 +159,26 @@ gulp.task('fix-index', function() {
         .pipe(gulp.dest('dist'));
 });
 
+gulp.task('fix-worker', function() {
+    gulp
+        .src(['dist/service-worker.js'])
+        .pipe(
+            replace(
+                '%BUILD%',
+                date.getFullYear() +
+                    pad(date.getMonth() + 1) +
+                    pad(date.getDate())
+            )
+        ) // yyyyMMdd
+        .pipe(gulp.dest('dist'));
+});
+
 // Run above tasks in sequence
 gulp.task('build', function(callback) {
     runSequence(
         'clean:dist',
         ['base', 'useref'],
-        ['images', 'fonts', 'js-1', 'js-2', 'fix-index'],
+        ['images', 'fonts', 'js-1', 'js-2', 'fix-index', 'fix-worker'],
         callback
     );
 });

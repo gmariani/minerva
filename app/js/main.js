@@ -1,7 +1,7 @@
 /* global Int8Array, saveAs, $, Alert, SOL, DictionaryItemView, StringView, VectorView, DateView, ByteArrayView, ArrayView, BooleanView, ObjectView, DictionaryView, SOLView, NumberView, IntegerView, XMLView */
 var util = {};
 var debug = false;
-var isLocal = true;
+var isLocal = false;
 
 (function() {
     util.zero = function(num) {
@@ -274,40 +274,6 @@ $(function() {
                 );
             });
     }
-
-    /*if (window.applicationCache) {
-		function onUpdateReady() {
-			// Browser downloaded a new app cache.
-			if (confirm('A new version of this site is available. Load it?')) {
-				window.location.reload();
-			}
-		}
-
-		switch (window.applicationCache.status) {
-		  case window.applicationCache.UNCACHED: // UNCACHED == 0
-			// A special value that indicates that an application cache object is not fully initialized.
-			break;
-		  case window.applicationCache.IDLE: // IDLE == 1
-			// The application cache is not currently in the process of being updated.
-			break;
-		  case window.applicationCache.CHECKING: // CHECKING == 2
-			// The manifest is being fetched and checked for updates.
-			break;
-		  case window.applicationCache.DOWNLOADING: // DOWNLOADING == 3
-			// Resources are being downloaded to be added to the cache, due to a changed resource manifest.
-			break;
-		  case window.applicationCache.UPDATEREADY:  // UPDATEREADY == 4
-			onUpdateReady();
-			break;
-		  case window.applicationCache.OBSOLETE: // OBSOLETE == 5
-			// The application cache group is now obsolete.
-			break;
-		  default:
-			// Unknown
-			break;
-		}
-		window.applicationCache.addEventListener('updateready', onUpdateReady);
-	}*/
 
     // Check browser support
     function checkFileSaverAPI() {

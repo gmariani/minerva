@@ -5,12 +5,7 @@ var XMLView = function() {
     /////////////////
     // Constructor //
     /////////////////
-    function init(
-        el /*:Element */,
-        node /*:Object */,
-        input /*:String */,
-        callBack /*:Function */
-    ) /*:void */ {
+    function init(el, node, input, callBack) {
         // Generate HTML
         var strHTML =
             '<h1>XML</h1>' +
@@ -47,23 +42,25 @@ var XMLView = function() {
     }
 
     // http://www.w3schools.com/xml/validator.asp
-    function validate(input /*:String */) /*:void */ {
+    function validate(input) {
         var xmlParser = new DOMParser(),
             dom = xmlParser.parseFromString(input, 'text/xml');
 
-        if (dom.documentElement.nodeName == 'parsererror') {
-            var xmlString = new XMLSerializer().serializeToString(
-                dom.documentElement
-            );
+        if (dom.documentElement.firstChild.nodeName == 'parsererror') {
+            //if (dom.documentElement.firstChild.innerHTML.indexOf('parsererror') !== -1) {
+            /*var xmlString = new XMLSerializer().serializeToString(
+                dom.documentElement.firstChild
+            );*/
 
             // Remove parsererror tags
-            xmlString = xmlString.replace(/<parsererror[^>]+>/g, '');
-            xmlString = xmlString.replace('</parsererror>', '');
+            //xmlString = xmlString.replace(/<parsererror[^>]+>/g, '');
+            //xmlString = xmlString.replace('</parsererror>', '');
 
             // Break source text into new line
-            xmlString = xmlString.replace('<sourcetext>', '<br>');
+            //xmlString = xmlString.replace('<sourcetext>', '<br>');
 
-            elError.html(xmlString);
+            //elError.html(xmlString);
+            elError.html(dom.documentElement.innerHTML);
             return false;
         } else {
             elError.html('XML is valid');
@@ -72,7 +69,7 @@ var XMLView = function() {
     }
 
     // Clear values and clear elements
-    function reset() /*:void */ {
+    function reset() {
         if (inputDelay) clearTimeout(inputDelay);
         elError = null;
     }
