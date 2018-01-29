@@ -9,14 +9,14 @@
     function trace() {
         if (!debug) return;
 
-        var str = '';
+        //var str = '';
         var arr = [];
         for (var i = 0, l = arguments.length; i < l; i++) {
-            str += arguments[i];
+            //str += arguments[i];
             arr[i] = arguments[i];
-            if (i != l - 1) str += ', ';
+            //if (i != l - 1) str += ', ';
         }
-        str += '\n';
+        //str += '\n';
 
         postMessage({
             type: 'debug',

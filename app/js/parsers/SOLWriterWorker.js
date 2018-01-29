@@ -1,3 +1,4 @@
+/* global AMF0 AMF3 ByteArray, Int8Array */
 (function() {
     importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
 
@@ -8,14 +9,14 @@
     function trace() {
         if (!debug) return;
 
-        var str = '';
+        //var str = '';
         var arr = [];
         for (var i = 0, l = arguments.length; i < l; i++) {
-            str += arguments[i];
+            //str += arguments[i];
             arr[i] = arguments[i];
-            if (i != l - 1) str += ', ';
+            //if (i != l - 1) str += ', ';
         }
-        str += '\n';
+        //str += '\n';
 
         postMessage({
             type: 'debug',
@@ -25,14 +26,14 @@
         //dump(str);
     }
 
-    function traceByteArray(ba) {
+    /*function traceByteArray(ba) {
         trace(
             ba.position,
             Array.apply([], new Int8Array(ba._buffer.slice(0, ba.position)))
         );
-    }
+    }*/
 
-    var ERROR = trace;
+    //var ERROR = trace;
 
     // Parse the individual file
     onmessage = function(event) {
