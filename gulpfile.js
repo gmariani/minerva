@@ -6,7 +6,6 @@ var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
 var cssnano = require('gulp-cssnano');
 var minifyInline = require('gulp-minify-inline');
-//var imagemin = require('gulp-imagemin');
 var htmlmin = require('gulp-htmlmin');
 var cache = require('gulp-cache');
 var rename = require('gulp-rename');
@@ -14,11 +13,9 @@ var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
-//var dirSync = require('gulp-directory-sync');
 var date = new Date();
 var cdnPath = 'https://cdn.mariani.life/projects/minerva/';
-//var cdnPath = `https://d4bmb2q7s5m2n.cloudfront.net/minerva/4.1.4/`;
-//var minifyInline = require('gulp-minify-inline');
+
 function pad(n) {
     return n < 10 ? '0' + n : n;
 }
@@ -93,7 +90,7 @@ gulp.task('useref', function() {
 gulp.task('fix-index', function() {
     gulp
         .src(['dist/index.html'])
-        .pipe(minifyInline())
+        /* Update variables for build */
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
         .pipe(
             replace(
@@ -113,48 +110,24 @@ gulp.task('fix-index', function() {
                     pad(date.getDate())
             )
         ) // yyyyMMdd
-        /*.pipe(
-            replace(
-                'content="img/',
-                'content="https://cdn.mariani.life/projects/minerva/img/'
-            )
-        )
+        /* Update CDN URLs */
+        .pipe(replace('content="img/', `content="${cdnPath}img/`))
         .pipe(
             replace(
                 'content="browserconfig',
-                'content="https://cdn.mariani.life/projects/minerva/browserconfig'
+                `content="${cdnPath}browserconfig`
             )
         )
-        .pipe(
-            replace(
-                'href="img/',
-                'href="https://cdn.mariani.life/projects/minerva/img/'
-            )
-        )
-        .pipe(
-            replace(
-                'href="css/',
-                'href="https://cdn.mariani.life/projects/minerva/css/'
-            )
-        )
-        .pipe(
-            replace(
-                'href="manifest',
-                'href="https://cdn.mariani.life/projects/minerva/manifest'
-            )
-        )
-        .pipe(
-            replace(
-                'href="favicon',
-                'href="https://cdn.mariani.life/projects/minerva/favicon'
-            )
-        )
-        .pipe(
-            replace(
-                'script src="',
-                'script src="https://cdn.mariani.life/projects/minerva/'
-            )
-        )*/
+        .pipe(replace('href="img/', `href="${cdnPath}img/`))
+        .pipe(replace('src="img/', `src="${cdnPath}img/`))
+        .pipe(replace('href="css/', `href="${cdnPath}css/`))
+        .pipe(replace('href="manifest', `href="${cdnPath}manifest`))
+        .pipe(replace('href="favicon', `href="${cdnPath}favicon`))
+        .pipe(replace('script src="', `script src="${cdnPath}`))
+        .pipe(replace('url(img/', `url(${cdnPath}img/`))
+        /* Minify inline css/js */
+        .pipe(minifyInline())
+        /* Minify HTML */
         .pipe(htmlmin({ collapseWhitespace: true }))
         .pipe(gulp.dest('dist'));
 });
@@ -173,12 +146,41 @@ gulp.task('fix-worker', function() {
         .pipe(gulp.dest('dist'));
 });
 
+gulp.task('fix-js', function() {
+    gulp
+        .src(['dist/js/bundle.js'])
+        .pipe(
+            /* eslint-disable quotes */
+            replace(
+                "register('service-worker.js",
+                `register('${cdnPath}service-worker.js`
+            )
+            /* eslint-enable quotes */
+        )
+        .pipe(gulp.dest('dist/js'));
+});
+gulp.task('fix-css', function() {
+    gulp
+        .src(['dist/css/bundle.css'])
+        .pipe(replace('url(img/', `url(${cdnPath}img/`))
+        .pipe(gulp.dest('dist/css'));
+});
+
 // Run above tasks in sequence
 gulp.task('build', function(callback) {
     runSequence(
         'clean:dist',
         ['base', 'useref'],
-        ['images', 'fonts', 'js-1', 'js-2', 'fix-index', 'fix-worker'],
+        [
+            'images',
+            'fonts',
+            'js-1',
+            'js-2',
+            'fix-index',
+            'fix-worker',
+            'fix-js',
+            'fix-css',
+        ],
         callback
     );
 });
