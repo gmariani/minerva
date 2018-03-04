@@ -53,10 +53,11 @@
 			margin: 0 auto;
 			position: relative;
 			display: flex;
-			flex: 1;
+			flex: auto;
 			flex-direction: column;
 			height: 100vh;
 			width: 100vw;
+			max-height: 100vh;
 		}
 
 		/***** Application Nav *****/
@@ -68,6 +69,7 @@
 			width: 100%;
 			display: flex;
 			flex-direction: column;
+			flex-grow: 0;
 		}
 
 		#application>nav>ul {
@@ -131,8 +133,9 @@
 
 		#wrapper {
 			display: flex;
-			position: relative;
 			flex: 1;
+			max-height: 100vh;
+			overflow-y: auto;
 		}
 
 		/***** Body Details *****/
@@ -177,6 +180,7 @@
 			flex-direction: column;
 			align-items: center;
 			display: flex;
+			flex-grow: 0;
 		}
 
 		footer a,
@@ -193,6 +197,8 @@
 		.adsbygoogle {
 			background-color: #cccccc;
 			max-width: 100%;
+			line-height: 85px;
+			text-decoration: none;
 		}
 
 		.field input,
@@ -236,7 +242,7 @@
 			</div>
 			<div class="forms">
 				<div id="aboutWindow" class="show">
-					<h1>.minerva (4.2.0.%BUILD%)</h1>
+					<h1>.minerva (4.2.1.%BUILD%)</h1>
 
 					<section class="clearfix">
 						<div class="row">
@@ -283,6 +289,11 @@
 
 						<h4>Changelog</h4>
 						<pre class="scroll-box">
+####################################################
+4.2.1 - 2018-1-31
+####################################################
+	- Fixed issue #74
+	
 ####################################################
  4.2.0 - 2018-1-26
 ####################################################
@@ -779,7 +790,7 @@
 
 		<footer>
 			<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-			<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-4393629565174725" data-ad-slot="3734585686"></ins>
+			<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-4393629565174725" data-ad-slot="3734585686">Ad</ins>
 			<script>
 				(adsbygoogle = window.adsbygoogle || []).push({});
 			</script>
@@ -840,7 +851,7 @@
 	<!-- endbuild -->
 
 	<script>
-		/*(function (i, s, o, g, r, a, m) {
+		(function (i, s, o, g, r, a, m) {
 			i['GoogleAnalyticsObject'] = r;
 			i[r] = i[r] || function () {
 				(i[r].q = i[r].q || []).push(arguments)
@@ -851,7 +862,7 @@
 			m.parentNode.insertBefore(a, m)
 		})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 		ga('create', 'UA-349755-7', 'auto');
-		ga('send', 'pageview');*/
+		ga('send', 'pageview');
 	</script>
 </body>
 
