@@ -53,14 +53,13 @@
             "sizes": "512x512"
         }
     ],
-    "description":
-        ".minerva is a online Flash Local Shared Object editor built based on the AMF3 specification and the AMF0 specification",
+    "description": ".minerva is a online Flash Local Shared Object editor built based on the AMF3 specification and the AMF0 specification",
     "display": "standalone",
     "dir": "ltr",
     "lang": "en-US",
-    "scope": "./",
-    "start_url": "./?utm_source=web_app_manifest",
-    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/?utm_source=web_app_manifest",
+    "orientation": "landscape",
     "background_color": "#fff",
     "theme_color": "#2d89ef"
 }
