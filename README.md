@@ -8,5 +8,5 @@ git checkout <BRANCH NAME HERE>
 
 Merge
 git checkout master
-git merge hotfix
+git merge <BRANCH NAME HERE>
 git branch -d <BRANCH NAME HERE>
