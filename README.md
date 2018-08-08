@@ -10,3 +10,12 @@ Merge
 git checkout master
 git merge <BRANCH NAME HERE>
 git branch -d <BRANCH NAME HERE>
+
+To run, open a Node command prompt in a project folder
+Type in "gulp build" to compile
+Type in "npm update" to update modules
+Type in "npm update -g" to update global modules
+Type in "npm outdated -g" to view outdated global modules
+Type in "npm outdated" to view outdated modules
+Type in "npm cache clean" to clear out cached modules
+Type in "npm -v" to view NPM version
