@@ -232,7 +232,7 @@
 
 .jstree-default .jstree-node,
 .jstree-default .jstree-icon {
-    background-image: url('../img/32px.png');
+    background-image: url('https://mariani.life/projects/minerva/img/32px.png');
 }
 .jstree-default .jstree-node {
     background-position: -292px -4px;
@@ -263,7 +263,8 @@
     background-position: 0 0;
 }
 .jstree-default > .jstree-container-ul .jstree-loading > .jstree-ocl {
-    background: url('../img/throbber.gif') center center no-repeat;
+    background: url('https://mariani.life/projects/minerva/img/throbber.gif')
+        center center no-repeat;
 }
 .jstree-default > .jstree-container-ul > .jstree-node {
     margin-left: 0;

@@ -57,8 +57,8 @@
     "display": "standalone",
     "dir": "ltr",
     "lang": "en-US",
-    "scope": "/",
-    "start_url": "/?utm_source=web_app_manifest",
+    "scope": "https://mariani.life/projects/minerva/",
+    "start_url": "https://mariani.life/projects/minerva/?utm_source=web_app_manifest",
     "orientation": "landscape",
     "background_color": "#fff",
     "theme_color": "#2d89ef"
