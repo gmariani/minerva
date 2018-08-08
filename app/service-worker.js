@@ -4,7 +4,7 @@
 ('use strict');
 
 const config = {
-    version: '4.2.1.%BUILD%',
+    version: '4.3.0.%BUILD%',
     staticCacheItems: [
         'img/Mega_Man_Running.gif',
         'img/favicon-196x196.png',
@@ -125,7 +125,9 @@ self.addEventListener('fetch', event => {
         const resourceType =
             acceptHeader.indexOf('text/html') !== -1
                 ? 'content'
-                : acceptHeader.indexOf('image') !== -1 ? 'image' : 'static';
+                : acceptHeader.indexOf('image') !== -1
+                    ? 'image'
+                    : 'static';
         const cacheKey = cacheName(resourceType, opts);
 
         if (resourceType === 'content') {
