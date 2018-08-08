@@ -3,7 +3,8 @@
 **.minerva** is capable of reading and writing all known data types successfully.
 
 Make a branch:
-git checkout -b <BRANCH NAME HERE>
+git branch <BRANCH NAME HERE>
+git checkout <BRANCH NAME HERE>
 
 Merge
 git checkout master
