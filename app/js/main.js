@@ -40,9 +40,9 @@ var isLocal = false;
         } else if (bytes < 1024) {
             return bytes + ' B';
         } else if (bytes < 1024 * 1024) {
-            return Math.round(bytes / 1024 * a) / a + ' KB';
+            return Math.round((bytes / 1024) * a) / a + ' KB';
         } else {
-            return Math.round(bytes / (1024 * 1024) * a) / a + ' MB';
+            return Math.round((bytes / (1024 * 1024)) * a) / a + ' MB';
         }
     };
 
@@ -379,6 +379,32 @@ $(function() {
         // Site mode is not supported.
     }
 
+    // Periodically reload Google Ads
+    /*console.info('start ad');
+    var googletag = googletag || {};
+    googletag.cmd = googletag.cmd || [];
+    googletag.cmd.push(function() {
+        console.info('define ad');
+        // Define the ad slot
+        var slot1 = googletag
+            .defineSlot('3734585686/', [728, 90], 'leaderboard')
+            .addService(googletag.pubads());
+
+        // Start ad fetching
+        googletag.enableServices();
+        googletag.display('leaderboard');
+
+        // Set timer to refresh slot every 30 seconds
+        setInterval(function() {
+            console.info('refresh ad');
+            googletag.pubads().refresh([slot1]);
+        }, 30000);
+    });*/
+
+    /*
+    <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-4393629565174725" data-ad-slot="3734585686">Ad</ins>
+    */
+
     ////////////////
     // Navigation //
     ////////////////
@@ -397,7 +423,9 @@ $(function() {
             key =
                 callState == 'Array' || callState == 'Dictionary'
                     ? parseInt(key)
-                    : callState == 'Object' ? String(key) : child.text;
+                    : callState == 'Object'
+                        ? String(key)
+                        : child.text;
 
             if (debug) console.log('tree2Obj child key', key);
             if (debug) console.log('tree2Obj child child', child);
@@ -793,7 +821,7 @@ $(function() {
 
     function updateProgress(e /*:ProgressEvent*/) {
         if (e.lengthComputable) {
-            var percentLoaded = Math.round(e.loaded / e.total * 100);
+            var percentLoaded = Math.round((e.loaded / e.total) * 100);
             if (percentLoaded < 100) {
                 divProgress.style.width = percentLoaded + '%';
                 divProgress.textContent = percentLoaded + '%';
@@ -877,7 +905,7 @@ $(function() {
 
     function updateProgressBinary(e /*:ProgressEvent*/) {
         if (e.lengthComputable) {
-            var percentLoaded = Math.round(e.loaded / e.total * 100);
+            var percentLoaded = Math.round((e.loaded / e.total) * 100);
             if (percentLoaded < 100) {
                 elProgressBinary.css('width', percentLoaded + '%');
                 elProgressBinary.text(percentLoaded + '%');
