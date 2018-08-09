@@ -19,3 +19,5 @@ Type in "npm outdated -g" to view outdated global modules
 Type in "npm outdated" to view outdated modules
 Type in "npm cache clean" to clear out cached modules
 Type in "npm -v" to view NPM version
+
+Typ in "npm run-script build" to run build task
