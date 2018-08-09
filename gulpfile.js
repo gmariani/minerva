@@ -15,6 +15,12 @@ var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
 var date = new Date();
 var cdnPath = 'https://cdn.mariani.life/projects/minerva/';
+var build_timestamp =
+    date.getFullYear() +
+    pad(date.getMonth() + 1) +
+    pad(date.getDate()) +
+    '_' +
+    new Date().getTime();
 
 function pad(n) {
     return n < 10 ? '0' + n : n;
@@ -88,8 +94,7 @@ gulp.task('useref', function() {
 });
 
 gulp.task('fix-index', function() {
-    gulp
-        .src(['dist/index.html'])
+    gulp.src(['dist/index.html'])
         /* Update variables for build */
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
         .pipe(
@@ -102,14 +107,9 @@ gulp.task('fix-index', function() {
                     date.getFullYear()
             )
         ) // d-MMMM-yyyy
-        .pipe(
-            replace(
-                '%BUILD%',
-                date.getFullYear() +
-                    pad(date.getMonth() + 1) +
-                    pad(date.getDate())
-            )
-        ) // yyyyMMdd
+        .pipe(replace('%BUILD%', build_timestamp)) // yyyyMMdd_milliseconds
+        .pipe(replace('bundle.js', `bundle.js?${build_timestamp}`))
+        .pipe(replace('bundle.css', `bundle.css?${build_timestamp}`))
         /* Update CDN URLs */
         .pipe(replace('content="img/', `content="${cdnPath}img/`))
         .pipe(
@@ -133,8 +133,7 @@ gulp.task('fix-index', function() {
 });
 
 gulp.task('fix-worker', function() {
-    gulp
-        .src(['dist/service-worker.js'])
+    gulp.src(['dist/service-worker.js'])
         .pipe(
             replace(
                 '%BUILD%',
@@ -147,8 +146,7 @@ gulp.task('fix-worker', function() {
 });
 
 gulp.task('fix-js', function() {
-    gulp
-        .src(['dist/js/bundle.js'])
+    gulp.src(['dist/js/bundle.js'])
         .pipe(
             /* eslint-disable quotes */
             replace(
@@ -160,8 +158,7 @@ gulp.task('fix-js', function() {
         .pipe(gulp.dest('dist/js'));
 });
 gulp.task('fix-css', function() {
-    gulp
-        .src(['dist/css/bundle.css'])
+    gulp.src(['dist/css/bundle.css'])
         .pipe(replace('url(img/', `url(${cdnPath}img/`))
         .pipe(gulp.dest('dist/css'));
 });
@@ -193,8 +190,7 @@ gulp.task('copy_index', function() {
         .pipe(gulp.dest('app'));
 });
 gulp.task('fix-index_local', function() {
-    gulp
-        .src(['app/local.html'])
+    gulp.src(['app/local.html'])
         .pipe(
             replace(
                 '<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>',
