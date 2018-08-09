@@ -45,7 +45,6 @@ var BooleanView = function() {
     }
 
     function validate(input /*:Boolean */) /*:Boolean */ {
-        console.log('boolean input', input);
         return 1 === input || 0 === input;
     }
 

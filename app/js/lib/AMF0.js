@@ -1,19 +1,21 @@
+/* global AMF3 */
+var AMF0;
 (function() {
     var debug = true;
 
     function trace() {
         if (!debug) return;
 
-        var str = '',
-            arr = [],
+        //var str = '',
+        var arr = [],
             i,
             l;
         for (i = 0, l = arguments.length; i < l; i++) {
-            str += arguments[i];
+            //str += arguments[i];
             arr[i] = arguments[i];
-            if (i != l - 1) str += ', ';
+            //if (i != l - 1) str += ', ';
         }
-        str += '\n';
+        //str += '\n';
 
         postMessage({
             type: 'debug',
@@ -144,17 +146,17 @@
                     if (this._amf3 == null) this._amf3 = new AMF3();
                     return this._amf3.readData(ba);
                 /*
-			With the introduction of AMF 3 in Flash Player 9 to support ActionScript 3.0 and the 
-			new AVM+, the AMF 0 format was extended to allow an AMF 0 encoding context to be 
-			switched to AMF 3. To achieve this, a new type marker was added to AMF 0, the 
-			avmplus-object-marker. The presence of this marker signifies that the following Object is 
+			With the introduction of AMF 3 in Flash Player 9 to support ActionScript 3.0 and the
+			new AVM+, the AMF 0 format was extended to allow an AMF 0 encoding context to be
+			switched to AMF 3. To achieve this, a new type marker was added to AMF 0, the
+			avmplus-object-marker. The presence of this marker signifies that the following Object is
 			formatted in AMF 3.
 			*/
                 default:
                     ERROR(
-                        "AMF0::readData - Error : Undefined AMF0 type encountered '" +
+                        'AMF0::readData - Error : Undefined AMF0 type encountered \'' +
                             type +
-                            "'"
+                            '\''
                     );
             }
         },
@@ -233,7 +235,7 @@
                     break;
                 default:
                     throw Error(
-                        "Undefined AMF0 type encountered '" + type + "'"
+                        'Undefined AMF0 type encountered \'' + type + '\''
                     );
             }
         },
@@ -338,7 +340,7 @@
             }
         },
 
-        readNull: function(ba) {
+        readNull: function(/* ba */) {
             return {
                 value: null,
                 __traits: {
@@ -354,7 +356,7 @@
             ba.writeByte(this.NULL_TYPE);
         },
 
-        readUndefined: function(ba) {
+        readUndefined: function(/* ba */) {
             return {
                 value: null,
                 __traits: {
@@ -455,14 +457,15 @@
         },
 
         readDate: function(ba) {
-            var ms = ba.readDouble(),
-                /*
-		We read in the timezone but do nothing with the value as
-		we expect dates to be written in the UTC timezone. Client
-		and servers are responsible for applying their own
-		timezones.
-		*/
-                timezone = ba.readShort(); // reserved, not supported. should be set to 0x0000
+            var ms = ba.readDouble();
+
+            /*
+            We read in the timezone but do nothing with the value as
+            we expect dates to be written in the UTC timezone. Client
+            and servers are responsible for applying their own
+            timezones.
+            */
+            //timezone = ba.readShort(); // reserved, not supported. should be set to 0x0000
             //if (timezone > 720) timezone = -(65536 - timezone);
             //timezone *= -60;
 
@@ -572,9 +575,9 @@
         getObjectReference: function(ref) {
             if (ref >= this.readObjectCache.length) {
                 ERROR(
-                    "AMF0::getObjectReference - Error : Undefined object reference '" +
+                    'AMF0::getObjectReference - Error : Undefined object reference \'' +
                         ref +
-                        "'"
+                        '\''
                 );
                 return null;
             }
@@ -582,7 +585,7 @@
             return this.readObjectCache[ref];
         },
 
-        setObjectReference: function(ba, o) {
+        setObjectReference: function(/*ba, o*/) {
             // Disabled for issue #71
             // Now correctly writes and reads references which wasn't working before
             // But it's not writing them in the correct order, then upon reading
