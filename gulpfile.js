@@ -59,6 +59,9 @@ gulp.task('base', function() {
 gulp.task('images', function() {
     return gulp.src('app/img/**/*').pipe(gulp.dest('dist/img'));
 });
+gulp.task('css-debug', function() {
+    return gulp.src('app/css/*').pipe(gulp.dest('dist/css'));
+});
 gulp.task('fonts', function() {
     return gulp.src('app/font/*').pipe(gulp.dest('dist/font'));
 });
@@ -82,6 +85,21 @@ gulp.task('js-2', function() {
         .pipe(uglify())
         .pipe(gulp.dest('dist/js/parsers'));
 });
+gulp.task('js-debug', function() {
+    return gulp.src('app/js/*').pipe(gulp.dest('dist/js'));
+});
+gulp.task('js-1-debug', function() {
+    return gulp.src('app/js/lib/*').pipe(gulp.dest('dist/js/lib'));
+});
+gulp.task('js-2-debug', function() {
+    return gulp.src('app/js/parsers/*').pipe(gulp.dest('dist/js/parsers'));
+});
+gulp.task('js-3-debug', function() {
+    return gulp.src('app/js/vendor/*').pipe(gulp.dest('dist/js/vendor'));
+});
+gulp.task('js-4-debug', function() {
+    return gulp.src('app/js/view/*').pipe(gulp.dest('dist/js/view'));
+});
 
 // Concat/minify CSS and JS, copy to dist
 gulp.task('useref', function() {
@@ -91,6 +109,9 @@ gulp.task('useref', function() {
         .pipe(gulpIf('*.js', uglify().on('error', gulpUtil.log)))
         .pipe(gulpIf('*.css', cssnano()))
         .pipe(gulp.dest('dist'));
+});
+gulp.task('useref_debug', function() {
+    return gulp.src('app/index.html').pipe(gulp.dest('dist'));
 });
 
 gulp.task('fix-index', function() {
@@ -129,6 +150,24 @@ gulp.task('fix-index', function() {
         .pipe(minifyInline())
         /* Minify HTML */
         .pipe(htmlmin({ collapseWhitespace: true }))
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('fix-index-debug', function() {
+    gulp.src(['dist/index.html'])
+        /* Update variables for build */
+        .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
+        .pipe(
+            replace(
+                '%BUILT%',
+                date.getDate() +
+                    '-' +
+                    monthNames[date.getMonth()] +
+                    '-' +
+                    date.getFullYear()
+            )
+        ) // d-MMMM-yyyy
+        .pipe(replace('%BUILD%', build_timestamp)) // yyyyMMdd_milliseconds
         .pipe(gulp.dest('dist'));
 });
 
@@ -177,6 +216,27 @@ gulp.task('build', function(callback) {
             'fix-worker',
             'fix-js',
             'fix-css',
+        ],
+        callback
+    );
+});
+
+// Run above tasks in sequence
+gulp.task('debug', function(callback) {
+    runSequence(
+        'clean:dist',
+        ['base', 'useref_debug'],
+        [
+            'images',
+            'fonts',
+            'css-debug',
+            'js-debug',
+            'js-1-debug',
+            'js-2-debug',
+            'js-3-debug',
+            'js-4-debug',
+            'fix-index-debug',
+            'fix-worker',
         ],
         callback
     );
