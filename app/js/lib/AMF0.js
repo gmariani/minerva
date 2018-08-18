@@ -110,7 +110,7 @@ var AMF0;
                 case this.UNDEFINED_TYPE:
                     return this.readUndefined(ba);
                 case this.REFERENCE_TYPE:
-                    console.log('REFERENCE_TYPE', ba.endian, ba.position);
+                    //console.log('REFERENCE_TYPE', ba.endian, ba.position);
                     return this.getObjectReference(ba.readUnsignedShort());
                 case this.ECMA_ARRAY_TYPE:
                     return this.readECMAArray(ba);

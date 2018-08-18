@@ -1281,10 +1281,10 @@ $(function() {
         $.jstree.defaults.search.search_callback = searchTreeNodes;
 
         if (sortSetting == 'false') {
-            console.log('no sort');
+            //console.log('no sort');
             $.jstree.defaults.plugins = ['contextmenu', 'search'];
         } else {
-            console.log('yes sort');
+            //console.log('yes sort');
             $.jstree.defaults.plugins = ['contextmenu', 'sort', 'search'];
             $.jstree.defaults.sort = naturalSort;
         }
