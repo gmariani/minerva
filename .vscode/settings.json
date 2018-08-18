@@ -1,3 +1,10 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "spellright.language": "en",
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ],
+    "nextgenas.sdk.framework": "c:\\Users\\Gabriel\\Documents\\Web Development\\sdks\\AIR 30.0.0.107"
 }
