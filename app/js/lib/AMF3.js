@@ -704,6 +704,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             var l = ref >> 1;
             var arr = new Array(l);
             var isStrict = true;
+            var val = {
+                value: arr,
+                __traits: { type: 'Array', strict: isStrict },
+            };
+            this.readObjectCache.push(val);
 
             // Associative values
             var strKey = this.readString(ba).value;
@@ -717,11 +722,6 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             for (var i = 0; i < l; i++) {
                 arr[i] = this.readData(ba);
             }
-            var val = {
-                value: arr,
-                __traits: { type: 'Array', strict: isStrict },
-            };
-            this.readObjectCache.push(val);
             return val;
         },
 
@@ -880,7 +880,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             if (aliasedClass != null) traits.class = aliasedClass;
             //trace('Object Traits', traits);
             var obj = {};
-            var val;
+            var val = {};
+            val.__traits = traits;
+            val.value = obj;
+
+            // Add to references as circular references may search for this
+            // object
+            this.readObjectCache.push(val);
             if (traits.externalizable) {
                 // Read Externalizable
                 try {
@@ -949,13 +955,6 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
 
             // For use in a different function
             if (internal) return obj;
-
-            val = {};
-            val.__traits = traits;
-            val.value = obj;
-
-            // Add to references as circular references may search for this object
-            this.readObjectCache.push(val);
 
             return val;
         },
