@@ -115,7 +115,7 @@
                 err.message == 'Maximum call stack size exceeded'
             ) {
                 throw RangeError(
-                    'Too many elements in SOL file to process in your current browser.'
+                    'Too many elements in SOL file to process in your current browser, please try Firefox.'
                 );
             } else {
                 throw err;
