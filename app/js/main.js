@@ -1,7 +1,7 @@
 /* global Int8Array, saveAs, $, Alert, SOL, DictionaryItemView, StringView, VectorView, DateView, ByteArrayView, ArrayView, BooleanView, ObjectView, DictionaryView, SOLView, NumberView, IntegerView, XMLView */
 var util = {};
-var debug = true;
-var isLocal = true;
+var debug = false;
+var isLocal = false;
 
 (function() {
     util.zero = function(num) {

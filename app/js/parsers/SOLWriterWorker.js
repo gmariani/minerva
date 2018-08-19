@@ -4,7 +4,7 @@
 
     var amf0 = new AMF0();
     var amf3 = new AMF3();
-    var debug = true;
+    var debug = false;
 
     function trace() {
         if (!debug) return;
@@ -105,25 +105,14 @@
         }
 
         // Convert to an array to escape worker unphased
-        //var arrReturn = new Int8Array(ba._buffer.slice(0, ba.position));
-        var arrReturn = new Int8Array(ba._buffer.slice(0, 70000));
-        trace('arrReturn bytelength: ' + arrReturn.byteLength / 1024 + 'kb');
+        var arrReturn = new Int8Array(ba._buffer.slice(0, ba.position));
         /*
-        ["arrReturn bytelength: 100.4658203125kb"]
-        SOLWriterWorker.js:117 Uncaught RangeError: Maximum call stack size exceeded
-        at onmessage (SOLWriterWorker.js:117)
-        onmessage @ SOLWriterWorker.js:117
+        RangeError: Maximum call stack size exceeded at onmessage (SOLWriterWorker.js:117)
+        RangeError: too many arguments provided for a function call (http://localhost:8080/js/parsers/SOLWriterWorker.js:116)
         */
-        //try {
-        arrReturn = Array.apply([], arrReturn);
-        /*} catch (err) {
-            trace(
-                'SOLWriterWorker',
-                err.name,
-                err.message,
-                err.filename,
-                err.lineno
-            );
+        try {
+            arrReturn = Array.apply([], arrReturn);
+        } catch (err) {
             if (
                 err.name == 'RangeError' &&
                 err.message == 'Maximum call stack size exceeded'
@@ -134,7 +123,7 @@
             } else {
                 throw err;
             }
-        }*/
+        }
         postMessage({ data: arrReturn });
     };
 })();
