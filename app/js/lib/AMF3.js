@@ -1446,6 +1446,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             var refNum;
 
             // Clean object and return it to a normal AS3 object
+            // TODO: Create a hash of the object and store that instead
+            // https://github.com/apache/flex-blazeds/blob/master/core/src/main/java/flex/messaging/io/amf/Amf3Output.java
+            /*
+            if (objectTable == null)
+                objectTable = new IdentityHashMap<Object, Integer>(64);
+            objectTable.put(o, Integer.valueOf(objectTable.size()));
+            */
             var oClean = this.cleanObject(o, {});
 
             //var json = JSON.stringify(oClean);
