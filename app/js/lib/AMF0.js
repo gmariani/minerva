@@ -465,14 +465,15 @@ var AMF0;
             and servers are responsible for applying their own
             timezones.
             */
-            //timezone = ba.readShort(); // reserved, not supported. should be set to 0x0000
-            //if (timezone > 720) timezone = -(65536 - timezone);
-            //timezone *= -60;
+            var timezone = ba.readShort(); // reserved, not supported. should be set to 0x0000
+            if (timezone > 720) timezone = -(65536 - timezone);
+            timezone *= -60;
 
             return {
                 value: new Date(ms),
                 __traits: {
                     type: 'Date',
+                    timezone: timezone,
                 },
             };
         },

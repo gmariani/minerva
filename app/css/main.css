@@ -18,8 +18,7 @@
         url(https://fonts.gstatic.com/s/lato/v11/9k-RPmcnxYEPm8CNFsH2gg.woff)
             format('woff');
     src: local('Lato Regular'), local('Lato-Regular'),
-        url('https://mariani.life/projects/minerva/font/Lato-Regular.woff')
-            format('woff');
+        url('../font/Lato-Regular.woff') format('woff');
     unicode-range: U+0000-00ff, U+0131, U+0152-0153, U+02c6, U+02da, U+02dc,
         U+2000-206f, U+2074, U+20ac, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }

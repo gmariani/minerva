@@ -1,5 +1,5 @@
 /*jshint browser:true, devel:true */
-/*global debug, Alert */
+/*global debug, Alert, util */
 /*
 Expected format of the node (there are no required fields)
 
@@ -20,7 +20,6 @@ Expected format of the node (there are no required fields)
 
 var SOL = function() {
     var amfVersion = '?';
-    var writeBuffer;
     var reLT = new RegExp('<', 'g');
     var reGT = new RegExp('>', 'g');
 
@@ -28,7 +27,7 @@ var SOL = function() {
         return amfVersion;
     };
 
-    this.isValid = function(file) {
+    this.isValid = function() {
         return false;
     };
 
@@ -276,10 +275,10 @@ var SOL = function() {
 				return true;
 			case 'vector' :
 				switch (parentClass) {
-					case 'Number' : 
+					case 'Number' :
 						return true;
 					case 'int' :
-					case 'uint' : 
+					case 'uint' :
 						return true;
 					case 'Object' :
 						return true;
@@ -478,7 +477,7 @@ var SOL = function() {
                 return;
             }
 
-            var idx = e.data.fileID;
+            //var idx = e.data.fileID;
             var data = e.data.data;
             data.fileSize = file.size;
             data.fileName = file.name;

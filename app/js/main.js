@@ -347,20 +347,6 @@ $(function() {
         );
     }
 
-    // Alert Chrome x64 users of issues - Fixed in v56+
-    // Chrome x64 dies when using Array.apply on large array
-    // https://code.google.com/p/chromium/issues/detail?id=252492
-    if (
-        navigator.userAgent.indexOf('x64') != -1 &&
-        navigator.userAgent.indexOf('Chrome') != -1 &&
-        parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2], 10) <
-            56
-    ) {
-        msg_array.push(
-            '<p>Hello Chrome x64 user, please be aware that Chrome x64 below version 56 does not handle converting large arrays within web workers. It will error out before completing, leaving you with an empty file. Please use either Firefox, Chrome x32, or another modern browser until this bug is fixed. <a style="text-decoration:underline;"  href="https://code.google.com/p/chromium/issues/detail?id=252492" target="_blank" rel="noopener">Chrome Bug #252492</a></p>'
-        );
-    }
-
     if (msg_array.length > 0) Alert.show(msg_array.join('<hr/>'), Alert.NOTICE);
 
     // Pinned Site detection
@@ -378,32 +364,6 @@ $(function() {
     } catch (e) {
         // Site mode is not supported.
     }
-
-    // Periodically reload Google Ads
-    /*console.info('start ad');
-    var googletag = googletag || {};
-    googletag.cmd = googletag.cmd || [];
-    googletag.cmd.push(function() {
-        console.info('define ad');
-        // Define the ad slot
-        var slot1 = googletag
-            .defineSlot('3734585686/', [728, 90], 'leaderboard')
-            .addService(googletag.pubads());
-
-        // Start ad fetching
-        googletag.enableServices();
-        googletag.display('leaderboard');
-
-        // Set timer to refresh slot every 30 seconds
-        setInterval(function() {
-            console.info('refresh ad');
-            googletag.pubads().refresh([slot1]);
-        }, 30000);
-    });*/
-
-    /*
-    <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-4393629565174725" data-ad-slot="3734585686">Ad</ins>
-    */
 
     ////////////////
     // Navigation //

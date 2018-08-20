@@ -199,6 +199,7 @@ gulp.task('fix-js', function() {
 gulp.task('fix-css', function() {
     gulp.src(['dist/css/bundle.css'])
         .pipe(replace('url(img/', `url(${cdnPath}img/`))
+        .pipe(replace('url(../', `url(${cdnPath}`))
         .pipe(gulp.dest('dist/css'));
 });
 

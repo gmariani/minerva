@@ -1,30 +1,24 @@
-/* global AMF0 AMF3 ByteArray, Int8Array */
+/* global AMF0 AMF3 ByteArray */
 (function() {
     importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
 
     var amf0 = new AMF0();
     var amf3 = new AMF3();
-    var debug = false;
+    //var debug = false;
 
-    function trace() {
+    /*function trace() {
         if (!debug) return;
 
-        //var str = '';
         var arr = [];
         for (var i = 0, l = arguments.length; i < l; i++) {
-            //str += arguments[i];
             arr[i] = arguments[i];
-            //if (i != l - 1) str += ', ';
         }
-        //str += '\n';
 
         postMessage({
             type: 'debug',
             message: arr,
         });
-
-        //dump(str);
-    }
+    }*/
 
     /*function traceByteArray(ba) {
         trace(
@@ -32,8 +26,6 @@
             Array.apply([], new Int8Array(ba._buffer.slice(0, ba.position)))
         );
     }*/
-
-    //var ERROR = trace;
 
     // Parse the individual file
     onmessage = function(event) {
@@ -104,23 +96,9 @@
             ba.writeBytes(baBody);
         }
 
-        // Convert to an array to escape worker unphased
-        var arrReturn = new Int8Array(ba._buffer.slice(0, ba.position));
-
-        try {
-            arrReturn = Array.apply([], arrReturn);
-        } catch (err) {
-            if (
-                err.name == 'RangeError' &&
-                err.message == 'Maximum call stack size exceeded'
-            ) {
-                throw RangeError(
-                    'Too many elements in SOL file to process in your current browser, please try Firefox.'
-                );
-            } else {
-                throw err;
-            }
-        }
-        postMessage({ data: arrReturn });
+        // Convert to new ArrayBuffer the actual size of the data, instead of
+        // the initial 5mb buffer
+        var arrBuffer = ba._buffer.slice(0, ba.position); // ArrayBuffer
+        postMessage({ data: arrBuffer }, [arrBuffer]);
     };
 })();
