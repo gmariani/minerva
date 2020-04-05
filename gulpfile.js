@@ -4,7 +4,7 @@ var gulp = require('gulp');
 var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
-var cssnano = require('gulp-cssnano');
+var postcss = require('gulp-postcss');
 var minifyInline = require('gulp-minify-inline');
 var htmlmin = require('gulp-htmlmin');
 var cache = require('gulp-cache');
@@ -15,130 +15,83 @@ var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
 var date = new Date();
 var cdnPath = 'https://cdn.mariani.life/projects/minerva/';
-var build_timestamp =
-    date.getFullYear() +
-    pad(date.getMonth() + 1) +
-    pad(date.getDate()) +
-    '_' +
-    new Date().getTime();
+var build_timestamp = date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()) + '_' + new Date().getTime();
 
 function pad(n) {
     return n < 10 ? '0' + n : n;
 }
-var monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-];
+var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 // empty dist folder
-gulp.task('clean:dist', function() {
-    return del.sync('dist');
+gulp.task('clean:dist', function (done) {
+    del.sync('dist');
+    done();
 });
 
 // Copy other php files over to dist except for index.php
-gulp.task('base', function() {
-    return gulp
-        .src([
-            'app/favicon.ico',
-            'app/browserconfig.xml',
-            'app/manifest.json',
-            'app/service-worker.js',
-        ])
-        .pipe(gulp.dest('dist'));
+gulp.task('base', function (done) {
+    gulp.src(['app/favicon.ico', 'app/browserconfig.xml', 'app/manifest.json', 'app/service-worker.js']).pipe(gulp.dest('dist'));
+    done();
 });
-gulp.task('images', function() {
+gulp.task('images', function () {
     return gulp.src('app/img/**/*').pipe(gulp.dest('dist/img'));
 });
-gulp.task('css-debug', function() {
+gulp.task('css-debug', function () {
     return gulp.src('app/css/*').pipe(gulp.dest('dist/css'));
 });
-gulp.task('fonts', function() {
+gulp.task('fonts', function () {
     return gulp.src('app/font/*').pipe(gulp.dest('dist/font'));
 });
-gulp.task('js-1', function() {
-    return gulp
-        .src([
-            'app/js/lib/ByteArray.js',
-            'app/js/lib/AMF0.js',
-            'app/js/lib/AMF3.js',
-        ])
-        .pipe(uglify())
-        .pipe(gulp.dest('dist/js/lib'));
+gulp.task('js-1', function () {
+    return gulp.src(['app/js/lib/ByteArray.js', 'app/js/lib/AMF0.js', 'app/js/lib/AMF3.js']).pipe(uglify()).pipe(gulp.dest('dist/js/lib'));
 });
-gulp.task('js-2', function() {
+gulp.task('js-2', function () {
     return gulp
-        .src([
-            'app/js/parsers/SOLReaderWorker.js',
-            'app/js/parsers/SOLWriterWorker.js',
-        ])
+        .src(['app/js/parsers/SOLReaderWorker.js', 'app/js/parsers/SOLWriterWorker.js'])
         .pipe(replace('../', `${cdnPath}js/`))
         .pipe(uglify())
         .pipe(gulp.dest('dist/js/parsers'));
 });
-gulp.task('js-debug', function() {
+gulp.task('js-debug', function () {
     return gulp.src('app/js/*').pipe(gulp.dest('dist/js'));
 });
-gulp.task('js-1-debug', function() {
+gulp.task('js-1-debug', function () {
     return gulp.src('app/js/lib/*').pipe(gulp.dest('dist/js/lib'));
 });
-gulp.task('js-2-debug', function() {
+gulp.task('js-2-debug', function () {
     return gulp.src('app/js/parsers/*').pipe(gulp.dest('dist/js/parsers'));
 });
-gulp.task('js-3-debug', function() {
+gulp.task('js-3-debug', function () {
     return gulp.src('app/js/vendor/*').pipe(gulp.dest('dist/js/vendor'));
 });
-gulp.task('js-4-debug', function() {
+gulp.task('js-4-debug', function () {
     return gulp.src('app/js/view/*').pipe(gulp.dest('dist/js/view'));
 });
 
 // Concat/minify CSS and JS, copy to dist
-gulp.task('useref', function() {
-    return gulp
-        .src('app/index.html')
+gulp.task('useref', function (done) {
+    gulp.src('app/index.html')
         .pipe(useref({}))
         .pipe(gulpIf('*.js', uglify().on('error', gulpUtil.log)))
-        .pipe(gulpIf('*.css', cssnano()))
+        .pipe(gulpIf('*.css', postcss()))
         .pipe(gulp.dest('dist'));
+    done();
 });
-gulp.task('useref_debug', function() {
+gulp.task('useref_debug', function () {
     return gulp.src('app/index.html').pipe(gulp.dest('dist'));
 });
 
-gulp.task('fix-index', function() {
+gulp.task('fix-index', function (done) {
     gulp.src(['dist/index.html'])
         /* Update variables for build */
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
-        .pipe(
-            replace(
-                '%BUILT%',
-                date.getDate() +
-                    '-' +
-                    monthNames[date.getMonth()] +
-                    '-' +
-                    date.getFullYear()
-            )
-        ) // d-MMMM-yyyy
+        .pipe(replace('%BUILT%', date.getDate() + '-' + monthNames[date.getMonth()] + '-' + date.getFullYear())) // d-MMMM-yyyy
         .pipe(replace('%BUILD%', build_timestamp)) // yyyyMMdd_milliseconds
         .pipe(replace('bundle.js', `bundle.js?${build_timestamp}`))
         .pipe(replace('bundle.css', `bundle.css?${build_timestamp}`))
         /* Update CDN URLs */
         .pipe(replace('content="img/', `content="${cdnPath}img/`))
-        .pipe(
-            replace(
-                'content="browserconfig',
-                `content="${cdnPath}browserconfig`
-            )
-        )
+        .pipe(replace('content="browserconfig', `content="${cdnPath}browserconfig`))
         .pipe(replace('href="img/', `href="${cdnPath}img/`))
         .pipe(replace('src="img/', `src="${cdnPath}img/`))
         .pipe(replace('href="css/', `href="${cdnPath}css/`))
@@ -151,140 +104,67 @@ gulp.task('fix-index', function() {
         /* Minify HTML */
         .pipe(htmlmin({ collapseWhitespace: true }))
         .pipe(gulp.dest('dist'));
+    done();
 });
 
-gulp.task('fix-index-debug', function() {
+gulp.task('fix-index-debug', function (done) {
     gulp.src(['dist/index.html'])
         /* Update variables for build */
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
-        .pipe(
-            replace(
-                '%BUILT%',
-                date.getDate() +
-                    '-' +
-                    monthNames[date.getMonth()] +
-                    '-' +
-                    date.getFullYear()
-            )
-        ) // d-MMMM-yyyy
+        .pipe(replace('%BUILT%', date.getDate() + '-' + monthNames[date.getMonth()] + '-' + date.getFullYear())) // d-MMMM-yyyy
         .pipe(replace('%BUILD%', build_timestamp)) // yyyyMMdd_milliseconds
         .pipe(gulp.dest('dist'));
+    done();
 });
 
-gulp.task('fix-worker', function() {
+gulp.task('fix-worker', function (done) {
     gulp.src(['dist/service-worker.js'])
-        .pipe(
-            replace(
-                '%BUILD%',
-                date.getFullYear() +
-                    pad(date.getMonth() + 1) +
-                    pad(date.getDate())
-            )
-        ) // yyyyMMdd
+        .pipe(replace('%BUILD%', date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()))) // yyyyMMdd
         .pipe(gulp.dest('dist'));
+    done();
 });
 
-gulp.task('fix-js', function() {
+gulp.task('fix-js', function (done) {
     gulp.src(['dist/js/bundle.js'])
         .pipe(
             /* eslint-disable quotes */
-            replace(
-                "register('service-worker.js",
-                `register('${cdnPath}service-worker.js`
-            )
+            replace("register('service-worker.js", `register('${cdnPath}service-worker.js`)
             /* eslint-enable quotes */
         )
         .pipe(gulp.dest('dist/js'));
+    done();
 });
-gulp.task('fix-css', function() {
+gulp.task('fix-css', function (done) {
     gulp.src(['dist/css/bundle.css'])
         .pipe(replace('url(img/', `url(${cdnPath}img/`))
         .pipe(replace('url(../', `url(${cdnPath}`))
         .pipe(gulp.dest('dist/css'));
+    done();
 });
 
 // Run above tasks in sequence
-gulp.task('build', function(callback) {
-    runSequence(
-        'clean:dist',
-        ['base', 'useref'],
-        [
-            'images',
-            'fonts',
-            'js-1',
-            'js-2',
-            'fix-index',
-            'fix-worker',
-            'fix-js',
-            'fix-css',
-        ],
-        callback
-    );
-});
-
-// Run above tasks in sequence
-gulp.task('debug', function(callback) {
-    runSequence(
-        'clean:dist',
-        ['base', 'useref_debug'],
-        [
-            'images',
-            'fonts',
-            'css-debug',
-            'js-debug',
-            'js-1-debug',
-            'js-2-debug',
-            'js-3-debug',
-            'js-4-debug',
-            'fix-index-debug',
-            'fix-worker',
-        ],
-        callback
-    );
-});
+gulp.task('build', gulp.series('clean:dist', gulp.series('base', 'useref'), gulp.series('images', 'fonts', 'js-1', 'js-2', 'fix-index', 'fix-worker', 'fix-js', 'fix-css')));
 
 // Copy app to a folder and convert it so it runs safely on localhost
-gulp.task('copy_index', function() {
-    return gulp
-        .src('app/index.html')
-        .pipe(rename('local.html'))
-        .pipe(gulp.dest('app'));
+gulp.task('copy_index', function () {
+    return gulp.src('app/index.html').pipe(rename('local.html')).pipe(gulp.dest('app'));
 });
-gulp.task('fix-index_local', function() {
+gulp.task('fix-index_local', function (done) {
     gulp.src(['app/local.html'])
-        .pipe(
-            replace(
-                '<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>',
-                ''
-            )
-        )
+        .pipe(replace('<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>', ''))
         .pipe(replace('%YEAR%', date.getFullYear())) // yyyy
-        .pipe(
-            replace(
-                '%BUILT%',
-                date.getDate() +
-                    '-' +
-                    monthNames[date.getMonth()] +
-                    '-' +
-                    date.getFullYear()
-            )
-        ) // d-MMMM-yyyy
-        .pipe(
-            replace(
-                '%BUILD%',
-                date.getFullYear() +
-                    pad(date.getMonth() + 1) +
-                    pad(date.getDate())
-            )
-        ) // yyyyMMdd
+        .pipe(replace('%BUILT%', date.getDate() + '-' + monthNames[date.getMonth()] + '-' + date.getFullYear())) // d-MMMM-yyyy
+        .pipe(replace('%BUILD%', date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()))) // yyyyMMdd
         .pipe(gulp.dest('app'));
+    done();
 });
 
-gulp.task('test', function(callback) {
-    runSequence('copy_index', 'fix-index_local', callback);
-});
+gulp.task(
+    'dev',
+    gulp.series('clean:dist', gulp.series('base', 'useref_debug'), gulp.series('css-debug', 'js-debug', 'js-1-debug', 'js-2-debug', 'js-3-debug', 'js-4-debug', 'fix-index-debug', 'fix-worker'))
+);
 
 // Empty cached images from gulp-cache
-gulp.task('cache:clear', function(callback) {
+gulp.task('cache:clear', function (callback) {
     return cache.clearAll(callback);
 });

@@ -18,20 +18,20 @@ Expected format of the node (there are no required fields)
 }
 */
 
-var SOL = function() {
+var SOL = function () {
     var amfVersion = '?';
     var reLT = new RegExp('<', 'g');
     var reGT = new RegExp('>', 'g');
 
-    this.getAMFVersion = function() {
+    this.getAMFVersion = function () {
         return amfVersion;
     };
 
-    this.isValid = function() {
+    this.isValid = function () {
         return false;
     };
 
-    this.getTitle = function(file) {
+    this.getTitle = function (file) {
         return (
             '<h1>' +
             escape(file.name) +
@@ -40,9 +40,7 @@ var SOL = function() {
             ' | AMF Version: ' +
             amfVersion +
             ' | Last Modified: ' +
-            (file.lastModifiedDate
-                ? file.lastModifiedDate.toLocaleDateString()
-                : 'n/a') +
+            (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') +
             '</small>'
         );
     };
@@ -129,15 +127,7 @@ var SOL = function() {
         if (o.icon.indexOf('vector') != -1) o.icon = 'vector';
 
         // If complex object, populate children
-        if (
-            (type == 'Object' ||
-                type == 'ECMAArray' ||
-                type == 'Array' ||
-                type.indexOf('Vector') === 0 ||
-                type == 'Dictionary' ||
-                type == 'DictionaryItem') &&
-            val
-        ) {
+        if ((type == 'Object' || type == 'ECMAArray' || type == 'Array' || type.indexOf('Vector') === 0 || type == 'Dictionary' || type == 'DictionaryItem') && val) {
             o.children = getChildren(val, type);
         }
 
@@ -171,14 +161,8 @@ var SOL = function() {
         if (type == 'DictionaryItem') {
             val = data;
 
-            o.icon = data.value.__traits.type
-                ? data.value.__traits.type.toLowerCase()
-                : 'error';
-            o.li_attr.title =
-                'Key: ' +
-                data.key.__traits.type +
-                ' | Value: ' +
-                data.value.__traits.type;
+            o.icon = data.value.__traits.type ? data.value.__traits.type.toLowerCase() : 'error';
+            o.li_attr.title = 'Key: ' + data.key.__traits.type + ' | Value: ' + data.value.__traits.type;
             o.data.__traits.canRename = false;
             o.data.__traits.canCreate = false;
         }
@@ -225,8 +209,7 @@ var SOL = function() {
                 o.data.__traits.origType = type;
                 break;
             default:
-                if (type.indexOf('Vector.<') != -1)
-                    o.data.__traits.origType = 'Vector.<Object>';
+                if (type.indexOf('Vector.<') != -1) o.data.__traits.origType = 'Vector.<Object>';
                 break;
         }
 
@@ -243,10 +226,7 @@ var SOL = function() {
         for (prop in obj) {
             o = getChild(prop, obj[prop], count++);
             // Since these items have special name or indices, they cannot be renamed
-            if (
-                parType.indexOf('Vector') === 0 ||
-                parType == 'DictionaryItem'
-            ) {
+            if (parType.indexOf('Vector') === 0 || parType == 'DictionaryItem') {
                 o.data.__traits.canRename = false;
             }
             if (parType == 'Array' || parType == 'ECMAArray') {
@@ -301,14 +281,7 @@ var SOL = function() {
         return value;
     }
 
-    this.createNode = function(
-        parentType,
-        parentLength,
-        parentClass,
-        label,
-        value,
-        valueType
-    ) {
+    this.createNode = function (parentType, parentLength, parentClass, label, value, valueType) {
         var o;
         var indexLabel = String(parentLength);
         if (label == null) label = 'New String';
@@ -316,17 +289,7 @@ var SOL = function() {
         if (valueType == null) valueType = 'String';
         if (parentType == null) parentType = '';
 
-        if (debug)
-            console.log(
-                'createNode(',
-                parentType,
-                parentLength,
-                parentClass,
-                label,
-                value,
-                valueType,
-                ')'
-            );
+        if (debug) console.log('createNode(', parentType, parentLength, parentClass, label, value, valueType, ')');
         switch (parentType.toLowerCase()) {
             case 'object':
             case 'localsharedobject': // Root
@@ -380,10 +343,10 @@ var SOL = function() {
     };
 
     // Create ArrayBuffer to save
-    this.serialize = function(json, obj, file, onComplete) {
+    this.serialize = function (json, obj, file, onComplete) {
         try {
             var worker = new Worker('js/parsers/SOLWriterWorker.js');
-            worker.onmessage = function(e) {
+            worker.onmessage = function (e) {
                 if (e.data.type == 'debug') {
                     if (debug) console.info(e.data.message);
                     return;
@@ -396,25 +359,17 @@ var SOL = function() {
                 onComplete(e.data.data);
             };
 
-            worker.onerror = function(error) {
+            worker.onerror = function (error) {
                 console.log('Worker error: ' + error.message + '\n');
                 onComplete(
                     {
-                        text:
-                            'Error saving file:<code>' +
-                            error.message +
-                            '<br>(' +
-                            error.filename +
-                            ':' +
-                            error.lineno +
-                            ')</code>',
+                        text: 'Error saving file:<code>' + error.message + '<br>(' + error.filename + ':' + error.lineno + ')</code>',
                         icon: 'error',
                     },
                     file
                 );
             };
-            if (debug)
-                console.log('post message to worker', json.children, obj);
+            if (debug) console.log('post message to worker', json.children, obj);
             worker.postMessage({
                 //fileName: file.name,
                 //fileName: json.data.value.fileName,
@@ -432,7 +387,11 @@ var SOL = function() {
         }
     };
 
-    this.obj2Tree = function(data) {
+    this.importJSON = function (data) {
+        amfVersion = data.header.amfVersion;
+    };
+
+    this.obj2Tree = function (data) {
         amfVersion = data.header.amfVersion;
 
         var json = {
@@ -459,10 +418,10 @@ var SOL = function() {
         return json;
     };
 
-    this.deserialize = function(buffer, file, onComplete) {
+    this.deserialize = function (buffer, file, onComplete) {
         var t = this;
         var worker = new Worker('js/parsers/SOLReaderWorker.js');
-        worker.onmessage = function(e) {
+        worker.onmessage = function (e) {
             if (e.data.type == 'debug') {
                 if (debug) console.info(e.data.message);
                 return;
@@ -488,26 +447,9 @@ var SOL = function() {
             onComplete(json, file);
         };
 
-        worker.onerror = function(error) {
-            console.error(
-                'Worker ' +
-                    error.message +
-                    '  (' +
-                    error.filename +
-                    ':' +
-                    error.lineno +
-                    ')'
-            );
-            Alert.show(
-                'Error reading file:<code>' +
-                    error.message +
-                    '<br>(' +
-                    error.filename +
-                    ':' +
-                    error.lineno +
-                    ')</code>',
-                Alert.ERROR
-            );
+        worker.onerror = function (error) {
+            console.error('Worker ' + error.message + '  (' + error.filename + ':' + error.lineno + ')');
+            Alert.show('Error reading file:<code>' + error.message + '<br>(' + error.filename + ':' + error.lineno + ')</code>', Alert.ERROR);
             onComplete({ text: 'Error reading file', icon: 'error' }, file);
         };
 

@@ -3,22 +3,17 @@ var util = {};
 var debug = false;
 var isLocal = false;
 
-(function() {
-    util.zero = function(num) {
+(function () {
+    util.zero = function (num) {
         if (num < 10) return '0' + num;
         return num;
     };
 
-    util.htmlEntities = function(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos');
+    util.htmlEntities = function (str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos');
     };
 
-    util.formatSize = function(bytes) {
+    util.formatSize = function (bytes) {
         if (bytes == '?') return bytes;
 
         // Get size precision (number of decimal places from the preferences)
@@ -47,7 +42,7 @@ var isLocal = false;
     };
 
     var os;
-    util.getOS = function() {
+    util.getOS = function () {
         if (!os) {
             var clientStrings = [
                     {
@@ -162,14 +157,14 @@ var isLocal = false;
     };
 
     // Prevent large strings from polluting the tree labels
-    util.getSnippet = function(val) {
+    util.getSnippet = function (val) {
         var str = String(val);
         if (str.length > 15) str = str.substr(0, 15) + '...';
         return str;
     };
 })();
 
-$(function() {
+$(function () {
     var reader;
     var parser;
     var file;
@@ -227,8 +222,7 @@ $(function() {
     // If Linux user running Gnash Flash substitute
     // Others: Shumway, Lightspark, don't know paths
     if (os.short == 'Linux' || os.short == 'Unix') {
-        path +=
-            '<br/><strong>Gnash: </strong><code>~/.gnash/SharedObjects/</code>';
+        path += '<br/><strong>Gnash: </strong><code>~/.gnash/SharedObjects/</code>';
     }
 
     // If using PPAPI Flash Plugin, path is different
@@ -237,16 +231,13 @@ $(function() {
         path += '<br/><strong>PPAPI: </strong><code>';
         switch (os.short) {
             case 'Win':
-                path +=
-                    '%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Pepper Data\\Shockwave Flash\\WritableRoot\\#SharedObjects\\';
+                path += '%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default\\Pepper Data\\Shockwave Flash\\WritableRoot\\#SharedObjects\\';
                 break;
             case 'Mac':
-                path +=
-                    '~/Library/Application Support/Google/Chrome/Default/Pepper Data/Shockwave Flash/WritableRoot/#SharedObjects/';
+                path += '~/Library/Application Support/Google/Chrome/Default/Pepper Data/Shockwave Flash/WritableRoot/#SharedObjects/';
                 break;
             case 'Linux':
-                path +=
-                    '~/.config/google-chrome/Default/Pepper Data/Shockwave Flash/WritableRoot/#SharedObjects/';
+                path += '~/.config/google-chrome/Default/Pepper Data/Shockwave Flash/WritableRoot/#SharedObjects/';
                 break;
         }
         path += '</code>';
@@ -260,18 +251,11 @@ $(function() {
             .register('service-worker.js', {
                 scope: './',
             })
-            .then(function(reg) {
-                console.log(
-                    'ServiceWorker registration succeeded. Scope is ' +
-                        reg.scope
-                );
+            .then(function (reg) {
+                console.log('ServiceWorker registration succeeded. Scope is ' + reg.scope);
             })
-            .catch(function(err) {
-                console.error(
-                    'ServiceWorker registration failed with error: "' +
-                        err +
-                        '"'
-                );
+            .catch(function (err) {
+                console.error('ServiceWorker registration failed with error: "' + err + '"');
             });
     }
 
@@ -299,22 +283,17 @@ $(function() {
     }
 
     if (hasOnLine && !window.navigator.onLine) {
-        msg_array.push(
-            '<p><strong>.minerva</strong> is now working in offline mode.</p>'
-        );
+        msg_array.push('<p><strong>.minerva</strong> is now working in offline mode.</p>');
     }
 
-    var msg_error_prefix =
-        '<p>It appears your browser does not support:</p><ul>';
+    var msg_error_prefix = '<p>It appears your browser does not support:</p><ul>';
     var msg_error = '';
     if (!hasOnLine) {
-        msg_error +=
-            '<li>Navigator.onLine API - Used to take check if application is offline/online</li>';
+        msg_error += '<li>Navigator.onLine API - Used to take check if application is offline/online</li>';
         issues = true;
     }
     if (!window.applicationCache) {
-        msg_error +=
-            '<li>Application Cache API - Used to take the application offline</li>';
+        msg_error += '<li>Application Cache API - Used to take the application offline</li>';
         issues = true;
     }
     if (!window.JSON) {
@@ -333,15 +312,11 @@ $(function() {
         msg_error += '<li>JavaScript Workers - Used to process SOL files</li>';
         issues = true;
     }
-    msg_error +=
-        '</ul><p>Please upgrade your browser in order to use <strong>.minerva</strong>.</p>';
+    msg_error += '</ul><p>Please upgrade your browser in order to use <strong>.minerva</strong>.</p>';
     if (issues) msg_array.push(msg_error_prefix + msg_error);
 
     // Alert safari users of issues
-    if (
-        navigator.userAgent.search('Safari') >= 0 &&
-        navigator.userAgent.search('Chrome') < 0
-    ) {
+    if (navigator.userAgent.search('Safari') >= 0 && navigator.userAgent.search('Chrome') < 0) {
         msg_array.push(
             '<p>Hello Safari user, please be aware that Safari does not handle downloading generated files very well...at all. The files (Blobs) may be opened instead of saved sometimes. Please manually press &#8984;+S to save the file after it is opened.</p>'
         );
@@ -357,7 +332,7 @@ $(function() {
         } else {
             // Site mode is supported, but inactive.
             $('#divPinSite').show();
-            $('#divPinSite').bind('click', function() {
+            $('#divPinSite').bind('click', function () {
                 $('#divPinSite').hide();
             });
         }
@@ -373,19 +348,10 @@ $(function() {
         if (debug) console.log('tree2Obj', o, data);
         for (key in data) {
             var child = data[key],
-                type =
-                    callState == 'TreeNode'
-                        ? child.data.__traits.type
-                        : child.__traits.type,
-                value =
-                    callState == 'TreeNode' ? child.data.value : child.value;
+                type = callState == 'TreeNode' ? child.data.__traits.type : child.__traits.type,
+                value = callState == 'TreeNode' ? child.data.value : child.value;
             //keyValue = callState == 'Dictionary' ? child.key : null;
-            key =
-                callState == 'Array' || callState == 'Dictionary'
-                    ? parseInt(key)
-                    : callState == 'Object'
-                        ? String(key)
-                        : child.text;
+            key = callState == 'Array' || callState == 'Dictionary' ? parseInt(key) : callState == 'Object' ? String(key) : child.text;
 
             if (debug) console.log('tree2Obj child key', key);
             if (debug) console.log('tree2Obj child child', child);
@@ -406,10 +372,7 @@ $(function() {
                     o[key] = value;
                     break;
                 case 'Array':
-                    if (
-                        child.children &&
-                        value.length != child.children.length
-                    ) {
+                    if (child.children && value.length != child.children.length) {
                         // ECMA Array
                         // Since an associative array in JavaScript is an object,
                         // we have to convert this into an object
@@ -507,19 +470,19 @@ $(function() {
         return o;
     }
 
-    btnNewFile.on('click', function() {
+    btnNewFile.on('click', function () {
         $('#overlay').addClass('show');
         $('#newWindow').addClass('show');
     });
-    btnOpenFile.on('click', function() {
+    btnOpenFile.on('click', function () {
         $('#overlay').addClass('show');
         $('#openWindow').addClass('show');
     });
-    btnImportFile.on('click', function() {
+    btnImportFile.on('click', function () {
         $('#overlay').addClass('show');
         $('#importJSONWindow').addClass('show');
     });
-    btnExportFile.on('click', function() {
+    btnExportFile.on('click', function () {
         if (btnExportFile.hasClass('disabled')) return;
 
         var treeJSON = elJSTree.jstree('get_json'),
@@ -544,7 +507,7 @@ $(function() {
         if (fileName.indexOf('.sol') != -1) fileName = fileName.slice(0, -4);
         saveAs(blob, fileName || 'JSON Export');
     });
-    btnSaveFile.on('click', function() {
+    btnSaveFile.on('click', function () {
         if (btnSaveFile.hasClass('disabled')) return;
 
         var treeJSON = elJSTree.jstree('get_json'),
@@ -608,12 +571,12 @@ $(function() {
     ///////////
     // About //
     ///////////
-    btnAbout.on('click', function() {
+    btnAbout.on('click', function () {
         $('#aboutOverlay').addClass('show');
     });
 
     // Close button
-    $('#aboutOverlay .close-top').on('click', function() {
+    $('#aboutOverlay .close-top').on('click', function () {
         $('#aboutOverlay').removeClass('show');
     });
 
@@ -625,18 +588,13 @@ $(function() {
         cbEnableSort.prop('checked', !!sortSetting);
     }
 
-    cbEnableSort.change(function() {
+    cbEnableSort.change(function () {
         $.cookie(cookieSortName, cbEnableSort.prop('checked'), {
             path: '/',
             expires: 365,
         });
         sortSetting = $.cookie(cookieSortName);
-        if (debug)
-            console.log(
-                'set cookie to ' + sortSetting,
-                cookieSortName,
-                cbEnableSort.prop('checked')
-            );
+        if (debug) console.log('set cookie to ' + sortSetting, cookieSortName, cbEnableSort.prop('checked'));
     });
 
     ////////////
@@ -644,18 +602,18 @@ $(function() {
     ////////////
     var btnCancelFile = $('#btnFileCancel');
 
-    $('#overlay .close-top').on('click', function() {
+    $('#overlay .close-top').on('click', function () {
         closeModal();
     });
 
     // New Window
     var elNewNameValue = $('#txtNewName');
     var elAMFValue = $('#radAMFValue');
-    elNewNameValue.on('input propertychange', function() {
+    elNewNameValue.on('input propertychange', function () {
         elNewNameValue.removeClass('error');
     });
 
-    btnCreateNew.on('click', function() {
+    btnCreateNew.on('click', function () {
         var fileName = elNewNameValue.val();
         var amfType = elAMFValue.find(':checked').val();
 
@@ -711,7 +669,7 @@ $(function() {
     });
 
     // Open Window
-    $('#filesFile').on('change', function(event) {
+    $('#filesFile').on('change', function (event) {
         var files = event.target.files; // FileList object
 
         if (!files.length) {
@@ -745,26 +703,26 @@ $(function() {
         reader = new FileReader();
         reader.onerror = errorHandler;
         reader.onprogress = updateProgress;
-        reader.onabort = function() {
+        reader.onabort = function () {
             Alert.show('File read cancelled.', Alert.INFO);
         };
-        reader.onloadstart = function() {
+        reader.onloadstart = function () {
             // Reset progress indicator on new file selection
             divProgress.style.width = '0%';
             divProgress.textContent = '0%';
             elProgressBar.addClass('loading');
         };
-        reader.onloadend = function() {
+        reader.onloadend = function () {
             // Ensure that the progress bar displays 100% at the end
             divProgress.style.width = '100%';
             divProgress.textContent = '100%';
-            setTimeout(function() {
+            setTimeout(function () {
                 elProgressBar.removeClass('loading');
                 btnCancelFile.removeClass('show');
             }, 250);
             setTimeout(closeModal, 500);
         };
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             parser.deserialize(e.target.result, file, updateSidebar);
         };
 
@@ -775,7 +733,7 @@ $(function() {
         btnExportFile.removeClass('disabled');
     });
 
-    btnCancelFile.on('click', function() {
+    btnCancelFile.on('click', function () {
         if (reader) reader.abort();
     });
 
@@ -801,16 +759,7 @@ $(function() {
             case err.ABORT_ERR:
                 break; // noop
             default:
-                Alert.show(
-                    'An error occurred reading this file.<code>' +
-                        err.message +
-                        '<br>(' +
-                        err.filename +
-                        ':' +
-                        err.lineno +
-                        ')</code>',
-                    Alert.ERROR
-                );
+                Alert.show('An error occurred reading this file.<code>' + err.message + '<br>(' + err.filename + ':' + err.lineno + ')</code>', Alert.ERROR);
         }
     }
 
@@ -819,7 +768,7 @@ $(function() {
     var btnCancelBinary = $('#btnBinCancel');
     var elProgressBinary = elProgressBarBinary.find('.percent');
     var binaryReader;
-    $('#filesBinary').on('change', function(event) {
+    $('#filesBinary').on('change', function (event) {
         var files = event.target.files; // FileList object
 
         if (!files.length) {
@@ -833,33 +782,33 @@ $(function() {
         binaryReader = new FileReader();
         binaryReader.onerror = errorHandler;
         binaryReader.onprogress = updateProgressBinary;
-        binaryReader.onabort = function() {
+        binaryReader.onabort = function () {
             Alert.show('File read cancelled.', Alert.INFO);
         };
-        binaryReader.onloadstart = function() {
+        binaryReader.onloadstart = function () {
             // Reset progress indicator on new file selection
             elProgressBinary.css('width', '0%');
             elProgressBinary.text('0%');
             elProgressBarBinary.addClass('loading');
         };
-        binaryReader.onloadend = function() {
+        binaryReader.onloadend = function () {
             // Ensure that the progress bar displays 100% at the end
             elProgressBinary.css('width', '100%');
             elProgressBinary.text('100%');
-            setTimeout(function() {
+            setTimeout(function () {
                 elProgressBarBinary.removeClass('loading');
                 btnCancelBinary.removeClass('show');
             }, 250);
             setTimeout(closeModal, 500);
         };
-        binaryReader.onload = function(e) {
+        binaryReader.onload = function (e) {
             byteArrayView.baImport2(e.target.result, file);
         };
 
         binaryReader.readAsArrayBuffer(file);
     });
 
-    btnCancelBinary.on('click', function() {
+    btnCancelBinary.on('click', function () {
         if (binaryReader) binaryReader.abort();
     });
 
@@ -877,14 +826,14 @@ $(function() {
     // { "myBool":false, "myDate":"12345", "myFloat":3.141592653589793, "myInt":7, "myIntArray":[1,2,3], "myNull":null, "myString":"ralle", "myObject":{"p1":5, "p2":6}}
     var elJSONNameValue = $('#txtJSONName');
     var elJSONValue = $('#txtJSONValue');
-    elJSONNameValue.on('input propertychange', function() {
+    elJSONNameValue.on('input propertychange', function () {
         elJSONNameValue.removeClass('error');
     });
-    elJSONValue.on('input propertychange', function() {
+    elJSONValue.on('input propertychange', function () {
         elJSONValue.removeClass('error');
     });
 
-    btnImportJSON.on('click', function() {
+    btnImportJSON.on('click', function () {
         var fileName = elJSONNameValue.val();
         var jsonVal = elJSONValue.val();
 
@@ -924,6 +873,7 @@ $(function() {
                 sol.fileName = fileName + '.sol';
                 sol.fileSize = '?';
                 parser = new SOL();
+                parser.importJSON(sol);
                 sol.body = formatChildren(o);
                 if (debug) console.log(sol);
                 var tree = parser.obj2Tree(sol);
@@ -935,25 +885,13 @@ $(function() {
                 };
                 updateSidebar(tree, file);
             } else {
-                Alert.show(
-                    'Invalid JSON, base data is not an object.',
-                    Alert.ERROR
-                );
+                Alert.show('Invalid JSON, base data is not an object.', Alert.ERROR);
                 elJSONValue.addClass('error');
                 return;
             }
         } catch (error) {
             console.error(error);
-            Alert.show(
-                'Invalid JSON:<code>' +
-                    error.message +
-                    '<br>(' +
-                    error.filename +
-                    ':' +
-                    error.lineno +
-                    ')</code>',
-                Alert.ERROR
-            );
+            Alert.show('Invalid JSON:<code>' + error.message + '<br>(' + error.filename + ':' + error.lineno + ')</code>', Alert.ERROR);
             elJSONValue.addClass('error');
             return;
         }
@@ -971,7 +909,7 @@ $(function() {
     });
 
     // Create Window
-    btnCreateItem.on('click', function() {
+    btnCreateItem.on('click', function () {
         /*
 		String
 		Number
@@ -989,10 +927,7 @@ $(function() {
             json = $('#txtNewValue').val();
 
         if (label === '' || label.length === 0) {
-            Alert.show(
-                'Please enter a valid name for the new property',
-                Alert.NOTICE
-            );
+            Alert.show('Please enter a valid name for the new property', Alert.NOTICE);
             $('#txtNewLabel').addClass('error');
             return;
         }
@@ -1014,8 +949,7 @@ $(function() {
                 value = json;
             }
             // Is a date?
-            if (Date.parse(value) && typeof value == 'string')
-                value = new Date(value);
+            if (Date.parse(value) && typeof value == 'string') value = new Date(value);
 
             var valueType = getDataType(value);
             value = formatObject(value);
@@ -1030,8 +964,7 @@ $(function() {
                     key = label;
                 }
                 // Is a date?
-                if (Date.parse(key) && typeof key == 'string')
-                    key = new Date(key);
+                if (Date.parse(key) && typeof key == 'string') key = new Date(key);
                 var val = {
                     key: formatObject(key),
                     value: value,
@@ -1046,18 +979,11 @@ $(function() {
             if (debug) console.log('label', label);
 
             // Create a node object based on parent and input
-            var o = parser.createNode(
-                par_node.data.__traits.type,
-                par_node.children.length,
-                par_node.data.__traits.class,
-                label,
-                value,
-                valueType
-            );
+            var o = parser.createNode(par_node.data.__traits.type, par_node.children.length, par_node.data.__traits.class, label, value, valueType);
             if (typeof o != 'string') {
                 if (debug) console.log('new node', o);
-                tree.create_node(par_node, o, 'last', function(new_node) {
-                    setTimeout(function() {
+                tree.create_node(par_node, o, 'last', function (new_node) {
+                    setTimeout(function () {
                         tree.select_node(new_node);
                     }, 0);
                 });
@@ -1067,16 +993,7 @@ $(function() {
                 //Alert.show('Error creating node:<code>' + error.message + '<br>(' + error.filename + ':' + error.lineno + ')</code>', Alert.ERROR);
             }
         } catch (error) {
-            Alert.show(
-                'Error creating node:<code>' +
-                    error.message +
-                    '<br>(' +
-                    error.filename +
-                    ':' +
-                    error.lineno +
-                    ')</code>',
-                Alert.ERROR
-            );
+            Alert.show('Error creating node:<code>' + error.message + '<br>(' + error.filename + ':' + error.lineno + ')</code>', Alert.ERROR);
             console.error(error);
         }
     });
@@ -1113,13 +1030,13 @@ $(function() {
     var dictionaryItemView = new DictionaryItemView();
 
     var search_delay = false;
-    elSearch.keyup(function(event) {
+    elSearch.keyup(function (event) {
         // Clear on ESC
         if (event.which == 27) elSearch.val('');
 
         if (!elJSTree.jstree(true).search) return;
         if (search_delay) clearTimeout(search_delay);
-        search_delay = setTimeout(function() {
+        search_delay = setTimeout(function () {
             var v = elSearch.val();
             elJSTree.jstree(true).search(v);
         }, 250);
@@ -1127,12 +1044,7 @@ $(function() {
 
     function getDataType(val) {
         var type = typeof val;
-        if (debug)
-            console.log(
-                'getDataType',
-                type,
-                Object.prototype.toString.call(val)
-            );
+        if (debug) console.log('getDataType', type, Object.prototype.toString.call(val));
         if (val === null) {
             type = 'Null';
         } else {
@@ -1157,23 +1069,15 @@ $(function() {
         }
 
         // Is XML?
+        // DOMParser WILL throw uncatchable errors for non-xml data. This is normal
+        // and unavoidable.
         var xmlParser = new DOMParser(),
             dom = xmlParser.parseFromString(val, 'text/xml');
-        if (dom.documentElement.nodeName != 'parsererror' && type === 'String')
-            type = 'XML';
-        if (type === 'Number' && val % 1 === 0 && parser.getAMFVersion() == 3)
-            type = 'Integer';
+        if (dom.documentElement.nodeName != 'parsererror' && type === 'String') type = 'XML';
+        if (type === 'Number' && val % 1 === 0 && parser.getAMFVersion() == 3) type = 'Integer';
         if (type === 'Object' && val === null) type = 'Null';
-        if (
-            type === 'Object' &&
-            Object.prototype.toString.call(val) === '[object Array]'
-        )
-            type = 'Array';
-        if (
-            type === 'Object' &&
-            Object.prototype.toString.call(val) === '[object Date]'
-        )
-            type = 'Date';
+        if (type === 'Object' && Object.prototype.toString.call(val) === '[object Array]') type = 'Array';
+        if (type === 'Object' && Object.prototype.toString.call(val) === '[object Date]') type = 'Date';
 
         return type;
     }
@@ -1249,23 +1153,19 @@ $(function() {
             $.jstree.defaults.sort = naturalSort;
         }
 
-        $.jstree.defaults.contextmenu.items = function() {
+        $.jstree.defaults.contextmenu.items = function () {
             // Could be an object directly
             return {
                 create: {
                     separator_before: false,
                     separator_after: true,
-                    _disabled: function(data) {
+                    _disabled: function (data) {
                         var tree = $.jstree.reference(data.reference),
                             obj = tree.get_node(data.reference);
-                        return !(
-                            obj.data &&
-                            obj.data.__traits &&
-                            obj.data.__traits.canCreate !== false
-                        );
+                        return !(obj.data && obj.data.__traits && obj.data.__traits.canCreate !== false);
                     },
                     label: 'Create',
-                    action: function(data) {
+                    action: function (data) {
                         var tree = $.jstree.reference(data.reference),
                             obj = tree.get_node(data.reference);
                         if (debug) console.log('on create action', obj);
@@ -1291,20 +1191,16 @@ $(function() {
                 rename: {
                     separator_before: false,
                     separator_after: false,
-                    _disabled: function(data) {
+                    _disabled: function (data) {
                         var tree = $.jstree.reference(data.reference),
                             obj = tree.get_node(data.reference);
-                        return !(
-                            obj.data &&
-                            obj.data.__traits &&
-                            obj.data.__traits.canRename !== false
-                        );
+                        return !(obj.data && obj.data.__traits && obj.data.__traits.canRename !== false);
                     },
                     label: 'Rename',
                     /*"shortcut"			: 113,
 					"shortcut_label"	: 'F2',
 					"icon"				: "glyphicon glyphicon-leaf",*/
-                    action: function(data) {
+                    action: function (data) {
                         var tree = $.jstree.reference(data.reference),
                             obj = tree.get_node(data.reference);
                         edit_node(tree, obj);
@@ -1314,20 +1210,16 @@ $(function() {
                     separator_before: false,
                     icon: false,
                     separator_after: false,
-                    _disabled: function(data) {
+                    _disabled: function (data) {
                         var tree = $.jstree.reference(data.reference),
                             obj = tree.get_node(data.reference);
-                        return !(
-                            obj.data &&
-                            obj.data.__traits &&
-                            obj.data.__traits.canDelete !== false
-                        );
+                        return !(obj.data && obj.data.__traits && obj.data.__traits.canDelete !== false);
                     },
                     label: 'Delete',
                     /*"shortcut"			: 46,
 					"shortcut_label"	: 'Del',
 					"icon"				: "glyphicon glyphicon-trash",*/
-                    action: function(data) {
+                    action: function (data) {
                         var inst = $.jstree.reference(data.reference),
                             obj = inst.get_node(data.reference);
                         delete_node(inst, obj);
@@ -1337,15 +1229,11 @@ $(function() {
                     separator_before: true,
                     icon: false,
                     separator_after: false,
-                    _disabled: function(data) {
+                    _disabled: function (data) {
                         var tree = $.jstree.reference(data.reference),
                             obj = tree.get_node(data.reference);
                         if (debug) console.log('ccp', obj.data);
-                        return !(
-                            obj.data &&
-                            obj.data.__traits &&
-                            obj.data.__traits.canEdit !== false
-                        );
+                        return !(obj.data && obj.data.__traits && obj.data.__traits.canEdit !== false);
                     },
                     label: 'Edit',
                     action: false,
@@ -1357,7 +1245,7 @@ $(function() {
                             /*"shortcut"			: 'ctrl-88',
 							"shortcut_label"	: 'Ctrl+X',
 							"icon"				: "glyphicon glyphicon-trash",*/
-                            action: function(data) {
+                            action: function (data) {
                                 var inst = $.jstree.reference(data.reference),
                                     node = inst.get_node(data.reference);
                                 cut_node(inst, node);
@@ -1371,7 +1259,7 @@ $(function() {
                             /*"shortcut"			: 'ctrl-67',
 							"shortcut_label"	: 'Ctrl+C',
 							"icon"				: "glyphicon glyphicon-trash",*/
-                            action: function(data) {
+                            action: function (data) {
                                 var inst = $.jstree.reference(data.reference),
                                     node = inst.get_node(data.reference);
                                 copy_node(inst, node);
@@ -1380,12 +1268,9 @@ $(function() {
                         paste: {
                             separator_before: false,
                             icon: false,
-                            _disabled: function(/*data*/) {
+                            _disabled: function (/*data*/) {
                                 // If local storage is available
-                                return !(
-                                    window.localStorage &&
-                                    localStorage.getItem('clipboard')
-                                );
+                                return !(window.localStorage && localStorage.getItem('clipboard'));
                                 // If local storage isn't available
                                 //return !(!window.localStorage && $.jstree.reference(data.reference).can_paste());
                             },
@@ -1394,7 +1279,7 @@ $(function() {
                             /*"shortcut"			: 'ctrl-86',
 							"shortcut_label"	: 'Ctrl+V',
 							"icon"				: "glyphicon glyphicon-trash",*/
-                            action: function(data) {
+                            action: function (data) {
                                 var inst = $.jstree.reference(data.reference),
                                     par = inst.get_node(data.reference);
                                 paste_node(inst, par);
@@ -1415,14 +1300,7 @@ $(function() {
 
         function cut_node(tree, node) {
             var par_node = tree.get_node(node.parent);
-            if (
-                node.data &&
-                node.data.__traits &&
-                node.data.__traits.canDelete !== false &&
-                (par_node.data && par_node.data.__traits
-                    ? par_node.data.__traits.fixed !== true
-                    : true)
-            ) {
+            if (node.data && node.data.__traits && node.data.__traits.canDelete !== false && (par_node.data && par_node.data.__traits ? par_node.data.__traits.fixed !== true : true)) {
                 if (node && node.id && node.id !== '#') {
                     if (window.localStorage) {
                         var json = JSON.stringify(
@@ -1437,29 +1315,16 @@ $(function() {
                         localStorage.setItem('clipboard', json);
                     } else {
                         if (!showCopyOnce) {
-                            Alert.show(
-                                'Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.',
-                                Alert.INFO
-                            );
+                            Alert.show('Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.', Alert.INFO);
                             showCopyOnce = true;
                         }
-                        node = tree.is_selected(node)
-                            ? tree.get_selected()
-                            : node;
+                        node = tree.is_selected(node) ? tree.get_selected() : node;
                         tree.cut(node);
                     }
 
                     // Check if parent is an array type and renumber children
-                    if (
-                        par_node.data &&
-                        par_node.data.__traits &&
-                        par_node.data.__traits.canBeIndexed
-                    ) {
-                        for (
-                            var i = 0, l = par_node.children.length;
-                            i < l;
-                            i++
-                        ) {
+                    if (par_node.data && par_node.data.__traits && par_node.data.__traits.canBeIndexed) {
+                        for (var i = 0, l = par_node.children.length; i < l; i++) {
                             var child = tree.get_node(par_node.children[i]);
                             if (par_node.data.__traits.type == 'Dictionary') {
                                 tree.rename_node(child, 'Item ' + i.toString());
@@ -1486,10 +1351,7 @@ $(function() {
                     localStorage.setItem('clipboard', json);
                 } else {
                     if (!showCopyOnce) {
-                        Alert.show(
-                            'Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.',
-                            Alert.INFO
-                        );
+                        Alert.show('Sorry, your browser does not support localStorage. You will not be able to move this node between tabs or windows.', Alert.INFO);
                         showCopyOnce = true;
                     }
                     node = tree.is_selected(node) ? tree.get_selected() : node;
@@ -1499,22 +1361,15 @@ $(function() {
         }
 
         function paste_node(tree, node) {
-            if (
-                node.data &&
-                node.data.__traits &&
-                node.data.__traits.canCreate !== false &&
-                node.data.__traits.fixed !== true
-            ) {
+            if (node.data && node.data.__traits && node.data.__traits.canCreate !== false && node.data.__traits.fixed !== true) {
                 if (window.localStorage) {
                     var json = localStorage.getItem('clipboard'),
                         nodeChild = JSON.parse(json);
                     if (debug) console.log('paste', nodeChild);
                     // create_node(node, nodeChild, pos, callback, is_loaded)
-                    tree.create_node(node, nodeChild, 'last', function(
-                        new_node
-                    ) {
+                    tree.create_node(node, nodeChild, 'last', function (new_node) {
                         //new_node.data = json.original.data;
-                        setTimeout(function() {
+                        setTimeout(function () {
                             tree.select_node(new_node);
                         }, 0);
                     });
@@ -1526,11 +1381,7 @@ $(function() {
                 }
 
                 // Check if parent is an array type and renumber children
-                if (
-                    node.data &&
-                    node.data.__traits &&
-                    node.data.__traits.canBeIndexed
-                ) {
+                if (node.data && node.data.__traits && node.data.__traits.canBeIndexed) {
                     for (var i = 0, l = node.children.length; i < l; i++) {
                         var child = tree.get_node(node.children[i]);
                         if (node.data.__traits.type == 'Dictionary') {
@@ -1544,11 +1395,7 @@ $(function() {
         }
 
         function edit_node(tree, node) {
-            if (
-                node.data &&
-                node.data.__traits &&
-                node.data.__traits.canRename !== false
-            ) {
+            if (node.data && node.data.__traits && node.data.__traits.canRename !== false) {
                 if (node && node.id && node.id !== '#') {
                     tree.edit(node);
                 }
@@ -1557,29 +1404,14 @@ $(function() {
 
         function delete_node(tree, node) {
             var par_node = tree.get_node(node.parent);
-            if (
-                node.data &&
-                node.data.__traits &&
-                node.data.__traits.canDelete !== false &&
-                (par_node.data && par_node.data.__traits
-                    ? par_node.data.__traits.fixed !== true
-                    : true)
-            ) {
+            if (node.data && node.data.__traits && node.data.__traits.canDelete !== false && (par_node.data && par_node.data.__traits ? par_node.data.__traits.fixed !== true : true)) {
                 if (node && node.id && node.id !== '#') {
                     node = inst.is_selected(node) ? inst.get_selected() : node;
                     tree.delete_node(node);
 
                     // Check if parent is an array type and renumber children
-                    if (
-                        par_node.data &&
-                        par_node.data.__traits &&
-                        par_node.data.__traits.canBeIndexed
-                    ) {
-                        for (
-                            var i = 0, l = par_node.children.length;
-                            i < l;
-                            i++
-                        ) {
+                    if (par_node.data && par_node.data.__traits && par_node.data.__traits.canBeIndexed) {
+                        for (var i = 0, l = par_node.children.length; i < l; i++) {
                             var child = tree.get_node(par_node.children[i]);
                             if (par_node.data.__traits.type == 'Dictionary') {
                                 tree.rename_node(child, 'Item ' + i.toString());
@@ -1595,7 +1427,7 @@ $(function() {
         // triggered when selection changes
         var inst = $.jstree.reference('#jstree');
         elJSTree.on('changed.jstree', onTreeChange);
-        elJSTree.on('keydown.jstree', '.jstree-anchor', function(e) {
+        elJSTree.on('keydown.jstree', '.jstree-anchor', function (e) {
             if (e.target.tagName === 'INPUT') {
                 return true;
             }
@@ -1702,19 +1534,13 @@ $(function() {
         if (debug) console.log('onValueChange', input, node);
 
         // If integer/number update the icon and title
-        if (
-            node.data.__traits.type == 'Integer' ||
-            node.data.__traits.type == 'Number'
-        ) {
+        if (node.data.__traits.type == 'Integer' || node.data.__traits.type == 'Number') {
             tree = $.jstree.reference('#jstree');
             tree.set_icon(node, node.data.__traits.type.toLowerCase());
         }
 
         // If amf3 boolean update the icon and title
-        if (
-            node.data.__traits.origType == 'False' ||
-            node.data.__traits.origType == 'True'
-        ) {
+        if (node.data.__traits.origType == 'False' || node.data.__traits.origType == 'True') {
             tree = $.jstree.reference('#jstree');
             tree.set_icon(node, node.data.__traits.origType.toLowerCase());
             //node.li_attr.title = node.data.__traits.origType;
@@ -1741,107 +1567,44 @@ $(function() {
             resetDetails();
 
             var node = data.node; //instance.get_node(data.selected[0]);
-            var lower_type = node.data.__traits.type
-                ? node.data.__traits.type.toLowerCase()
-                : '';
+            var lower_type = node.data.__traits.type ? node.data.__traits.type.toLowerCase() : '';
             switch (lower_type) {
                 case 'localsharedobject':
-                    solView.init(
-                        elDetailsPane,
-                        node,
-                        file,
-                        node.data.value,
-                        node.data.value2
-                    );
+                    solView.init(elDetailsPane, node, file, node.data.value, node.data.value2);
                     break;
                 case 'array':
-                    arrayView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    arrayView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'object':
-                    objectView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onTraitChange
-                    );
+                    objectView.init(elDetailsPane, node, node.data.value, onTraitChange);
                     break;
                 case 'dictionary':
-                    dictionaryView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    dictionaryView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'dictionaryitem':
-                    dictionaryItemView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    dictionaryItemView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'number':
                 case 'integer':
-                    numberView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    numberView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'bytearray':
-                    byteArrayView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    byteArrayView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'boolean':
-                    booleanView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    booleanView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'xml':
-                    xmlView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    xmlView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'string':
-                    stringView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    stringView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'vector':
-                    vectorView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    vectorView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
                 case 'date':
-                    dateView.init(
-                        elDetailsPane,
-                        node,
-                        node.data.value,
-                        onValueChange
-                    );
+                    dateView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
             }
         }

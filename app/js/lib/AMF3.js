@@ -1,6 +1,6 @@
 /* global ByteArray */
 var AMF3;
-(function() {
+(function () {
     /*
 uint8 - BYTE - readUnsignedByte - U8
 int8 - CHAR - readByte
@@ -90,7 +90,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     /*var temp_count3 = 0;
 	temp_count4 = 0;*/
 
-    AMF3 = function() {
+    AMF3 = function () {
         //--------------------------------------
         //  Public Vars
         //--------------------------------------
@@ -167,7 +167,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             DSC: 'flex.messaging.messages.CommandMessageExt',
         },
 
-        type2Name: function(type) {
+        type2Name: function (type) {
             switch (type) {
                 case this.UNDEFINED_TYPE:
                     return 'UNDEFINED_TYPE';
@@ -211,7 +211,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         },
 
         // Reads the amf3 data
-        deserialize: function(data) {
+        deserialize: function (data) {
             this.reset();
 
             this._rawData = data;
@@ -219,7 +219,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         },
 
         // Clears the object, string and definition cache
-        reset: function() {
+        reset: function () {
             this.readObjectCache = [];
             this.readStringCache = [];
             this.readTraitsCache = [];
@@ -229,7 +229,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             this.writeTraitsCache = [];
         },
 
-        readData: function(ba, internal) {
+        readData: function (ba, internal) {
             var type = ba.readByte();
             trace('readData: ' + type + ' : ' + this.type2Name(type));
             //trace(this.readStringCache);
@@ -271,16 +271,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 case this.DICTIONARY_TYPE:
                     return this.readDictionary(ba);
                 default:
-                    throw Error(
-                        'Undefined AMF3 type encountered \'' + type + '\''
-                    );
+                    throw Error("Undefined AMF3 type encountered '" + type + "'");
             }
         },
 
-        writeData: function(ba, node) {
+        writeData: function (ba, node) {
             var type = node.__traits.type;
-            if (node.__traits.hasOwnProperty('origType'))
-                type = node.__traits.origType;
+            if (node.__traits.hasOwnProperty('origType')) type = node.__traits.origType;
             //trace('writeData', type, node);
             switch (type) {
                 case 'Undefined':
@@ -339,9 +336,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     this.writeDictionary(ba, node.value, node.__traits);
                     break;
                 default:
-                    throw Error(
-                        'Undefined AMF3 type encountered \'' + type + '\''
-                    );
+                    throw Error("Undefined AMF3 type encountered '" + type + "'");
             }
         },
 
@@ -357,7 +352,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readUInt29: function(ba) {
+        readUInt29: function (ba) {
             var result = 0;
 
             // Each byte must be treated as unsigned
@@ -378,7 +373,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return result | b;
         },
 
-        writeUInt29: function(ba, value) {
+        writeUInt29: function (ba, value) {
             // Represent smaller integers with fewer bytes using the most
             // significant bit of each byte. The worst case uses 32-bits
             // to represent a 29-bit number, which is what we would have
@@ -425,11 +420,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          *
          * @param	ba
          */
-        readUndefined: function() {
+        readUndefined: function () {
             return { value: null, __traits: { type: 'Undefined' } };
         },
 
-        writeUndefined: function(ba) {
+        writeUndefined: function (ba) {
             ba.writeByte(this.UNDEFINED_TYPE);
         },
 
@@ -440,11 +435,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          *
          * @param	ba
          */
-        readNull: function() {
+        readNull: function () {
             return { value: null, __traits: { type: 'Null' } };
         },
 
-        writeNull: function(ba) {
+        writeNull: function (ba) {
             ba.writeByte(this.NULL_TYPE);
         },
 
@@ -464,14 +459,14 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readBoolean: function(bool) {
+        readBoolean: function (bool) {
             return {
                 value: bool ? 1 : 0,
                 __traits: { type: bool ? 'True' : 'False' },
             };
         },
 
-        writeBoolean: function(ba, value) {
+        writeBoolean: function (ba, value) {
             ba.writeByte(value ? this.TRUE_TYPE : this.FALSE_TYPE);
         },
 
@@ -479,7 +474,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * A value greater than or equal to 2^28, or if a signed integer (int) is less than
          * -2^28, it will be serialized using the AMF 3 double type
          */
-        readInt: function(ba) {
+        readInt: function (ba) {
             // Symmetric with writing an integer to fix sign bits for negative values...
             return {
                 value: (this.readUInt29(ba) << 3) >> 3,
@@ -487,12 +482,8 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             };
         },
 
-        writeInt: function(ba, value) {
-            if (
-                value >= this.INT28_MIN_VALUE &&
-                value <= this.INT28_MAX_VALUE &&
-                value % 1 == 0
-            ) {
+        writeInt: function (ba, value) {
+            if (value >= this.INT28_MIN_VALUE && value <= this.INT28_MAX_VALUE && value % 1 == 0) {
                 // We have to be careful when the MSB is set, as (value >> 3) will sign extend.
                 // We know there are only 29-bits of precision, so truncate. This requires
                 // similar care when reading an integer.
@@ -517,11 +508,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readDouble: function(ba) {
+        readDouble: function (ba) {
             return { value: ba.readDouble(), __traits: { type: 'Number' } };
         },
 
-        writeDouble: function(ba, value) {
+        writeDouble: function (ba, value) {
             ba.writeByte(this.DOUBLE_TYPE);
             ba.writeDouble(value);
         },
@@ -543,7 +534,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readString: function(ba) {
+        readString: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getStringReference(ref >> 1);
 
@@ -559,7 +550,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return str;
         },
 
-        writeString: function(ba, value, writeRef) {
+        writeString: function (ba, value, writeRef) {
             if (writeRef === undefined) writeRef = true;
 
             // Note: Type is not encoded here because writeString is used for multiple types
@@ -604,7 +595,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readXMLDoc: function(ba) {
+        readXMLDoc: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -616,7 +607,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return xmldoc;
         },
 
-        writeXMLDoc: function(ba, value) {
+        writeXMLDoc: function (ba, value) {
             ba.writeByte(this.XML_DOC_TYPE);
 
             if (this.setObjectReference(ba, value)) {
@@ -643,7 +634,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readDate: function(ba) {
+        readDate: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -655,7 +646,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return d;
         },
 
-        writeDate: function(ba, value) {
+        writeDate: function (ba, value) {
             ba.writeByte(this.DATE_TYPE);
 
             // Convert numbers to dates
@@ -697,7 +688,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readArray: function(ba) {
+        readArray: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -725,7 +716,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeArray: function(ba, value) {
+        writeArray: function (ba, value) {
             var arrNumeric = [], // holder to store the numeric keys
                 objString = {}, // holder to store the string keys
                 l = value.length, // get the total number of entries for the array
@@ -844,7 +835,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readObject: function(ba, internal) {
+        readObject: function (ba, internal) {
             //trace('readObject');
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
@@ -894,24 +885,16 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     if (traits.class.indexOf('flex.') == 0) {
                         // Try to get a class
                         var classParts = traits.class.split('.');
-                        var unqualifiedClassName =
-                            classParts[classParts.length - 1];
-                        if (
-                            unqualifiedClassName &&
-                            AMF3.Flex[unqualifiedClassName]
-                        ) {
-                            var flexParser = new AMF3.Flex[
-                                unqualifiedClassName
-                            ]();
+                        var unqualifiedClassName = classParts[classParts.length - 1];
+                        if (unqualifiedClassName && AMF3.Flex[unqualifiedClassName]) {
+                            var flexParser = new AMF3.Flex[unqualifiedClassName]();
                             obj = flexParser.readExternal(ba, this);
                         } else {
                             obj = this.readData(ba);
                         }
                         // We will attempt to read it as an object or die trying...
                     } else {
-                        obj['??? Warning: Externalized ???'] = this.readData(
-                            ba
-                        );
+                        obj['??? Warning: Externalized ???'] = this.readData(ba);
                         ALERT(
                             'Externalized object (' +
                                 traits.class +
@@ -919,17 +902,9 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                         );
                     }
                 } catch (e) {
-                    ALERT(
-                        'Unable to read externalizable data type \'' +
-                            traits.class +
-                            '\'  |  ' +
-                            e
-                    );
+                    ALERT("Unable to read externalizable data type '" + traits.class + "'  |  " + e);
                     obj['??? Warning: Externalized ???'] = {
-                        value:
-                            'Unable to read externalizable data type \'' +
-                            traits.class +
-                            '\'',
+                        value: "Unable to read externalizable data type '" + traits.class + "'",
                         __type: 'String',
                     };
                 }
@@ -959,7 +934,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeObject: function(ba, value, traits) {
+        writeObject: function (ba, value, traits) {
             // Write the object tag
             ba.writeByte(this.OBJECT_TYPE);
 
@@ -968,13 +943,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             // Write Traits
             if (this.setTraitReference(ba, traits)) {
                 // Write trait flag
-                this.writeUInt29(
-                    ba,
-                    3 |
-                        (traits.externalizable ? 4 : 0) |
-                        (traits.dynamic ? 8 : 0) |
-                        (traits.count << 4)
-                );
+                this.writeUInt29(ba, 3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4));
 
                 // Write class name
                 if (traits.class != 'Object') {
@@ -998,27 +967,16 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     if (traits.class.indexOf('flex.') == 0) {
                         // Try to get a class
                         var classParts = traits.class.split('.');
-                        var unqualifiedClassName =
-                            classParts[classParts.length - 1];
-                        if (
-                            unqualifiedClassName &&
-                            AMF3.Flex[unqualifiedClassName]
-                        ) {
-                            var flexParser = new AMF3.Flex[
-                                unqualifiedClassName
-                            ]();
+                        var unqualifiedClassName = classParts[classParts.length - 1];
+                        if (unqualifiedClassName && AMF3.Flex[unqualifiedClassName]) {
+                            var flexParser = new AMF3.Flex[unqualifiedClassName]();
                             flexParser.writeExternal(ba, this, value);
                         } else {
                             this.writeData(ba, value);
                         }
                     }
                 } catch (e) {
-                    throw Error(
-                        'AMF3::writeObject - Error : Unable to write externalizable data type \'' +
-                            traits.class +
-                            '\' | ' +
-                            e
-                    );
+                    throw Error("AMF3::writeObject - Error : Unable to write externalizable data type '" + traits.class + "' | " + e);
                 }
             } else {
                 if (this.setObjectReference(ba, value)) {
@@ -1056,7 +1014,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readXML: function(ba) {
+        readXML: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1068,7 +1026,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return xml;
         },
 
-        writeXML: function(ba, value) {
+        writeXML: function (ba, value) {
             ba.writeByte(this.XML_TYPE);
 
             if (this.setObjectReference(ba, value)) {
@@ -1098,7 +1056,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	ba
          * @param	value
          */
-        readByteArray: function(ba) {
+        readByteArray: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1119,7 +1077,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeByteArray: function(ba, value) {
+        writeByteArray: function (ba, value) {
             ba.writeByte(this.BYTE_ARRAY_TYPE);
 
             if (this.setObjectReference(ba, value)) {
@@ -1134,7 +1092,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * items (some 268,435,455 values).
          * Can be sent by reference
          */
-        readVectorInt: function(ba) {
+        readVectorInt: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1155,7 +1113,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeVectorInt: function(ba, value, traits) {
+        writeVectorInt: function (ba, value, traits) {
             ba.writeByte(this.VECTOR_INT_TYPE);
             if (this.setObjectReference(ba, value)) {
                 this.writeUInt29(ba, (value.length << 1) | 1); // Ref | Len
@@ -1172,7 +1130,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * items (some 268,435,455 values).
          * Can be sent by reference
          */
-        readVectorUInt: function(ba) {
+        readVectorUInt: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1197,7 +1155,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeVectorUInt: function(ba, value, traits) {
+        writeVectorUInt: function (ba, value, traits) {
             ba.writeByte(this.VECTOR_UINT_TYPE);
 
             if (this.setObjectReference(ba, value)) {
@@ -1215,7 +1173,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * items (some 268,435,455 values).
          * Can be sent by reference
          */
-        readVectorDouble: function(ba) {
+        readVectorDouble: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1240,7 +1198,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeVectorDouble: function(ba, value, traits) {
+        writeVectorDouble: function (ba, value, traits) {
             ba.writeByte(this.VECTOR_DOUBLE_TYPE);
 
             if (this.setObjectReference(ba, value)) {
@@ -1259,7 +1217,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * Only Vectors of serializable types can be serialized.
          * Can be sent by reference
          */
-        readVectorObject: function(ba) {
+        readVectorObject: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1291,7 +1249,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeVectorObject: function(ba, value, traits) {
+        writeVectorObject: function (ba, value, traits) {
             ba.writeByte(this.VECTOR_OBJECT_TYPE);
             if (this.setObjectReference(ba, value)) {
                 this.writeUInt29(ba, (value.length << 1) | 1);
@@ -1323,7 +1281,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * limited to 2^28 - 1 items (some 268,435,455 key-value pairs).
          * Can be sent by reference
          */
-        readDictionary: function(ba) {
+        readDictionary: function (ba) {
             var ref = this.readUInt29(ba);
             if ((ref & 1) == 0) return this.getObjectReference(ref >> 1);
 
@@ -1347,7 +1305,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return val;
         },
 
-        writeDictionary: function(ba, value, traits) {
+        writeDictionary: function (ba, value, traits) {
             ba.writeByte(this.DICTIONARY_TYPE);
             if (this.setObjectReference(ba, value)) {
                 var l = value.length;
@@ -1364,10 +1322,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         //////////////////////
         // String Reference //
         //////////////////////
-        getStringReference: function(ref) {
+        getStringReference: function (ref) {
             //trace('getStringReference', ref);
             if (ref >= this.readStringCache.length) {
-                WARNING('Warning: Undefined string reference \'' + ref + '\'');
+                WARNING("Warning: Undefined string reference '" + ref + "'");
                 return {
                     value: '??? Error: Str Ref #' + ref + ' ???',
                     __traits: { type: 'String', missingRef: ref },
@@ -1376,17 +1334,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return this.readStringCache[ref];
         },
 
-        setStringReference: function(ba, s) {
+        setStringReference: function (ba, s) {
             var refNum;
-            if (
-                this.writeStringCache != null &&
-                (refNum = this.writeStringCache.indexOf(s)) != -1
-            ) {
+            if (this.writeStringCache != null && (refNum = this.writeStringCache.indexOf(s)) != -1) {
                 this.writeUInt29(ba, refNum << 1);
                 return false;
             } else {
-                if (this.writeStringCache == null)
-                    this.writeStringCache = new Array();
+                if (this.writeStringCache == null) this.writeStringCache = new Array();
                 // 64 limit copied from BlazeDS, not Adobe spec
                 //if (this.writeStringCache.length < 64) this.writeStringCache.push(s);
                 this.writeStringCache.push(s);
@@ -1397,10 +1351,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         /////////////////////
         // Trait Reference //
         /////////////////////
-        getTraitReference: function(ref) {
+        getTraitReference: function (ref) {
             //trace('getTraitReference', ref);
             if (ref >= this.readTraitsCache.length) {
-                WARNING('Warning: Undefined trait reference \'' + ref + '\'');
+                WARNING("Warning: Undefined trait reference '" + ref + "'");
                 return {
                     value: '??? Error: Trait Ref #' + ref + ' ???',
                     __traits: { type: 'String', missingRef: ref },
@@ -1409,13 +1363,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return this.readTraitsCache[ref];
         },
 
-        setTraitReference: function(ba, traits) {
+        setTraitReference: function (ba, traits) {
             var refNum,
                 json = JSON.stringify(traits); // Convert to JSON to make comparison easy
-            if (
-                this.writeTraitsCache != null &&
-                (refNum = this.writeTraitsCache.indexOf(json)) != -1
-            ) {
+            if (this.writeTraitsCache != null && (refNum = this.writeTraitsCache.indexOf(json)) != -1) {
                 this.writeUInt29(ba, (refNum << 2) | 1);
                 return false;
             } else {
@@ -1430,10 +1381,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         //////////////////////
         // Object Reference //
         //////////////////////
-        getObjectReference: function(ref) {
+        getObjectReference: function (ref) {
             //trace('getObjectReference', ref);
             if (ref >= this.readObjectCache.length) {
-                WARNING('Warning: Undefined object reference \'' + ref + '\'');
+                WARNING("Warning: Undefined object reference '" + ref + "'");
                 return {
                     value: '??? Error: Obj Ref #' + ref + ' ???',
                     __traits: { type: 'String', missingRef: ref },
@@ -1442,7 +1393,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return this.readObjectCache[ref];
         },
 
-        setObjectReference: function(ba, o) {
+        setObjectReference: function (ba, o) {
             var refNum;
 
             // Clean object and return it to a normal AS3 object
@@ -1457,11 +1408,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
 
             //var json = JSON.stringify(oClean);
             //if (this.writeObjectCache != null && (refNum = this.writeObjectCache.indexOf(json)) != -1) {
-            if (
-                this.writeObjectCache != null &&
-                (refNum = this.cacheIndexOf(this.writeObjectCache, oClean)) !=
-                    -1
-            ) {
+            if (this.writeObjectCache != null && (refNum = this.cacheIndexOf(this.writeObjectCache, oClean)) != -1) {
                 this.writeUInt29(ba, refNum << 1);
                 return false;
             } else {
@@ -1474,7 +1421,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             }
         },
 
-        cacheIndexOf: function(arr, o) {
+        cacheIndexOf: function (arr, o) {
             for (var i = 0, l = arr.length; i < l; i++) {
                 //trace(arr[i], o, arr[i] === o);
                 if (arr[i] === o) return i;
@@ -1482,14 +1429,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return -1;
         },
 
-        cleanObject: function(dirtyObj, cleanObj) {
+        cleanObject: function (dirtyObj, cleanObj) {
             for (var key in dirtyObj) {
                 var val = dirtyObj[key].value;
-                if (
-                    typeof val == 'string' ||
-                    typeof val == 'number' ||
-                    typeof val == 'boolean'
-                ) {
+                if (typeof val == 'string' || typeof val == 'number' || typeof val == 'boolean') {
                     cleanObj[key] = val;
                 } else if (Array.isArray(val)) {
                     cleanObj[key] = this.cleanObject(dirtyObj[key].value, []);
@@ -1508,26 +1451,9 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     AMF3.Flex = {};
 
     var UUIDUtils = {
-        UPPER_DIGITS: [
-            '0',
-            '1',
-            '2',
-            '3',
-            '4',
-            '5',
-            '6',
-            '7',
-            '8',
-            '9',
-            'A',
-            'B',
-            'C',
-            'D',
-            'E',
-            'F',
-        ],
+        UPPER_DIGITS: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'],
 
-        fromByteArray: function(ba) {
+        fromByteArray: function (ba) {
             if (ba != null && ba.length == 16) {
                 var result = '';
                 for (var i = 0; i < 16; i++) {
@@ -1544,7 +1470,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     };
 
     // Abstract Message //
-    AMF3.Flex.AbstractMessage = function() {
+    AMF3.Flex.AbstractMessage = function () {
         this.clientId = null; // object
         this.destination = null; // string
         this.messageId = null; // string
@@ -1578,27 +1504,20 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         // CommandMessage Serialization Constants
         OPERATION_FLAG: 1,
 
-        readExternal: function(ba, parser) {
+        readExternal: function (ba, parser) {
             var flagsArray = this.readFlags(ba);
             for (var i = 0; i < flagsArray.length; i++) {
                 var flags = flagsArray[i],
                     reservedPosition = 0;
 
                 if (i == 0) {
-                    if ((flags & this.BODY_FLAG) != 0)
-                        this.readExternalBody(ba, parser);
-                    if ((flags & this.CLIENT_ID_FLAG) != 0)
-                        this.clientId = parser.readData(ba);
-                    if ((flags & this.DESTINATION_FLAG) != 0)
-                        this.destination = parser.readData(ba);
-                    if ((flags & this.HEADERS_FLAG) != 0)
-                        this.headers = parser.readData(ba);
-                    if ((flags & this.MESSAGE_ID_FLAG) != 0)
-                        this.messageId = parser.readData(ba);
-                    if ((flags & this.TIMESTAMP_FLAG) != 0)
-                        this.timestamp = parser.readData(ba);
-                    if ((flags & this.TIME_TO_LIVE_FLAG) != 0)
-                        this.timeToLive = parser.readData(ba);
+                    if ((flags & this.BODY_FLAG) != 0) this.readExternalBody(ba, parser);
+                    if ((flags & this.CLIENT_ID_FLAG) != 0) this.clientId = parser.readData(ba);
+                    if ((flags & this.DESTINATION_FLAG) != 0) this.destination = parser.readData(ba);
+                    if ((flags & this.HEADERS_FLAG) != 0) this.headers = parser.readData(ba);
+                    if ((flags & this.MESSAGE_ID_FLAG) != 0) this.messageId = parser.readData(ba);
+                    if ((flags & this.TIMESTAMP_FLAG) != 0) this.timestamp = parser.readData(ba);
+                    if ((flags & this.TIME_TO_LIVE_FLAG) != 0) this.timeToLive = parser.readData(ba);
                     reservedPosition = 7;
                 } else if (i == 1) {
                     if ((flags & this.CLIENT_ID_BYTES_FLAG) != 0) {
@@ -1608,9 +1527,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
 
                     if ((flags & this.MESSAGE_ID_BYTES_FLAG) != 0) {
                         var messageIdBytes = parser.readData(ba);
-                        this.messageId = UUIDUtils.fromByteArray(
-                            messageIdBytes
-                        );
+                        this.messageId = UUIDUtils.fromByteArray(messageIdBytes);
                     }
 
                     reservedPosition = 2;
@@ -1628,11 +1545,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return this;
         },
 
-        readExternalBody: function(ba, parser) {
+        readExternalBody: function (ba, parser) {
             this.body = parser.readData(ba);
         },
 
-        readFlags: function(ba) {
+        readFlags: function (ba) {
             var hasNextFlag = true,
                 flagsArray = [],
                 i = 0;
@@ -1655,14 +1572,14 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     };
 
     // Async Message //
-    AMF3.Flex.AsyncMessage = function() {
+    AMF3.Flex.AsyncMessage = function () {
         this.correlationId = null; // string
         //var correlationIdBytes; // byte array
     };
     AMF3.Flex.AsyncMessage.prototype = new AMF3.Flex.AbstractMessage();
     AMF3.Flex.AsyncMessage.constructor = AMF3.Flex.AsyncMessage;
 
-    AMF3.Flex.AsyncMessage.prototype.readExternal = function(ba, parser) {
+    AMF3.Flex.AsyncMessage.prototype.readExternal = function (ba, parser) {
         AMF3.Flex.AbstractMessage.prototype.readExternal.call(this, ba, parser);
 
         var flagsArray = this.readFlags(ba);
@@ -1671,14 +1588,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 reservedPosition = 0;
 
             if (i == 0) {
-                if ((flags & this.CORRELATION_ID_FLAG) != 0)
-                    this.correlationId = parser.readData(ba);
+                if ((flags & this.CORRELATION_ID_FLAG) != 0) this.correlationId = parser.readData(ba);
 
                 if ((flags & this.CORRELATION_ID_BYTES_FLAG) != 0) {
                     var correlationIdBytes = parser.readData(ba);
-                    this.correlationId = UUIDUtils.fromByteArray(
-                        correlationIdBytes
-                    );
+                    this.correlationId = UUIDUtils.fromByteArray(correlationIdBytes);
                 }
 
                 reservedPosition = 2;
@@ -1697,16 +1611,16 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     };
 
     // Async Message Ext //
-    AMF3.Flex.AsyncMessageExt = function() {};
+    AMF3.Flex.AsyncMessageExt = function () {};
     AMF3.Flex.AsyncMessageExt.prototype = new AMF3.Flex.AsyncMessage();
     AMF3.Flex.AsyncMessageExt.constructor = AMF3.Flex.AsyncMessageExt;
 
     // Acknowledge Message //
-    AMF3.Flex.AcknowledgeMessage = function() {};
+    AMF3.Flex.AcknowledgeMessage = function () {};
     AMF3.Flex.AcknowledgeMessage.prototype = new AMF3.Flex.AsyncMessage();
     AMF3.Flex.AcknowledgeMessage.constructor = AMF3.Flex.AcknowledgeMessage;
 
-    AMF3.Flex.AcknowledgeMessage.prototype.readExternal = function(ba, parser) {
+    AMF3.Flex.AcknowledgeMessage.prototype.readExternal = function (ba, parser) {
         AMF3.Flex.AsyncMessage.prototype.readExternal.call(this, ba, parser);
 
         var flagsArray = this.readFlags(ba);
@@ -1727,20 +1641,19 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     };
 
     // Acknowledge Message Ext //
-    AMF3.Flex.AcknowledgeMessageExt = function() {};
+    AMF3.Flex.AcknowledgeMessageExt = function () {};
     AMF3.Flex.AcknowledgeMessageExt.prototype = new AMF3.Flex.AcknowledgeMessage();
-    AMF3.Flex.AcknowledgeMessageExt.constructor =
-        AMF3.Flex.AcknowledgeMessageExt;
+    AMF3.Flex.AcknowledgeMessageExt.constructor = AMF3.Flex.AcknowledgeMessageExt;
 
     // Command Message //
-    AMF3.Flex.CommandMessage = function() {
+    AMF3.Flex.CommandMessage = function () {
         this.operation = 1000;
         this.operationName = 'unknown';
     };
     AMF3.Flex.CommandMessage.prototype = new AMF3.Flex.AsyncMessage();
     AMF3.Flex.CommandMessage.constructor = AMF3.Flex.CommandMessage;
 
-    AMF3.Flex.CommandMessage.prototype.readExternal = function(ba, parser) {
+    AMF3.Flex.CommandMessage.prototype.readExternal = function (ba, parser) {
         AMF3.Flex.AsyncMessage.prototype.readExternal.call(this, ba, parser);
 
         var flagsArray = this.readFlags(ba);
@@ -1767,10 +1680,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             if (i == 0) {
                 if ((flags & this.OPERATION_FLAG) != 0) {
                     this.operation = parser.readData(ba);
-                    if (
-                        this.operation < 0 ||
-                        this.operation >= operationNames.length
-                    ) {
+                    if (this.operation < 0 || this.operation >= operationNames.length) {
                         this.operationName = 'invalid.' + this.operation + '';
                     } else {
                         this.operationName = operationNames[this.operation];
@@ -1792,33 +1702,33 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     };
 
     // Command Message Ext //
-    AMF3.Flex.CommandMessageExt = function() {};
+    AMF3.Flex.CommandMessageExt = function () {};
     AMF3.Flex.CommandMessageExt.prototype = new AMF3.Flex.CommandMessage();
     AMF3.Flex.CommandMessageExt.constructor = AMF3.Flex.CommandMessageExt;
 
     // Error Message //
-    AMF3.Flex.ErrorMessage = function() {};
+    AMF3.Flex.ErrorMessage = function () {};
     AMF3.Flex.ErrorMessage.prototype = new AMF3.Flex.AcknowledgeMessage();
     AMF3.Flex.ErrorMessage.constructor = AMF3.Flex.ErrorMessage;
 
     // Array Collection //
-    AMF3.Flex.ArrayCollection = function() {
+    AMF3.Flex.ArrayCollection = function () {
         this.source = null;
     };
 
-    AMF3.Flex.ArrayCollection.prototype.readExternal = function(ba, parser) {
+    AMF3.Flex.ArrayCollection.prototype.readExternal = function (ba, parser) {
         this.source = parser.readData(ba);
         return this;
     };
 
     // Array List //
-    AMF3.Flex.ArrayList = function() {};
+    AMF3.Flex.ArrayList = function () {};
     AMF3.Flex.ArrayList.prototype = new AMF3.Flex.ArrayCollection();
     AMF3.Flex.ArrayList.constructor = AMF3.Flex.ArrayList;
 
     // Object Proxy //
-    AMF3.Flex.ObjectProxy = function() {};
-    AMF3.Flex.ObjectProxy.prototype.readExternal = function(ba, parser) {
+    AMF3.Flex.ObjectProxy = function () {};
+    AMF3.Flex.ObjectProxy.prototype.readExternal = function (ba, parser) {
         var obj = parser.readData(ba, true);
         for (var i in obj) {
             this[i] = obj[i];
@@ -1827,16 +1737,16 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
     };
 
     // Managed Object Proxy //
-    AMF3.Flex.ManagedObjectProxy = function() {};
+    AMF3.Flex.ManagedObjectProxy = function () {};
     AMF3.Flex.ManagedObjectProxy.prototype = new AMF3.Flex.ObjectProxy();
     AMF3.Flex.ManagedObjectProxy.constructor = AMF3.Flex.ManagedObjectProxy;
 
     // Serialization Proxy //
-    AMF3.Flex.SerializationProxy = function() {
+    AMF3.Flex.SerializationProxy = function () {
         this.defaultInstance = null;
     };
 
-    AMF3.Flex.SerializationProxy.prototype.readExternal = function(ba, parser) {
+    AMF3.Flex.SerializationProxy.prototype.readExternal = function (ba, parser) {
         /*var saveObjectTable = null;
 	var saveTraitsTable = null;
 	var saveStringTable = null;

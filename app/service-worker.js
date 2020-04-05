@@ -4,7 +4,7 @@
 ('use strict');
 
 const config = {
-    version: '4.3.2.%BUILD%',
+    version: '4.3.3.%BUILD%',
     staticCacheItems: [
         'img/Mega_Man_Running.gif',
         'img/favicon-196x196.png',
@@ -40,7 +40,7 @@ function cacheName(key, opts) {
 function addToCache(cacheKey, request, response) {
     if (response.ok) {
         const copy = response.clone();
-        caches.open(cacheKey).then(cache => {
+        caches.open(cacheKey).then((cache) => {
             cache.put(request, copy);
         });
     }
@@ -48,7 +48,7 @@ function addToCache(cacheKey, request, response) {
 }
 
 function fetchFromCache(event) {
-    return caches.match(event.request).then(response => {
+    return caches.match(event.request).then((response) => {
         if (!response) {
             console.error(`${event.request.url} not found in cache`);
             throw Error(`${event.request.url} not found in cache`);
@@ -68,27 +68,21 @@ function offlineResponse(resourceType, opts) {
     return undefined;
 }
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
     function onInstall(event, opts) {
-        return caches
-            .open(cacheName('static', opts))
-            .then(cache => cache.addAll(opts.staticCacheItems));
+        return caches.open(cacheName('static', opts)).then((cache) => cache.addAll(opts.staticCacheItems));
     }
 
     event.waitUntil(onInstall(event, config).then(() => self.skipWaiting()));
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
     function onActivate(event, opts) {
-        return caches.keys().then(cacheKeys => {
-            const oldCacheKeys = cacheKeys.filter(
-                key => key.indexOf(opts.version) !== 0
-            );
+        return caches.keys().then((cacheKeys) => {
+            const oldCacheKeys = cacheKeys.filter((key) => key.indexOf(opts.version) !== 0);
             console.log('onActivate');
             console.log(oldCacheKeys);
-            const deletePromises = oldCacheKeys.map(oldKey =>
-                caches.delete(oldKey)
-            );
+            const deletePromises = oldCacheKeys.map((oldKey) => caches.delete(oldKey));
             return Promise.all(deletePromises);
         });
     }
@@ -96,25 +90,19 @@ self.addEventListener('activate', event => {
     event.waitUntil(onActivate(event, config).then(() => self.clients.claim()));
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event) => {
     function shouldHandleFetch(event, opts) {
         const request = event.request;
         const url = new URL(request.url);
         console.log('shouldFetch --------');
         console.log(`shouldFetch Path? ${url.pathname}`);
-        console.log(
-            `shouldFetch Origin? ${url.origin} === ${self.location.origin}`
-        );
+        console.log(`shouldFetch Origin? ${url.origin} === ${self.location.origin}`);
         const criteria = {
             matchesPathPattern: opts.cachePathPattern.test(url.pathname),
             isGETRequest: request.method === 'GET',
-            isFromMyOrigin:
-                url.origin === self.location.origin ||
-                'https://cdn.mariani.life' === url.origin,
+            isFromMyOrigin: url.origin === self.location.origin || 'https://cdn.mariani.life' === url.origin,
         };
-        const failingCriteria = Object.keys(criteria).filter(
-            criteriaKey => !criteria[criteriaKey]
-        );
+        const failingCriteria = Object.keys(criteria).filter((criteriaKey) => !criteria[criteriaKey]);
         console.log(`Fetch from cache? ${!failingCriteria.length}`);
         return !failingCriteria.length;
     }
@@ -122,18 +110,13 @@ self.addEventListener('fetch', event => {
     function onFetch(event, opts) {
         const request = event.request;
         const acceptHeader = request.headers.get('Accept');
-        const resourceType =
-            acceptHeader.indexOf('text/html') !== -1
-                ? 'content'
-                : acceptHeader.indexOf('image') !== -1
-                    ? 'image'
-                    : 'static';
+        const resourceType = acceptHeader.indexOf('text/html') !== -1 ? 'content' : acceptHeader.indexOf('image') !== -1 ? 'image' : 'static';
         const cacheKey = cacheName(resourceType, opts);
 
         if (resourceType === 'content') {
             event.respondWith(
                 fetch(request)
-                    .then(response => addToCache(cacheKey, request, response))
+                    .then((response) => addToCache(cacheKey, request, response))
                     .catch(() => fetchFromCache(event))
                     .catch(() => offlineResponse(resourceType, opts))
             );
@@ -141,7 +124,7 @@ self.addEventListener('fetch', event => {
             event.respondWith(
                 fetchFromCache(event)
                     .catch(() => fetch(request))
-                    .then(response => addToCache(cacheKey, request, response))
+                    .then((response) => addToCache(cacheKey, request, response))
                     .catch(() => offlineResponse(resourceType, opts))
             );
         }
