@@ -1,18 +1,21 @@
 {
+    "extends": ["eslint:recommended", "plugin:import/errors", "plugin:import/warnings"],
     "env": {
         "browser": true,
         "worker": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "sourceType": "module"
+        "ecmaVersion": 2015
     },
     "rules": {
         "indent": ["error", 4, { "SwitchCase": 1 }],
-        "linebreak-style": ["error", "windows"],
+        "linebreak-style": ["error", "unix"],
         "quotes": ["error", "single"],
         "semi": ["error", "always"],
-        "no-console": "off"
+        "no-console": "off",
+        "no-unused-vars": "warn",
+        "no-trailing-spaces": ["warn", { "skipBlankLines": true }]
     },
     "globals": {
         "$": true

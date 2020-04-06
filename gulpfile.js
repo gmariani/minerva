@@ -10,11 +10,10 @@ var htmlmin = require('gulp-htmlmin');
 var cache = require('gulp-cache');
 var rename = require('gulp-rename');
 var del = require('del');
-var runSequence = require('run-sequence');
 var replace = require('gulp-replace');
 var gulpUtil = require('gulp-util');
 var date = new Date();
-var cdnPath = 'https://cdn.mariani.life/projects/minerva/';
+//var cdnPath = 'https://cdn.mariani.life/projects/minerva/';
 var pckg = require('./package.json');
 var build_timestamp = date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()) + '_' + new Date().getTime();
 
@@ -55,17 +54,19 @@ gulp.task('js-1', function () {
         .pipe(gulp.dest('dist/js/lib'));
 });
 gulp.task('js-2', function () {
-    return gulp
-        .src(['app/js/parsers/SOLReaderWorker.js', 'app/js/parsers/SOLWriterWorker.js'])
-        .pipe(replace('../', `${cdnPath}js/`))
-        .pipe(replace('.js', `.${build_timestamp}.js`))
-        .pipe(uglify())
-        .pipe(
-            rename(function (path) {
-                path.basename += `.${build_timestamp}`;
-            })
-        )
-        .pipe(gulp.dest('dist/js/parsers'));
+    return (
+        gulp
+            .src(['app/js/parsers/SOLReaderWorker.js', 'app/js/parsers/SOLWriterWorker.js'])
+            //.pipe(replace('../', `${cdnPath}js/`))
+            .pipe(replace('.js', `.${build_timestamp}.js`))
+            .pipe(uglify())
+            .pipe(
+                rename(function (path) {
+                    path.basename += `.${build_timestamp}`;
+                })
+            )
+            .pipe(gulp.dest('dist/js/parsers'))
+    );
 });
 gulp.task('js-debug', function () {
     return gulp.src('app/js/*').pipe(gulp.dest('dist/js'));
@@ -106,15 +107,15 @@ gulp.task('fix-index', function (done) {
         .pipe(replace('bundle.js', `bundle.${build_timestamp}.js`))
         .pipe(replace('bundle.css', `bundle.${build_timestamp}.css`))
         /* Update CDN URLs */
-        .pipe(replace('content="img/', `content="${cdnPath}img/`))
-        .pipe(replace('content="browserconfig', `content="${cdnPath}browserconfig`))
-        .pipe(replace('href="img/', `href="${cdnPath}img/`))
-        .pipe(replace('src="img/', `src="${cdnPath}img/`))
-        .pipe(replace('href="css/', `href="${cdnPath}css/`))
-        .pipe(replace('href="manifest', `href="${cdnPath}manifest`))
-        .pipe(replace('href="favicon', `href="${cdnPath}favicon`))
-        .pipe(replace('script src="', `script src="${cdnPath}`))
-        .pipe(replace('url(img/', `url(${cdnPath}img/`))
+        //.pipe(replace('content="img/', `content="${cdnPath}img/`))
+        //.pipe(replace('content="browserconfig', `content="${cdnPath}browserconfig`))
+        //.pipe(replace('href="img/', `href="${cdnPath}img/`))
+        //.pipe(replace('src="img/', `src="${cdnPath}img/`))
+        //.pipe(replace('href="css/', `href="${cdnPath}css/`))
+        //.pipe(replace('href="manifest', `href="${cdnPath}manifest`))
+        //.pipe(replace('href="favicon', `href="${cdnPath}favicon`))
+        //.pipe(replace('script src="', `script src="${cdnPath}`))
+        //.pipe(replace('url(img/', `url(${cdnPath}img/`))
         /* Minify inline css/js */
         .pipe(minifyInline())
         /* Minify HTML */
@@ -138,6 +139,7 @@ gulp.task('fix-worker', function (done) {
     gulp.src(['dist/service-worker.js'])
         .pipe(replace('%VERSION%', pckg.version))
         .pipe(replace('%BUILD%', date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()))) // yyyyMMdd
+        .pipe(replace('.css', `.${build_timestamp}.css`))
         .pipe(replace('.js', `.${build_timestamp}.js`))
         .pipe(
             rename(function (path) {
@@ -151,7 +153,8 @@ gulp.task('fix-worker', function (done) {
 
 gulp.task('fix-js', function (done) {
     gulp.src(['dist/js/bundle.js'])
-        .pipe(replace("register('service-worker.js", `register('${cdnPath}service-worker.${build_timestamp}.js`))
+        //.pipe(replace('register("service-worker.js"', `register("${cdnPath}service-worker.${build_timestamp}.js`))
+        .pipe(replace('orker.js"', `orker.${build_timestamp}.js"`))
         .pipe(
             rename(function (path) {
                 path.basename += `.${build_timestamp}`;
@@ -163,8 +166,8 @@ gulp.task('fix-js', function (done) {
 });
 gulp.task('fix-css', function (done) {
     gulp.src(['dist/css/bundle.css'])
-        .pipe(replace('url(img/', `url(${cdnPath}img/`))
-        .pipe(replace('url(../', `url(${cdnPath}`))
+        //.pipe(replace('url(img/', `url(${cdnPath}img/`))
+        //.pipe(replace('url(../', `url(${cdnPath}`))
         .pipe(
             rename(function (path) {
                 path.basename += `.${build_timestamp}`;
