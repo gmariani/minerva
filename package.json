@@ -1,6 +1,6 @@
 {
     "name": "minerva",
-    "version": "4.3.3",
+    "version": "4.3.4",
     "description": "Online shared object editor",
     "main": "index.js",
     "scripts": {

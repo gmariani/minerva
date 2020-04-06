@@ -4,7 +4,7 @@
 ('use strict');
 
 const config = {
-    version: '4.3.3.%BUILD%',
+    version: '%VERSION%.%BUILD%',
     staticCacheItems: [
         'img/Mega_Man_Running.gif',
         'img/favicon-196x196.png',
