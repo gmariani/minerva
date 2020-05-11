@@ -1,6 +1,6 @@
 {
     "name": "minerva",
-    "version": "4.3.4",
+    "version": "4.3.5",
     "description": "Online shared object editor",
     "main": "index.js",
     "scripts": {
@@ -20,7 +20,7 @@
     },
     "homepage": "https://mariani.life/projects/minerva/",
     "devDependencies": {
-        "autoprefixer": "^9.7.5",
+        "autoprefixer": "^9.7.6",
         "cssnano": "^4.1.10",
         "del": "^5.1.0",
         "gulp": "^4.0.2",
