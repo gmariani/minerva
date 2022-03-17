@@ -1,6 +1,6 @@
 /* global AMF3 */
 var AMF0;
-(function() {
+(function () {
     var debug = true;
 
     function trace() {
@@ -26,7 +26,7 @@ var AMF0;
     }
     var ERROR = trace;
 
-    AMF0 = function() {
+    AMF0 = function () {
         //--------------------------------------
         //  Public Vars
         //--------------------------------------
@@ -80,20 +80,20 @@ var AMF0;
 
         EMPTY_STRING: '',
 
-        deserialize: function(data) {
+        deserialize: function (data) {
             this.reset();
 
             this._rawData = data;
             this._data = this.readData(this._rawData);
         },
 
-        reset: function() {
+        reset: function () {
             this.readObjectCache = [];
 
             if (this._amf3 != null) this._amf3.reset();
         },
 
-        readData: function(ba, type) {
+        readData: function (ba, type) {
             if (type == null) type = ba.readByte();
             switch (type) {
                 case this.NUMBER_TYPE:
@@ -116,9 +116,7 @@ var AMF0;
                     return this.readECMAArray(ba);
                 case this.OBJECT_END_TYPE:
                     // Unexpected object end tag in AMF stream
-                    trace(
-                        'AMF0::readData - Warning : Unexpected object end tag in AMF stream'
-                    );
+                    trace('AMF0::readData - Warning : Unexpected object end tag in AMF stream');
                     return this.readNull(ba);
                 case this.STRICT_ARRAY_TYPE:
                     return this.readArray(ba);
@@ -128,15 +126,11 @@ var AMF0;
                     return this.readLongString(ba);
                 case this.UNSUPPORTED_TYPE:
                     // Unsupported type found in AMF stream
-                    trace(
-                        'AMF0::readData - Warning : Unsupported type found in AMF stream'
-                    );
+                    trace('AMF0::readData - Warning : Unsupported type found in AMF stream');
                     return this.readNull(ba);
                 case this.RECORD_SET_TYPE:
                     // AMF Recordsets are not supported
-                    trace(
-                        'AMF0::readData - Warning : Unexpected recordset in AMF stream'
-                    );
+                    trace('AMF0::readData - Warning : Unexpected recordset in AMF stream');
                     return this.readNull(ba);
                 case this.XML_OBJECT_TYPE:
                     return this.readXML(ba);
@@ -146,18 +140,14 @@ var AMF0;
                     if (this._amf3 == null) this._amf3 = new AMF3();
                     return this._amf3.readData(ba);
                 /*
-			With the introduction of AMF 3 in Flash Player 9 to support ActionScript 3.0 and the
-			new AVM+, the AMF 0 format was extended to allow an AMF 0 encoding context to be
-			switched to AMF 3. To achieve this, a new type marker was added to AMF 0, the
-			avmplus-object-marker. The presence of this marker signifies that the following Object is
-			formatted in AMF 3.
-			*/
+                With the introduction of AMF 3 in Flash Player 9 to support ActionScript 3.0 and the
+                new AVM+, the AMF 0 format was extended to allow an AMF 0 encoding context to be
+                switched to AMF 3. To achieve this, a new type marker was added to AMF 0, the
+                avmplus-object-marker. The presence of this marker signifies that the following Object is
+                formatted in AMF 3.
+                */
                 default:
-                    ERROR(
-                        'AMF0::readData - Error : Undefined AMF0 type encountered \'' +
-                            type +
-                            '\''
-                    );
+                    ERROR("AMF0::readData - Error : Undefined AMF0 type encountered '" + type + "'");
             }
         },
 
@@ -179,16 +169,15 @@ var AMF0;
          * datatypes that have to be manually set.  Then the auto negotiatable types last.
          * The order may be changed for optimization.
          */
-        writeData: function(ba, node) {
+        writeData: function (ba, node) {
             var type = node.__traits.type;
-            if (node.__traits.hasOwnProperty('origType'))
-                type = node.__traits.origType;
+            if (node.__traits.hasOwnProperty('origType')) type = node.__traits.origType;
 
             /*if (_avmPlus) {
-			if(amf3 == null) amf3 = new AMF3();
-			ba.writeByte(AVMPLUS_OBJECT_TYPE);
-			amf3.writeData(ba, value);
-		}*/
+                if(amf3 == null) amf3 = new AMF3();
+                ba.writeByte(AVMPLUS_OBJECT_TYPE);
+                amf3.writeData(ba, value);
+            }*/
             trace('writeData ' + type, node.value);
             switch (type) {
                 case 'Undefined':
@@ -234,13 +223,11 @@ var AMF0;
                     this.writeXML(ba, node.value);
                     break;
                 default:
-                    throw Error(
-                        'Undefined AMF0 type encountered \'' + type + '\''
-                    );
+                    throw Error("Undefined AMF0 type encountered '" + type + "'");
             }
         },
 
-        readNumber: function(ba) {
+        readNumber: function (ba) {
             return {
                 value: ba.readDouble(),
                 __traits: {
@@ -253,12 +240,12 @@ var AMF0;
          * writeNumber writes the number code (0x00) and the numeric data to the output stream
          * All numbers passed through remoting are floats.
          */
-        writeNumber: function(ba, value) {
+        writeNumber: function (ba, value) {
             ba.writeByte(this.NUMBER_TYPE);
             ba.writeDouble(value);
         },
 
-        readBoolean: function(ba) {
+        readBoolean: function (ba) {
             return {
                 value: ba.readBoolean(),
                 __traits: {
@@ -270,12 +257,12 @@ var AMF0;
         /**
          * writeBoolean writes the boolean code (0x01) and the data to the output stream
          */
-        writeBoolean: function(ba, value) {
+        writeBoolean: function (ba, value) {
             ba.writeByte(this.BOOLEAN_TYPE);
             ba.writeBoolean(value);
         },
 
-        readString: function(ba) {
+        readString: function (ba) {
             return {
                 value: ba.readUTF(),
                 __traits: {
@@ -290,7 +277,7 @@ var AMF0;
          * Note: strings are truncated to 64k max length. Use XML as type
          * to send longer strings
          */
-        writeString: function(ba, value) {
+        writeString: function (ba, value) {
             if (value.length < 65536) {
                 ba.writeByte(this.STRING_TYPE);
                 ba.writeUTF(value);
@@ -299,7 +286,7 @@ var AMF0;
             }
         },
 
-        readObject: function(ba, internal) {
+        readObject: function (ba, internal) {
             var obj = {},
                 varName = ba.readUTF(),
                 type = ba.readByte(),
@@ -323,7 +310,7 @@ var AMF0;
             return val;
         },
 
-        writeObject: function(ba, value, traits, internal) {
+        writeObject: function (ba, value, traits, internal) {
             if (internal || this.setObjectReference(ba, value)) {
                 if (internal === undefined) ba.writeByte(this.OBJECT_TYPE);
 
@@ -340,7 +327,7 @@ var AMF0;
             }
         },
 
-        readNull: function(/* ba */) {
+        readNull: function (/* ba */) {
             return {
                 value: null,
                 __traits: {
@@ -352,11 +339,11 @@ var AMF0;
         /**
          * writeNull writes the null code (0x05) to the output stream
          */
-        writeNull: function(ba) {
+        writeNull: function (ba) {
             ba.writeByte(this.NULL_TYPE);
         },
 
-        readUndefined: function(/* ba */) {
+        readUndefined: function (/* ba */) {
             return {
                 value: null,
                 __traits: {
@@ -368,11 +355,11 @@ var AMF0;
         /**
          * writeNull writes the undefined code (0x06) to the output stream
          */
-        writeUndefined: function(ba) {
+        writeUndefined: function (ba) {
             ba.writeByte(this.UNDEFINED_TYPE);
         },
 
-        readECMAArray: function(ba) {
+        readECMAArray: function (ba) {
             var arr = {},
                 l = ba.readUnsignedInt(),
                 varName = ba.readUTF(),
@@ -396,7 +383,7 @@ var AMF0;
             return val;
         },
 
-        writeECMAArray: function(ba, value) {
+        writeECMAArray: function (ba, value) {
             trace('writeECMAArray');
             if (this.setObjectReference(ba, value)) {
                 var l = 0,
@@ -421,7 +408,7 @@ var AMF0;
             }
         },
 
-        readArray: function(ba) {
+        readArray: function (ba) {
             var l = ba.readUnsignedInt(),
                 arr = new Array(l),
                 i,
@@ -444,7 +431,7 @@ var AMF0;
         /**
          * Write a plain numeric array without anything fancy
          */
-        writeArray: function(ba, value) {
+        writeArray: function (ba, value) {
             if (this.setObjectReference(ba, value)) {
                 var l = value.length,
                     i;
@@ -456,7 +443,7 @@ var AMF0;
             }
         },
 
-        readDate: function(ba) {
+        readDate: function (ba) {
             var ms = ba.readDouble();
 
             /*
@@ -481,7 +468,7 @@ var AMF0;
         /**
          * writeData writes the date code (0x0B) and the date value to the output stream
          */
-        writeDate: function(ba, value) {
+        writeDate: function (ba, value) {
             ba.writeByte(this.DATE_TYPE);
 
             // Convert numbers to dates
@@ -492,7 +479,7 @@ var AMF0;
             //ba.writeShort(0); // timezone reserved, not supported. should be set to 0x0000
         },
 
-        readLongString: function(ba) {
+        readLongString: function (ba) {
             return {
                 value: ba.readUTFBytes(ba.readUnsignedInt()),
                 __traits: {
@@ -501,7 +488,7 @@ var AMF0;
             };
         },
 
-        writeLongString: function(ba, value) {
+        writeLongString: function (ba, value) {
             if (value.length < 65536) {
                 this.writeString(ba, value);
             } else {
@@ -511,7 +498,7 @@ var AMF0;
             }
         },
 
-        readXML: function(ba) {
+        readXML: function (ba) {
             return {
                 value: this.readLongString(ba).value,
                 __traits: {
@@ -525,7 +512,7 @@ var AMF0;
          * Note: strips whitespace
          * @param string $d The XML string
          */
-        writeXML: function(ba, value) {
+        writeXML: function (ba, value) {
             if (this.setObjectReference(ba, value)) {
                 ba.writeByte(this.XML_OBJECT_TYPE);
                 var strXML = value.toString();
@@ -536,16 +523,14 @@ var AMF0;
             }
         },
 
-        readTypedObject: function(ba) {
+        readTypedObject: function (ba) {
             var className = ba.readUTF(),
                 obj,
                 val;
             try {
                 obj = this.readObject(ba, true);
             } catch (e) {
-                ERROR(
-                    'AMF0::readTypedObject - Error : Cannot parse custom class'
-                );
+                ERROR('AMF0::readTypedObject - Error : Cannot parse custom class');
             }
             trace('readTypedObject');
             trace(obj);
@@ -561,7 +546,7 @@ var AMF0;
             return val;
         },
 
-        writeTypedObject: function(ba, value, traits) {
+        writeTypedObject: function (ba, value, traits) {
             trace('writeTypedObject');
             trace(traits);
             trace(value);
@@ -573,20 +558,16 @@ var AMF0;
             }
         },
 
-        getObjectReference: function(ref) {
+        getObjectReference: function (ref) {
             if (ref >= this.readObjectCache.length) {
-                ERROR(
-                    'AMF0::getObjectReference - Error : Undefined object reference \'' +
-                        ref +
-                        '\''
-                );
+                ERROR("AMF0::getObjectReference - Error : Undefined object reference '" + ref + "'");
                 return null;
             }
             trace('getObjectReference', ref, this.readObjectCache);
             return this.readObjectCache[ref];
         },
 
-        setObjectReference: function(/*ba, o*/) {
+        setObjectReference: function (/*ba, o*/) {
             // Disabled for issue #71
             // Now correctly writes and reads references which wasn't working before
             // But it's not writing them in the correct order, then upon reading
@@ -622,7 +603,7 @@ var AMF0;
             }*/
         },
 
-        writeUnsignedShort: function(ba, value) {
+        writeUnsignedShort: function (ba, value) {
             var b1 = value / 256;
             var b0 = value % 256;
             ba.writeByte(b0);
@@ -632,7 +613,7 @@ var AMF0;
         /**
          * writeUnsupported writes the unsupported code (13) to the output stream
          */
-        writeUnsupported: function(ba) {
+        writeUnsupported: function (ba) {
             ba.writeByte(this.UNSUPPORTED_TYPE);
         },
     };

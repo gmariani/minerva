@@ -14,7 +14,7 @@ var isLocal = false;
     };
 
     util.formatSize = function (bytes) {
-        if (bytes == '?') return bytes;
+        if (bytes === '?') return bytes;
 
         // Get size precision (number of decimal places from the preferences)
         // and make sure it's within limits.
@@ -22,7 +22,7 @@ var isLocal = false;
         sizePrecision = sizePrecision > 2 ? 2 : sizePrecision;
         sizePrecision = sizePrecision < -1 ? -1 : sizePrecision;
 
-        if (sizePrecision == -1) return bytes + ' B';
+        if (sizePrecision === -1) return bytes + ' B';
 
         var a = Math.pow(10, sizePrecision);
 
@@ -221,7 +221,7 @@ $(function () {
 
     // If Linux user running Gnash Flash substitute
     // Others: Shumway, Lightspark, don't know paths
-    if (os.short == 'Linux' || os.short == 'Unix') {
+    if (os.short === 'Linux' || os.short === 'Unix') {
         path += '<br/><strong>Gnash: </strong><code>~/.gnash/SharedObjects/</code>';
     }
 
@@ -276,7 +276,7 @@ $(function () {
     var hasOnLine = false;
     // !window.navigator.hasOwnProperty('onLine') doesn't work
     for (var key in window.navigator) {
-        if (key == 'onLine') {
+        if (key === 'onLine') {
             hasOnLine = true;
             break;
         }
@@ -292,10 +292,7 @@ $(function () {
         msg_error += '<li>Navigator.onLine API - Used to take check if application is offline/online</li>';
         issues = true;
     }
-    if (!window.applicationCache) {
-        msg_error += '<li>Application Cache API - Used to take the application offline</li>';
-        issues = true;
-    }
+
     if (!window.JSON) {
         msg_error += '<li>JSON API - Used to pass data</li>';
         issues = true;
@@ -348,10 +345,10 @@ $(function () {
         if (debug) console.log('tree2Obj', o, data);
         for (key in data) {
             var child = data[key],
-                type = callState == 'TreeNode' ? child.data.__traits.type : child.__traits.type,
-                value = callState == 'TreeNode' ? child.data.value : child.value;
-            //keyValue = callState == 'Dictionary' ? child.key : null;
-            key = callState == 'Array' || callState == 'Dictionary' ? parseInt(key) : callState == 'Object' ? String(key) : child.text;
+                type = callState === 'TreeNode' ? child.data.__traits.type : child.__traits.type,
+                value = callState === 'TreeNode' ? child.data.value : child.value;
+            //keyValue = callState === 'Dictionary' ? child.key : null;
+            key = callState === 'Array' || callState === 'Dictionary' ? parseInt(key) : callState === 'Object' ? String(key) : child.text;
 
             if (debug) console.log('tree2Obj child key', key);
             if (debug) console.log('tree2Obj child child', child);
@@ -372,7 +369,7 @@ $(function () {
                     o[key] = value;
                     break;
                 case 'Array':
-                    if (child.children && value.length != child.children.length) {
+                    if (child.children && value.length !== child.children.length) {
                         // ECMA Array
                         // Since an associative array in JavaScript is an object,
                         // we have to convert this into an object
@@ -433,7 +430,7 @@ $(function () {
                 case 'Vector':
                 case 'Dictionary':
                 case 'Array':
-                    if (child.data.__traits.origType == 'ECMAArray') {
+                    if (child.data.__traits.origType === 'ECMAArray') {
                         // ECMA Array
                         o[key] = {};
                         o[key].__traits = child.data.__traits;
@@ -504,7 +501,7 @@ $(function () {
         blob = new Blob([json], {
             type: 'text/plain;charset=' + document.characterSet,
         });
-        if (fileName.indexOf('.sol') != -1) fileName = fileName.slice(0, -4);
+        if (fileName.indexOf('.sol') !== -1) fileName = fileName.slice(0, -4);
         saveAs(blob, fileName || 'JSON Export');
     });
     btnSaveFile.on('click', function () {
@@ -533,7 +530,7 @@ $(function () {
     function onFileAssembled(data) {
         if (debug) console.log('onFileAssembled');
         if (debug) console.log(data);
-        if (data.hasOwnProperty('icon') && data.icon == 'error') {
+        if (data.hasOwnProperty('icon') && data.icon === 'error') {
             $('#overlay').removeClass('show');
             $('#saveWindow').removeClass('show');
 
@@ -584,7 +581,7 @@ $(function () {
     sortSetting = $.cookie(cookieSortName);
     if (undefined === sortSetting) sortSetting = 'false';
     if (debug) console.log('sortSetting', sortSetting);
-    if (sortSetting && sortSetting == 'true') {
+    if (sortSetting && sortSetting === 'true') {
         cbEnableSort.prop('checked', !!sortSetting);
     }
 
@@ -949,7 +946,7 @@ $(function () {
                 value = json;
             }
             // Is a date?
-            if (Date.parse(value) && typeof value == 'string') value = new Date(value);
+            if (Date.parse(value) && typeof value === 'string') value = new Date(value);
 
             var valueType = getDataType(value);
             value = formatObject(value);
@@ -957,14 +954,14 @@ $(function () {
 
             // Guess the type of data that was input
             // If creating a dictionary item, parse label input
-            if (par_node.data.__traits.type == 'Dictionary') {
+            if (par_node.data.__traits.type === 'Dictionary') {
                 try {
                     key = JSON.parse(label);
                 } catch (error1) {
                     key = label;
                 }
                 // Is a date?
-                if (Date.parse(key) && typeof key == 'string') key = new Date(key);
+                if (Date.parse(key) && typeof key === 'string') key = new Date(key);
                 var val = {
                     key: formatObject(key),
                     value: value,
@@ -980,7 +977,7 @@ $(function () {
 
             // Create a node object based on parent and input
             var o = parser.createNode(par_node.data.__traits.type, par_node.children.length, par_node.data.__traits.class, label, value, valueType);
-            if (typeof o != 'string') {
+            if (typeof o !== 'string') {
                 if (debug) console.log('new node', o);
                 tree.create_node(par_node, o, 'last', function (new_node) {
                     setTimeout(function () {
@@ -1032,7 +1029,7 @@ $(function () {
     var search_delay = false;
     elSearch.keyup(function (event) {
         // Clear on ESC
-        if (event.which == 27) elSearch.val('');
+        if (event.which === 27) elSearch.val('');
 
         if (!elJSTree.jstree(true).search) return;
         if (search_delay) clearTimeout(search_delay);
@@ -1050,7 +1047,7 @@ $(function () {
         } else {
             switch (typeof val) {
                 case 'boolean':
-                    if (parser.getAMFVersion() == 3) {
+                    if (parser.getAMFVersion() === 3) {
                         type = val ? 'True' : 'False';
                     } else {
                         type = 'Boolean';
@@ -1073,8 +1070,8 @@ $(function () {
         // and unavoidable.
         var xmlParser = new DOMParser(),
             dom = xmlParser.parseFromString(val, 'text/xml');
-        if (dom.documentElement.nodeName != 'parsererror' && type === 'String') type = 'XML';
-        if (type === 'Number' && val % 1 === 0 && parser.getAMFVersion() == 3) type = 'Integer';
+        if (dom.documentElement.nodeName !== 'parsererror' && type === 'String') type = 'XML';
+        if (type === 'Number' && val % 1 === 0 && parser.getAMFVersion() === 3) type = 'Integer';
         if (type === 'Object' && val === null) type = 'Null';
         if (type === 'Object' && Object.prototype.toString.call(val) === '[object Array]') type = 'Array';
         if (type === 'Object' && Object.prototype.toString.call(val) === '[object Date]') type = 'Date';
@@ -1092,11 +1089,11 @@ $(function () {
 
     function formatObject(val) {
         var type = getDataType(val && val.value ? val.value : val);
-        if (type == 'Object') {
+        if (type === 'Object') {
             var traits = {
                 type: type,
             };
-            if (parser.getAMFVersion() == 3) {
+            if (parser.getAMFVersion() === 3) {
                 traits = {
                     type: type,
                     class: type,
@@ -1110,7 +1107,7 @@ $(function () {
                 __traits: traits,
                 value: formatChildren(val),
             };
-        } else if (type == 'Array') {
+        } else if (type === 'Array') {
             return {
                 __traits: {
                     type: type,
@@ -1144,7 +1141,7 @@ $(function () {
         $.jstree.defaults.search.show_only_matches = true;
         $.jstree.defaults.search.search_callback = searchTreeNodes;
 
-        if (sortSetting == 'false') {
+        if (sortSetting === 'false') {
             //console.log('no sort');
             $.jstree.defaults.plugins = ['contextmenu', 'search'];
         } else {
@@ -1326,7 +1323,7 @@ $(function () {
                     if (par_node.data && par_node.data.__traits && par_node.data.__traits.canBeIndexed) {
                         for (var i = 0, l = par_node.children.length; i < l; i++) {
                             var child = tree.get_node(par_node.children[i]);
-                            if (par_node.data.__traits.type == 'Dictionary') {
+                            if (par_node.data.__traits.type === 'Dictionary') {
                                 tree.rename_node(child, 'Item ' + i.toString());
                             } else {
                                 tree.rename_node(child, i.toString());
@@ -1384,7 +1381,7 @@ $(function () {
                 if (node.data && node.data.__traits && node.data.__traits.canBeIndexed) {
                     for (var i = 0, l = node.children.length; i < l; i++) {
                         var child = tree.get_node(node.children[i]);
-                        if (node.data.__traits.type == 'Dictionary') {
+                        if (node.data.__traits.type === 'Dictionary') {
                             tree.rename_node(child, 'Item ' + i.toString());
                         } else {
                             tree.rename_node(child, i.toString());
@@ -1413,7 +1410,7 @@ $(function () {
                     if (par_node.data && par_node.data.__traits && par_node.data.__traits.canBeIndexed) {
                         for (var i = 0, l = par_node.children.length; i < l; i++) {
                             var child = tree.get_node(par_node.children[i]);
-                            if (par_node.data.__traits.type == 'Dictionary') {
+                            if (par_node.data.__traits.type === 'Dictionary') {
                                 tree.rename_node(child, 'Item ' + i.toString());
                             } else {
                                 tree.rename_node(child, i.toString());
@@ -1518,7 +1515,7 @@ $(function () {
             if (aa[x] !== bb[x]) {
                 var c = Number(aa[x]),
                     d = Number(bb[x]);
-                if (c == aa[x] && d == bb[x]) {
+                if (c === aa[x] && d === bb[x]) {
                     return c - d;
                 } else return aa[x] > bb[x] ? 1 : -1;
             }
@@ -1534,13 +1531,13 @@ $(function () {
         if (debug) console.log('onValueChange', input, node);
 
         // If integer/number update the icon and title
-        if (node.data.__traits.type == 'Integer' || node.data.__traits.type == 'Number') {
+        if (node.data.__traits.type === 'Integer' || node.data.__traits.type === 'Number') {
             tree = $.jstree.reference('#jstree');
             tree.set_icon(node, node.data.__traits.type.toLowerCase());
         }
 
         // If amf3 boolean update the icon and title
-        if (node.data.__traits.origType == 'False' || node.data.__traits.origType == 'True') {
+        if (node.data.__traits.origType === 'False' || node.data.__traits.origType === 'True') {
             tree = $.jstree.reference('#jstree');
             tree.set_icon(node, node.data.__traits.origType.toLowerCase());
             //node.li_attr.title = node.data.__traits.origType;
@@ -1560,9 +1557,9 @@ $(function () {
 
     function onTreeChange(e, data) {
         if (debug) console.log('onTreeChange', e, data);
-        if (data.action == 'delete_node') return;
+        if (data.action === 'delete_node') return;
 
-        if (data.action == 'select_node') {
+        if (data.action === 'select_node') {
             // data.node, data.action, data.selected, data.event, data.instance
             resetDetails();
 

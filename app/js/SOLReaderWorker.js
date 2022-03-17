@@ -1,5 +1,5 @@
 /* global AMF0, AMF3, ByteArray */
-(function() {
+(function () {
     importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
 
     var amf0 = new AMF0();
@@ -54,8 +54,7 @@
         this.header.amfVersion = ba.readUnsignedInt();
 
         if (this.header.amfVersion === 0 || this.header.amfVersion === 3) {
-            if (this.header.fileName == 'undefined')
-                this.header.fileName = '[SOL Name not Set]';
+            if (this.header.fileName == 'undefined') this.header.fileName = '[SOL Name not Set]';
         } else {
             this.header.fileName = '[Unsupported SOL format]';
         }
@@ -64,10 +63,7 @@
         //trace('header-- ', this.header);
         if (this.header.amfVersion == 0 || this.header.amfVersion == 3) {
             this.body = {};
-            while (
-                ba.getBytesAvailable() > 1 &&
-                ba.position < this.header.contentLength
-            ) {
+            while (ba.getBytesAvailable() > 1 && ba.position < this.header.contentLength) {
                 var varName = '';
                 var varVal;
                 if (this.header.amfVersion == 3) {
@@ -114,15 +110,7 @@
         while (header) {
             var o = TAGS[header.type];
             if (o) {
-                var strTrace =
-                    'LOG - ' +
-                    ba.position +
-                    ' - ' +
-                    TAGS[header.type].name +
-                    ' (' +
-                    header.type +
-                    ') - ' +
-                    header.contentLength;
+                var strTrace = 'LOG - ' + ba.position + ' - ' + TAGS[header.type].name + ' (' + header.type + ') - ' + header.contentLength;
                 var tag = new o.func(ba, obj);
                 trace(strTrace, tag);
                 switch (header.type) {
@@ -137,17 +125,7 @@
 
                 // Re-align in the event a tag was read improperly
                 if (0 != header.tagLength - (ba.position - startPos))
-                    trace(
-                        'Error reading ' +
-                            TAGS[header.type].name +
-                            ' tag! Start:' +
-                            startPos +
-                            ' End:' +
-                            ba.position +
-                            ' BytesAvailable:' +
-                            (header.tagLength - (ba.position - startPos)),
-                        tag
-                    );
+                    trace('Error reading ' + TAGS[header.type].name + ' tag! Start:' + startPos + ' End:' + ba.position + ' BytesAvailable:' + (header.tagLength - (ba.position - startPos)), tag);
                 ba.seek(header.tagLength - (ba.position - startPos));
             } else {
                 trace('Unknown tag type', header.type);
@@ -168,7 +146,7 @@
     }
 
     // Parse the individual file
-    onmessage = function(event) {
+    onmessage = function (event) {
         var id = event.data.fileID;
         var ba = new ByteArray(event.data.text, ByteArray.BIG_ENDIAN);
         var obj = {};

@@ -22,6 +22,7 @@ var SOL = function () {
     var amfVersion = '?';
     var reLT = new RegExp('<', 'g');
     var reGT = new RegExp('>', 'g');
+    var debug = false;
 
     this.getAMFVersion = function () {
         return amfVersion;
