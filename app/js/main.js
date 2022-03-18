@@ -799,10 +799,9 @@ $(function () {
             setTimeout(closeModal, 500);
         };
         binaryReader.onload = function (e) {
-            byteArrayView.baImport2(e.target.result, file);
+            byteArrayView.baImport2(e.target.result);
         };
-
-        binaryReader.readAsArrayBuffer(file);
+        binaryReader.readAsArrayBuffer(files[0]);
     });
 
     btnCancelBinary.on('click', function () {

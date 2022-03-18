@@ -199,7 +199,15 @@
 			max-width: 100%;
 			line-height: 85px;
 			text-decoration: none;
+            position: relative;
+            margin-bottom: 0.5rem;
 		}
+
+        .adsbygoogle > ins {
+            top: 0;
+            position: absolute !important;
+            left: 0;
+        }
 
 		.field input,
 		.field textarea,
@@ -292,6 +300,13 @@
 
 						<h4>Changelog</h4>
 						<pre class="scroll-box">
+
+####################################################
+4.3.7 - 2022-3-17
+####################################################
+    - Fix ad positioning
+    - Fix ByteArray import, related to issue #88
+
 ####################################################
 4.3.6 - 2022-3-16
 ####################################################
