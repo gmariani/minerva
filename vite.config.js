@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -16,12 +17,10 @@ const placeholders = {
 };
 const fillPlaceholders = (str) => Object.entries(placeholders).reduce((s, [key, value]) => s.replaceAll(key, value), str);
 
-// Replaces the build-time placeholders in index.html and emits the service worker with a
-// precache list built from the hashed output files.
+// Emits the service worker with its version and a precache list built from the hashed output files
 function minerva() {
     return {
         name: 'minerva',
-        transformIndexHtml: fillPlaceholders,
         generateBundle(options, bundle) {
             const files = Object.keys(bundle).filter((file) => !file.endsWith('.map'));
             const source = readFileSync(fileURLToPath(new URL('./app/service-worker.js', import.meta.url)), 'utf8');
@@ -37,7 +36,13 @@ function minerva() {
 export default defineConfig({
     root: 'app',
     base: './',
-    plugins: [minerva()],
+    plugins: [react(), minerva()],
+    define: {
+        __APP_VERSION__: JSON.stringify(placeholders['%VERSION%']),
+        __BUILD_ID__: JSON.stringify(placeholders['%BUILD%']),
+        __BUILD_YEAR__: JSON.stringify(placeholders['%YEAR%']),
+        __BUILT_ON__: JSON.stringify(placeholders['%BUILT%']),
+    },
     worker: {
         format: 'es',
     },

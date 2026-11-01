@@ -6,9 +6,10 @@
     "description": "Online shared object editor",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "tsc && vite build",
         "preview": "vite preview",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "typecheck": "tsc"
     },
     "keywords": [
         "shared",
@@ -29,19 +30,21 @@
         "last 3 iOS versions"
     ],
     "dependencies": {
-        "file-saver": "^2.0.5",
-        "jquery": "^3.7.1",
-        "jquery-ui": "^1.14.2",
-        "jquery-ui-timepicker-addon": "^1.6.3",
-        "js-cookie": "^3.0.8",
-        "jstree": "^3.3.17",
         "pako": "^2.1.0",
-        "timeago": "^1.6.7"
+        "react": "^19.2.9",
+        "react-dom": "^19.2.9"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@types/pako": "^2.0.4",
+        "@types/react": "^19.2.18",
+        "@types/react-dom": "^19.2.7",
+        "@vitejs/plugin-react": "^6.1.2",
         "eslint": "^10.13.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
         "globals": "^17.12.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.71.2",
         "vite": "8.3.4"
     },
     "overrides": {

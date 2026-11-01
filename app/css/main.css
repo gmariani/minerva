@@ -686,10 +686,6 @@ select:focus ~ .arrow-select-svg {
         display: none; /* <-- Hide svg arrow in webkit browsers and IE9/10 (pointer events don't work in those IE) */
     }
 }
-x:-o-prefocus,
-.arrow-select {
-    display: none; /* <-- Hack for Opera 12 */
-}
 
 /* Placeholders */
 /*-- Webkit --*/

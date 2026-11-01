@@ -1,0 +1,67 @@
+/* The tree renders flat, virtualized rows instead of jsTree's nested lists. These rules
+   recreate the connector lines jsTree drew with each nested list item's background. */
+
+.tree {
+    outline: none;
+}
+
+.tree-rows {
+    position: relative;
+    min-width: 100%;
+}
+
+.tree-row {
+    position: absolute;
+    left: 0;
+    height: 24px;
+    line-height: 24px;
+    white-space: nowrap;
+}
+
+/* One 24px column per ancestor level, and the open/close column of the row itself */
+.tree-indent,
+.tree-ocl-cell {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: top;
+}
+
+/* The dotted vertical line of an ancestor (or this node) that has more siblings below */
+.jstree-default .tree-line {
+    background-image: url('/img/32px.png');
+    background-position: -292px -4px;
+    background-repeat: repeat-y;
+}
+
+.jstree-default .tree-row > .jstree-anchor:hover {
+    background: #e7f4f9;
+    border-radius: 2px;
+    box-shadow: inset 0 0 1px #cccccc;
+}
+
+.jstree-default .tree-row > .jstree-anchor.jstree-clicked {
+    background: #beebff;
+    border-radius: 2px;
+    box-shadow: inset 0 0 1px #999999;
+}
+
+.tree:focus-visible .tree-row > .jstree-anchor.tree-focused {
+    outline: 1px dotted #555;
+}
+
+.tree-rename-input {
+    font: inherit;
+    height: 20px;
+    margin: 1px 0;
+    padding: 0 2px;
+    border: 1px solid silver;
+    vertical-align: top;
+}
+
+/* Context menu, using jsTree's vakata-context theme */
+.vakata-context.tree-menu {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+}
