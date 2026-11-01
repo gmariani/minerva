@@ -1,7 +1,5 @@
-/* eslint-env browser */
-/* global self, caches, fetch, URL, Promise, Response */
 // https://github.com/lyzadanger/serviceworker-example 1/28/2018
-('use strict');
+// Built by the minerva plugin in vite.config.js, which fills in the placeholders.
 
 const config = {
     version: '%VERSION%.%BUILD%',
@@ -12,17 +10,10 @@ const config = {
         'img/32px.png',
         'img/icons/bug.png',
         'img/icons/time.png',
-        'css/bundle.css',
-        'font/Lato-Regular.woff',
-        'js/bundle.js',
-        'js/lib/ByteArray.js',
-        'js/lib/AMF0.js',
-        'js/lib/AMF3.js',
-        'js/parsers/SOLReaderWorker.js',
-        'js/parsers/SOLWriterWorker.js',
+        '%PRECACHE%',
         './',
     ],
-    cachePathPattern: /\/(?:(css|img|js)\/(.+)?)?$/,
+    cachePathPattern: /\/(?:(assets|img)\/(.+)?)?$/,
     offlineImage:
         '<svg role="img" aria-labelledby="offline-title"' +
         ' viewBox="0 0 400 300" xmlns="https://www.w3.org/2000/svg">' +
@@ -80,8 +71,6 @@ self.addEventListener('activate', (event) => {
     function onActivate(event, opts) {
         return caches.keys().then((cacheKeys) => {
             const oldCacheKeys = cacheKeys.filter((key) => key.indexOf(opts.version) !== 0);
-            console.log('onActivate');
-            console.log(oldCacheKeys);
             const deletePromises = oldCacheKeys.map((oldKey) => caches.delete(oldKey));
             return Promise.all(deletePromises);
         });
@@ -94,16 +83,12 @@ self.addEventListener('fetch', (event) => {
     function shouldHandleFetch(event, opts) {
         const request = event.request;
         const url = new URL(request.url);
-        console.log('shouldFetch --------');
-        console.log(`shouldFetch Path? ${url.pathname}`);
-        console.log(`shouldFetch Origin? ${url.origin} === ${self.location.origin}`);
         const criteria = {
             matchesPathPattern: opts.cachePathPattern.test(url.pathname),
             isGETRequest: request.method === 'GET',
-            isFromMyOrigin: url.origin === self.location.origin || 'https://cdn.mariani.life' === url.origin,
+            isFromMyOrigin: url.origin === self.location.origin,
         };
         const failingCriteria = Object.keys(criteria).filter((criteriaKey) => !criteria[criteriaKey]);
-        console.log(`Fetch from cache? ${!failingCriteria.length}`);
         return !failingCriteria.length;
     }
 

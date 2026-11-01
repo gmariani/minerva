@@ -1,7 +1,8 @@
-/* global AMF3 */
+import AMF3 from './AMF3.js';
+
 var AMF0;
 (function () {
-    var debug = true;
+    var debug = false;
 
     function trace() {
         if (!debug) return;
@@ -618,3 +619,5 @@ var AMF0;
         },
     };
 })();
+
+export default AMF0;

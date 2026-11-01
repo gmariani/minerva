@@ -1,4 +1,6 @@
-/* global debug */
+import $ from 'jquery';
+import { debug } from '../util.js';
+
 var ObjectView = function() {
     /////////////////
     // Constructor //
@@ -87,3 +89,5 @@ var ObjectView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default ObjectView;

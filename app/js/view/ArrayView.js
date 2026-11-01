@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var ArrayView = function() {
     /////////////////
     // Constructor //
@@ -43,3 +45,5 @@ var ArrayView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default ArrayView;

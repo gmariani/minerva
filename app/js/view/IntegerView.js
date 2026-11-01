@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var IntegerView = function() {
     /////////////////
     // Constructor //
@@ -81,3 +83,5 @@ var IntegerView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default IntegerView;

@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var Alert = (function() {
     var o = {};
     o.OK = 0x0004;
@@ -89,3 +91,5 @@ var Alert = (function() {
     o.show = show;
     return o;
 })();
+
+export default Alert;

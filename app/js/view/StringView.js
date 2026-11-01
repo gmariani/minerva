@@ -1,4 +1,6 @@
-/* global debug */
+import $ from 'jquery';
+import { debug } from '../util.js';
+
 // Base64 Conversion //
 // https://developer.mozilla.org/en-US/docs/Web/API/Window.btoa
 // IE10+
@@ -251,3 +253,5 @@ var StringView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default StringView;

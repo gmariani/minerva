@@ -1,4 +1,5 @@
-/* global ByteArray */
+import ByteArray from './ByteArray.js';
+
 var AMF3;
 (function () {
     /*
@@ -1776,3 +1777,5 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         return this;
     };
 })();
+
+export default AMF3;

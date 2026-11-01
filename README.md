@@ -2,39 +2,18 @@
 
 **.minerva** is capable of reading and writing all known data types successfully.
 
-Make a branch:
-git branch <BRANCH NAME HERE>
-git checkout <BRANCH NAME HERE>
+## Development
 
-Merge
-git checkout master
-git merge <BRANCH NAME HERE>
-git branch -d <BRANCH NAME HERE>
+Requires Node.js 20.19+ (or 22.12+).
 
-To run, open a Node command prompt in a project folder
-Type in "gulp build" to compile
-Type in "npm update" to update modules
-Type in "npm update -g" to update global modules
-Type in "npm outdated -g" to view outdated global modules
-Type in "npm outdated" to view outdated modules
-Type in "npm cache clean" to clear out cached modules
-Type in "npm -v" to view NPM version
+```sh
+npm install
+npm run dev       # dev server with hot reload
+npm run build     # production build into dist/
+npm run preview   # serve the production build locally
+npm run lint      # ESLint
+```
 
-Typ in "npm run-script build" to run build task
+The app source lives in `app/` (Vite root). Files in `app/public/` (icons, manifest, browserconfig) are copied to `dist/` unchanged. The service worker in `app/service-worker.js` is only registered in production builds; `vite.config.js` fills in its version and precache list at build time.
 
-== Test locally ==
-The easiest is to install http-server globally using node's package manager:
-
-npm install -g http-server
-
-Then simply run http-server in any of your project directories:
-
-Eg. d:\my_project> http-server
-
-Starting up http-server, serving ./
-Available on:
-http:169.254.116.232:8080
-http:192.168.88.1:8080
-http:192.168.0.7:8080
-http:127.0.0.1:8080
-Hit CTRL-C to stop the server
+Deploy the contents of `dist/`. The build uses relative paths, so it can be served from any sub-directory.

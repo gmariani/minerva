@@ -4,8 +4,8 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "gulp",
-            "task": "build",
+            "type": "npm",
+            "script": "build",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -13,9 +13,15 @@
             }
         },
         {
-            "type": "gulp",
-            "task": "test",
+            "type": "npm",
+            "script": "dev",
+            "isBackground": true,
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "lint",
+            "problemMatcher": ["$eslint-stylish"]
         }
     ]
 }

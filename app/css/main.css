@@ -256,13 +256,13 @@ a.disabled {
     font-size: 14px;
 }
 .jstree-icon.localsharedobject {
-    background-image: url('../img/icons/SOL_16.png');
+    background-image: url('/img/icons/SOL_16.png');
 }
 .jstree-icon.error {
-    background-image: url('../img/icons/bug.png');
+    background-image: url('/img/icons/bug.png');
 }
 .jstree-icon.time {
-    background-image: url('../img/icons/time.png');
+    background-image: url('/img/icons/time.png');
 }
 .jstree-icon.ecmaarray,
 .jstree-icon.array {
@@ -647,7 +647,7 @@ select.grayed {
 }
 .arrow-select,
 .arrow-select-svg {
-    background: #fff url('../img/select.png') no-repeat 0 11px;
+    background: #fff url('/img/select.png') no-repeat 0 11px;
     width: 44px;
     height: 43px;
     position: absolute;
@@ -663,7 +663,7 @@ select:hover ~ .arrow-select,
 select:focus ~ .arrow-select,
 select:hover ~ .arrow-select-svg,
 select:focus ~ .arrow-select-svg {
-    background: #fff url('../img/select-focus.png') no-repeat 0 11px;
+    background: #fff url('/img/select-focus.png') no-repeat 0 11px;
 }
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     .arrow-select-svg {

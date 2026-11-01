@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var BooleanView = function() {
     /////////////////
     // Constructor //
@@ -58,3 +60,5 @@ var BooleanView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default BooleanView;

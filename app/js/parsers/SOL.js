@@ -1,5 +1,6 @@
-/*jshint browser:true, devel:true */
-/*global debug, Alert, util */
+import Alert from '../view/Alert.js';
+import { util } from '../util.js';
+
 /*
 Expected format of the node (there are no required fields)
 
@@ -346,7 +347,7 @@ var SOL = function () {
     // Create ArrayBuffer to save
     this.serialize = function (json, obj, file, onComplete) {
         try {
-            var worker = new Worker('js/parsers/SOLWriterWorker.js');
+            var worker = new Worker(new URL('./SOLWriterWorker.js', import.meta.url), { type: 'module' });
             worker.onmessage = function (e) {
                 if (e.data.type == 'debug') {
                     if (debug) console.info(e.data.message);
@@ -357,10 +358,12 @@ var SOL = function () {
                     return;
                 }
 
+                worker.terminate();
                 onComplete(e.data.data);
             };
 
             worker.onerror = function (error) {
+                worker.terminate();
                 console.log('Worker error: ' + error.message + '\n');
                 onComplete(
                     {
@@ -421,7 +424,7 @@ var SOL = function () {
 
     this.deserialize = function (buffer, file, onComplete) {
         var t = this;
-        var worker = new Worker('js/parsers/SOLReaderWorker.js');
+        var worker = new Worker(new URL('./SOLReaderWorker.js', import.meta.url), { type: 'module' });
         worker.onmessage = function (e) {
             if (e.data.type == 'debug') {
                 if (debug) console.info(e.data.message);
@@ -438,6 +441,7 @@ var SOL = function () {
             }
 
             //var idx = e.data.fileID;
+            worker.terminate();
             var data = e.data.data;
             data.fileSize = file.size;
             data.fileName = file.name;
@@ -449,6 +453,7 @@ var SOL = function () {
         };
 
         worker.onerror = function (error) {
+            worker.terminate();
             console.error('Worker ' + error.message + '  (' + error.filename + ':' + error.lineno + ')');
             Alert.show('Error reading file:<code>' + error.message + '<br>(' + error.filename + ':' + error.lineno + ')</code>', Alert.ERROR);
             onComplete({ text: 'Error reading file', icon: 'error' }, file);
@@ -460,3 +465,5 @@ var SOL = function () {
         });
     };
 };
+
+export default SOL;

@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var NumberView = function() {
     /////////////////
     // Constructor //
@@ -103,3 +105,5 @@ var NumberView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default NumberView;

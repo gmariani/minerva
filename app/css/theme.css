@@ -232,7 +232,7 @@
 
 .jstree-default .jstree-node,
 .jstree-default .jstree-icon {
-    background-image: url('https://mariani.life/projects/minerva/img/32px.png');
+    background-image: url('/img/32px.png');
 }
 .jstree-default .jstree-node {
     background-position: -292px -4px;
@@ -263,10 +263,21 @@
     background-position: 0 0;
 }
 .jstree-default > .jstree-container-ul .jstree-loading > .jstree-ocl {
-    background: url('https://mariani.life/projects/minerva/img/throbber.gif')
+    background: url('/img/throbber.gif')
         center center no-repeat;
 }
 .jstree-default > .jstree-container-ul > .jstree-node {
     margin-left: 0;
     margin-right: 0;
+}
+
+/* Structural rules added in jsTree 3.x (search's show_only_matches relies on .jstree-hidden) */
+.jstree-hidden,
+.jstree-node.jstree-hidden {
+    display: none;
+}
+.jstree-contextmenu .jstree-anchor {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
 }

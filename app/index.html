@@ -3,14 +3,11 @@
 
 <head>
 	<meta charset="utf-8">
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
 	<title>.minerva</title>
 	<meta name="author" content="Gabriel Mariani - mariani.life">
 	<meta name="description" content=".minerva is a online Flash Local Shared Object editor built based on the AMF3 specification and the AMF0 specification">
 	<meta name="viewport" content="width=device-width">
-	<meta name="generator" content="Brackets" />
 	<meta name="keywords" content="flash shared object, sol, local shared object, lso, edit, editor, minerva, flash game cheater, flash game hack"
 	/>
 	<meta name="theme-color" content="#2d89ef">
@@ -29,23 +26,23 @@
 	<meta property="og:description" content=".minerva is the most complete Shared Object editor" />
 	<meta property="og:image" content="img/opengraph-preview.png" />
 
-	<link rel="manifest" href="manifest.json?%BUILD%">
-	<link rel="shortcut icon" href="favicon.ico">
-	<link rel="apple-touch-icon" sizes="57x57" href="img/favicon-57x57.png">
-	<link rel="apple-touch-icon" sizes="114x114" href="img/favicon-114x114.png">
-	<link rel="apple-touch-icon" sizes="72x72" href="img/favicon-72x72.png">
-	<link rel="apple-touch-icon" sizes="144x144" href="img/favicon-144x144.png">
-	<link rel="apple-touch-icon" sizes="60x60" href="img/favicon-60x60.png">
-	<link rel="apple-touch-icon" sizes="120x120" href="img/favicon-120x120.png">
-	<link rel="apple-touch-icon" sizes="76x76" href="img/favicon-76x76.png">
-	<link rel="apple-touch-icon" sizes="152x152" href="img/favicon-152x152.png">
-	<link rel="icon" type="image/png" href="img/favicon-512x512.png" sizes="512x512">
-	<link rel="icon" type="image/png" href="img/favicon-256x256.png" sizes="256x256">
-	<link rel="icon" type="image/png" href="img/favicon-196x196.png" sizes="196x196">
-	<link rel="icon" type="image/png" href="img/favicon-160x160.png" sizes="160x160">
-	<link rel="icon" type="image/png" href="img/favicon-96x96.png" sizes="96x96">
-	<link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16">
-	<link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="apple-touch-icon" sizes="57x57" href="/img/favicon-57x57.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/img/favicon-114x114.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/img/favicon-72x72.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/img/favicon-144x144.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/img/favicon-60x60.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/img/favicon-120x120.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/img/favicon-76x76.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/img/favicon-152x152.png">
+	<link rel="icon" type="image/png" href="/img/favicon-512x512.png" sizes="512x512">
+	<link rel="icon" type="image/png" href="/img/favicon-256x256.png" sizes="256x256">
+	<link rel="icon" type="image/png" href="/img/favicon-196x196.png" sizes="196x196">
+	<link rel="icon" type="image/png" href="/img/favicon-160x160.png" sizes="160x160">
+	<link rel="icon" type="image/png" href="/img/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="/img/favicon-16x16.png" sizes="16x16">
+	<link rel="icon" type="image/png" href="/img/favicon-32x32.png" sizes="32x32">
 	<style>
 		/***** Application *****/
 
@@ -142,7 +139,7 @@
 
 		#details {
 			background: none repeat scroll 0 0 #fff;
-			background-image: url(img/favicon-196x196.png);
+			background-image: url(/img/favicon-196x196.png);
 			background-position: 50%;
 			background-repeat: no-repeat;
 			min-height: 100px;
@@ -255,7 +252,7 @@
 					<section class="clearfix">
 						<div class="row">
 							<div>
-								<img class="spin" src="img/favicon-196x196.png" alt=".minerva's logo, a cartoon cloud" />
+								<img class="spin" src="/img/favicon-196x196.png" alt=".minerva's logo, a cartoon cloud" />
 							</div>
 							<div class="col about-content">
 								<p>
@@ -300,6 +297,15 @@
 
 						<h4>Changelog</h4>
 						<pre class="scroll-box">
+
+####################################################
+4.4.0 - 2026-11-01
+####################################################
+    - Replaced Gulp build with Vite
+    - Updated jQuery, jQuery UI, jsTree and other libraries to fix known vulnerabilities
+    - Fixed error thrown when writing an invalid UTF-8 character
+    - Fixed workers not being cleaned up after opening/saving files
+    - Removed defunct Universal Analytics tracking
 
 ####################################################
 4.3.8 - 2023-04-24
@@ -714,7 +720,7 @@
 
 				<div id="saveWindow">
 					<h1>Saving File</h1>
-					<img src="img/Mega_Man_Running.gif" height="100px" width="96px" alt="looping loading graphic" />
+					<img src="/img/Mega_Man_Running.gif" height="100px" width="96px" alt="looping loading graphic" />
 				</div>
 
 				<div id="importBinaryWindow">
@@ -871,68 +877,11 @@
 	</div>
 
 	<div id="divPinSite">
-		<img src="img/whiteArrow.png" alt="Pin this site" width="16" height="16" /> Drag the site icon to the taskbar to pin site
+		<img src="/img/whiteArrow.png" alt="Pin this site" width="16" height="16" /> Drag the site icon to the taskbar to pin site
 	</div>
 
-	<!-- build:css css/bundle.css -->
-	<link rel="stylesheet" href="css/theme.css" />
-	<link rel="stylesheet" href="css/jquery-ui.css">
-	<link rel="stylesheet" href="css/main.css" media="screen">
-	<!-- endbuild -->
+	<script type="module" src="/js/main.js"></script>
 
-	<!-- build:js js/bundle.js -->
-	<script src="js/vendor/jquery-3.3.1.js"></script>
-	<script src="js/vendor/jquery.timeago.js"></script>
-	<script src="js/vendor/jquery.cookie.js"></script>
-	<script src="js/vendor/jquery-ui-1.12.1.js"></script>
-	<script src="js/vendor/jquery-ui.timepicker-addon.js"></script>
-	<script src="js/vendor/jstree.js"></script>
-	<script src="js/vendor/jstree.sort.js"></script>
-	<script src="js/vendor/jstree.search.js"></script>
-	<script src="js/vendor/jstree.contextmenu.js"></script>
-	<script src="js/vendor/Blob.js"></script>
-	<script src="js/vendor/FileSaver.js"></script>
-	<script src="js/vendor/zlib.min.js"></script>
-	<script src="js/vendor/rawdeflate.min.js"></script>
-	<script src="js/vendor/rawinflate.min.js"></script>
-	<script src="js/vendor/lzma_worker.js"></script>
-
-	<script src="js/lib/ByteArray.js"></script>
-	<script src="js/lib/AMF0.js"></script>
-	<script src="js/lib/AMF3.js"></script>
-	<script src="js/parsers/SOL.js"></script>
-
-	<script src="js/view/SOLView.js"></script>
-	<script src="js/view/DateView.js"></script>
-	<script src="js/view/VectorView.js"></script>
-	<script src="js/view/ObjectView.js"></script>
-	<script src="js/view/ArrayView.js"></script>
-	<script src="js/view/StringView.js"></script>
-	<script src="js/view/IntegerView.js"></script>
-	<script src="js/view/NumberView.js"></script>
-	<script src="js/view/BooleanView.js"></script>
-	<script src="js/view/ByteArrayView.js"></script>
-	<script src="js/view/DictionaryView.js"></script>
-	<script src="js/view/DictionaryItemView.js"></script>
-	<script src="js/view/XMLView.js"></script>
-	<script src="js/view/Alert.js"></script>
-	<script src="js/main.js"></script>
-	<!-- endbuild -->
-
-	<script>
-		(function (i, s, o, g, r, a, m) {
-			i['GoogleAnalyticsObject'] = r;
-			i[r] = i[r] || function () {
-				(i[r].q = i[r].q || []).push(arguments)
-			}, i[r].l = 1 * new Date();
-			a = s.createElement(o), m = s.getElementsByTagName(o)[0];
-			a.async = 1;
-			a.src = g;
-			m.parentNode.insertBefore(a, m)
-		})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-		ga('create', 'UA-349755-7', 'auto');
-		ga('send', 'pageview');
-	</script>
 </body>
 
 </html>

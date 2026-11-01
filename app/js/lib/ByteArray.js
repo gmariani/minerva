@@ -1,4 +1,3 @@
-﻿/* global Int8Array, DataView, ArrayBuffer, error */
 /**
  * @author Gabriel Mariani
  *
@@ -519,7 +518,7 @@ var ByteArray;
                 this.writeUI8(((code_point >> 6) & 0x3f) + 0x80);
                 this.writeUI8((code_point & 0x3f) + 0x80);
             } else {
-                throw error('writeUTFChar: Invalid char code');
+                throw new Error('writeUTFChar: Invalid char code');
             }
         },
 
@@ -649,3 +648,5 @@ var ByteArray;
 	}*/
     };
 })();
+
+export default ByteArray;

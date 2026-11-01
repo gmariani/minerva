@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var XMLView = function() {
     var elError,
         inputDelay = false;
@@ -81,3 +83,5 @@ var XMLView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default XMLView;

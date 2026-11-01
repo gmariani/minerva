@@ -1,4 +1,6 @@
-/* global debug, util */
+import $ from 'jquery';
+import { debug, util } from '../util.js';
+
 var SOLView = function() {
     /////////////////
     // Constructor //
@@ -90,3 +92,5 @@ var SOLView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default SOLView;

@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 var DateView = function() {
     /////////////////
     // Constructor //
@@ -22,7 +24,8 @@ var DateView = function() {
         el.addClass('DateType');
 
         // Generate details
-        var d = typeof input == 'string' ? new Date(input) : input,
+        // Always copy: the timepicker mutates the Date it's given, and input may be the node's own value
+        var d = new Date(input),
             elDifference = el.children('p'),
             elValue = el.find('input');
 
@@ -54,3 +57,5 @@ var DateView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default DateView;

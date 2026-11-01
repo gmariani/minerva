@@ -1,4 +1,6 @@
-/* global debug */
+import $ from 'jquery';
+import { debug } from '../util.js';
+
 var VectorView = function() {
     /////////////////
     // Constructor //
@@ -51,3 +53,5 @@ var VectorView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default VectorView;

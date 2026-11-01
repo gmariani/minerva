@@ -1,7 +1,8 @@
-/* global AMF0 AMF3 ByteArray */
-(function() {
-    importScripts('../lib/ByteArray.js', '../lib/AMF0.js', '../lib/AMF3.js');
+import ByteArray from '../lib/ByteArray.js';
+import AMF0 from '../lib/AMF0.js';
+import AMF3 from '../lib/AMF3.js';
 
+(function() {
     var amf0 = new AMF0();
     var amf3 = new AMF3();
     //var debug = false;

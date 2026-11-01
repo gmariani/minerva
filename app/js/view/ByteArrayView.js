@@ -1,4 +1,11 @@
-/* global Uint8Array, ByteArray, saveAs, Zlib, debug, Alert, LZMA */
+import $ from 'jquery';
+import { saveAs } from 'file-saver';
+import pako from 'pako';
+import ByteArray from '../lib/ByteArray.js';
+import LZMA from '../vendor/lzma.js';
+import Alert from './Alert.js';
+import { debug } from '../util.js';
+
 /*
 	- Interface -
 	validate(input)
@@ -235,9 +242,7 @@ var ByteArrayView = function() {
 				JAVASCRIPT 0x78 0x5E
 				for "Hello World!"
 				*/
-                ba = new Zlib.Deflate(ba, {
-                    compressionType: Zlib.Deflate.CompressionType.FIXED,
-                }).compress();
+                ba = pako.deflate(new Uint8Array(ba), { strategy: pako.constants.Z_FIXED });
                 if (debug) console.log('compress', ba);
                 displayValue();
 
@@ -249,9 +254,7 @@ var ByteArrayView = function() {
 				Zlib.Deflate.CompressionType.FIXED
 				Zlib.Deflate.CompressionType.DYNAMIC
 				*/
-                ba = new Zlib.RawDeflate(ba, {
-                    compressionType: Zlib.Deflate.CompressionType.FIXED,
-                }).compress();
+                ba = pako.deflateRaw(new Uint8Array(ba), { strategy: pako.constants.Z_FIXED });
                 if (debug) console.log('compress', ba);
                 displayValue();
 
@@ -281,14 +284,16 @@ var ByteArrayView = function() {
     function uncompress() {
         switch (elAlgorithm.val()) {
             case 'zlib':
-                ba = new Zlib.Inflate(ba).decompress();
+                ba = inflate(pako.inflate, ba);
+                if (!ba) return;
                 if (debug) console.log('uncompress', ba);
                 displayValue();
 
                 if (ba) callBackFunc(ba, treeNode);
                 break;
             case 'deflate':
-                ba = new Zlib.RawInflate(ba).decompress();
+                ba = inflate(pako.inflateRaw, ba);
+                if (!ba) return;
                 if (debug) console.log('uncompress', ba);
                 displayValue();
 
@@ -311,6 +316,16 @@ var ByteArrayView = function() {
                     if (ba) callBackFunc(ba, treeNode);
                 });
                 break;
+        }
+    }
+
+    // pako throws on invalid input; report it instead of leaving the view half-updated
+    function inflate(method, input) {
+        try {
+            return method(new Uint8Array(input));
+        } catch (error) {
+            Alert.show('Error uncompressing: ' + error, Alert.ERROR);
+            return null;
         }
     }
 
@@ -503,3 +518,5 @@ var ByteArrayView = function() {
     this.reset = reset;
     this.baImport2 = baImport2;
 };
+
+export default ByteArrayView;

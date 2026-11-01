@@ -1,4 +1,6 @@
-/* global debug */
+import $ from 'jquery';
+import { debug } from '../util.js';
+
 var DictionaryItemView = function() {
     /////////////////
     // Constructor //
@@ -44,3 +46,5 @@ var DictionaryItemView = function() {
     this.validate = validate;
     this.reset = reset;
 };
+
+export default DictionaryItemView;
