@@ -32,6 +32,7 @@ import ByteArrayView from './view/ByteArrayView.js';
 import DictionaryView from './view/DictionaryView.js';
 import DictionaryItemView from './view/DictionaryItemView.js';
 import XMLView from './view/XMLView.js';
+import ReferenceView from './view/ReferenceView.js';
 
 $(function () {
     var reader;
@@ -209,6 +210,59 @@ $(function () {
     ////////////////
     // Navigation //
     ////////////////
+    // While saving: copies of each shared object built so far, by originId (see SOL.obj2Tree),
+    // and Reference nodes (an object containing itself) waiting for their target to be built
+    var copiesByOrigin = {};
+    var pendingRefs = [];
+
+    // Gives every distinct node content a number, so copies can be compared without
+    // re-serializing their whole subtree at each level. Editor-only flags are ignored.
+    var EDITOR_KEYS = { canCreate: 1, canRename: 1, canDelete: 1, canEdit: 1, canBeIndexed: 1, originId: 1, path: 1 };
+    var formIds = new WeakMap();
+    var forms = new Map();
+
+    function isNode(v) {
+        return v !== null && typeof v === 'object' && '__traits' in v;
+    }
+
+    function formOf(node) {
+        var id = formIds.get(node);
+        if (id !== undefined) return id;
+
+        var traits = JSON.stringify(node.__traits, function (key, value) {
+            return EDITOR_KEYS[key] ? undefined : value;
+        });
+        var value = node.value;
+        var content;
+        if (value !== null && typeof value === 'object' && !(value instanceof Date)) {
+            content = [Array.isArray(value) ? '[' : '{'];
+            for (var key in value) {
+                var v = value[key];
+                content.push(JSON.stringify(key) + ':' + (isNode(v) ? '#' + formOf(v) : JSON.stringify(v)));
+            }
+            content = content.join(',');
+        } else {
+            content = JSON.stringify(value);
+        }
+
+        var form = traits + '|' + content;
+        id = forms.get(form);
+        if (id === undefined) forms.set(form, (id = forms.size));
+        formIds.set(node, id);
+        return id;
+    }
+
+    // A file stores a shared object once and references it from its other places. Copies that
+    // came from the same object and haven't been edited apart are made the same object again,
+    // which the writer then emits as a reference; edited copies are written separately.
+    function shareIfUnchanged(originId, node) {
+        var copies = copiesByOrigin[originId] || (copiesByOrigin[originId] = new Map());
+        var form = formOf(node);
+        if (copies.has(form)) return copies.get(form);
+        copies.set(form, node);
+        return node;
+    }
+
     function tree2Obj(o, data, callState) {
         var key;
         if (debug) console.log('tree2Obj', o, data);
@@ -269,6 +323,10 @@ $(function () {
                         'Object'
                     );
                     break;
+                case 'Reference':
+                    // An object containing itself can't be written as JSON
+                    o[key] = '[Circular: ' + child.data.path + ']';
+                    break;
             }
         }
 
@@ -295,6 +353,11 @@ $(function () {
                 case 'Null':
                 case 'Undefined':
                     o[key] = child.data;
+                    break;
+                case 'Reference':
+                    // Filled in by buildSOLBody once every target has been built
+                    o[key] = null;
+                    pendingRefs.push({ container: o, key: key, originId: child.data.value, label: child.text, path: child.data.path });
                     break;
                 case 'Vector':
                 case 'Dictionary':
@@ -331,9 +394,31 @@ $(function () {
                     );
                     break;
             }
+
+            if (child.data.originId != null && type !== 'DictionaryItem') {
+                o[key] = shareIfUnchanged(child.data.originId, o[key]);
+            }
         }
 
         return o;
+    }
+
+    // Converts the tree to the structure the SOL writer expects
+    function buildSOLBody(children) {
+        copiesByOrigin = {};
+        pendingRefs = [];
+        formIds = new WeakMap();
+        forms = new Map();
+        var body = tree2SOL({}, children, 'TreeNode');
+
+        // A Reference node points back at the object that contains it
+        pendingRefs.forEach(function (ref) {
+            var copies = copiesByOrigin[ref.originId];
+            var target = copies && copies.values().next().value;
+            if (!target) throw new Error('"' + ref.label + '" is a reference to ' + ref.path + ', which was deleted.');
+            ref.container[ref.key] = target;
+        });
+        return body;
     }
 
     btnNewFile.on('click', function () {
@@ -357,6 +442,9 @@ $(function () {
             blob,
             fileName;
 
+        // Still parsing, or the file couldn't be read
+        if (!treeJSON || !treeJSON[0] || !treeJSON[0].data) return;
+
         try {
             o = tree2Obj({}, treeJSON[0].children, 'TreeNode');
         } catch (e) {
@@ -379,6 +467,9 @@ $(function () {
         var treeJSON = elJSTree.jstree('get_json'),
             o;
 
+        // Still parsing, or the file couldn't be read
+        if (!treeJSON || !treeJSON[0] || !treeJSON[0].data) return;
+
         $('#overlay').addClass('show');
         $('#saveWindow').addClass('show');
 
@@ -386,9 +477,11 @@ $(function () {
             o = {};
             o.__traits = treeJSON[0].data.value;
             o.__traits2 = treeJSON[0].data.value2;
-            o.value = tree2SOL({}, treeJSON[0].children, 'TreeNode');
+            o.value = buildSOLBody(treeJSON[0].children);
         } catch (e) {
-            console.log(e);
+            console.error(e);
+            onFileAssembled({ icon: 'error', text: 'Unable to save: ' + util.htmlEntities(e.message) });
+            return;
         }
 
         if (debug) console.log(treeJSON[0]);
@@ -893,6 +986,7 @@ $(function () {
     var dateView = new DateView();
     var byteArrayView = new ByteArrayView();
     var dictionaryItemView = new DictionaryItemView();
+    var referenceView = new ReferenceView();
 
     var search_delay = false;
     elSearch.keyup(function (event) {
@@ -1202,15 +1296,24 @@ $(function () {
             }
         }
 
+        // A pasted copy is a new object, so it mustn't be merged with the one it was copied from
+        function forgetOrigins(node) {
+            if (node.data) delete node.data.originId;
+            if (node.children) node.children.forEach(forgetOrigins);
+            return node;
+        }
+
         function copy_node(tree, node) {
             if (node && node.id && node.id !== '#') {
                 if (window.localStorage) {
                     var json = JSON.stringify(
-                        tree.get_json(node, {
-                            flat: false,
-                            no_id: true,
-                            no_state: true,
-                        })
+                        forgetOrigins(
+                            tree.get_json(node, {
+                                flat: false,
+                                no_id: true,
+                                no_state: true,
+                            })
+                        )
                     );
                     if (debug) console.log('copy', json);
                     localStorage.setItem('clipboard', json);
@@ -1433,6 +1536,8 @@ $(function () {
             resetDetails();
 
             var node = data.node; //instance.get_node(data.selected[0]);
+            // Placeholder nodes such as "Error reading file" have no data
+            if (!node.data || !node.data.__traits) return;
             var lower_type = node.data.__traits.type ? node.data.__traits.type.toLowerCase() : '';
             switch (lower_type) {
                 case 'localsharedobject':
@@ -1472,8 +1577,26 @@ $(function () {
                 case 'date':
                     dateView.init(elDetailsPane, node, node.data.value, onValueChange);
                     break;
+                case 'reference':
+                    referenceView.init(elDetailsPane, node, goToReferenceTarget);
+                    break;
             }
         }
+    }
+
+    function goToReferenceTarget(originId) {
+        var tree = elJSTree.jstree(true);
+        var target = tree.get_json('#', { flat: true }).find(function (n) {
+            return n.data && n.data.originId === originId;
+        });
+        if (!target) {
+            Alert.show('The original object has been deleted.', Alert.NOTICE);
+            return;
+        }
+        tree.deselect_all();
+        tree.select_node(target.id);
+        var el = document.getElementById(target.id);
+        if (el) el.scrollIntoView({ block: 'center' });
     }
 
     ////////////////

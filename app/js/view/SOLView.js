@@ -67,7 +67,7 @@ var SOLView = function() {
             str += '<h3>Unknown Data</h3>';
             str +=
                 '<p><strong>Local Shared Object Path:</strong> <code>' +
-                flexData.filePath +
+                util.htmlEntities(flexData.filePath) +
                 '</code><br>';
             str +=
                 '<strong>Tag Size:</strong> <code>' +

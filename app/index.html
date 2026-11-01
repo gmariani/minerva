@@ -306,6 +306,18 @@
     - Fixed error thrown when writing an invalid UTF-8 character
     - Fixed workers not being cleaned up after opening/saving files
     - Removed defunct Universal Analytics tracking
+    - Fixed object references (shared objects) being read as empty values, which broke many files
+    - Objects a file uses in several places can be edited independently; unedited copies are saved as references again
+    - Fixed saving after deleting or renaming a member declared by an object's class (these can no longer be removed)
+    - Fixed saving large files: files over 5 MB failed, and files with many objects were very slow
+    - Fixed saving Flex ArrayCollection, ObjectProxy and SerializationProxy objects
+    - Fixed saving arrays that have both indexed and named entries
+    - Fixed dynamic members of typed objects being dropped on save
+    - Fixed saving changing NaN values, AMF0 date timezones, sparse AMF0 array lengths and Dictionary weak keys
+    - Fixed Boolean true values created in the editor being saved as false
+    - Truncated files now show a clear error, and keep whatever could be read
+    - Fixed text from a file being able to run script in the details pane
+    - Fixed search only matching lowercase text
 
 ####################################################
 4.3.8 - 2023-04-24

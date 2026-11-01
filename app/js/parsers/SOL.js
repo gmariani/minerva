@@ -25,6 +25,14 @@ var SOL = function () {
     var reGT = new RegExp('>', 'g');
     var debug = false;
 
+    // An object the file stores once and references from several places becomes an independent
+    // copy at each place, tagged with an originId so unedited copies can be written as a
+    // reference again (see buildSOLBody in main.js). Only an object that contains itself
+    // can't be copied, so that becomes a Reference node.
+    var origins = null; // reader object -> { id, path } of its first occurrence
+    var ancestors = null; // reader objects being expanded, to detect cycles
+    var nextOriginId = 0;
+
     this.getAMFVersion = function () {
         return amfVersion;
     };
@@ -75,7 +83,36 @@ var SOL = function () {
         return type;
     }
 
-    function getChild(label, data, count) {
+    // Types that live in the AMF object reference table and so can be shared
+    function isReferenceable(type) {
+        switch (type) {
+            case 'Object':
+            case 'Array':
+            case 'ECMAArray':
+            case 'Dictionary':
+            case 'Date':
+            case 'XML':
+            case 'XMLDocument':
+            case 'ByteArray':
+                return true;
+        }
+        return type.indexOf('Vector') === 0;
+    }
+
+    function getReference(label, origin) {
+        return {
+            text: label.replace(reLT, '&lt;').replace(reGT, '&gt;'),
+            icon: 'reference',
+            li_attr: { title: 'Reference to ' + origin.path },
+            data: {
+                __traits: { type: 'Reference', canCreate: false, canEdit: false },
+                value: origin.id,
+                path: origin.path,
+            },
+        };
+    }
+
+    function getChild(label, data, count, parentPath) {
         //if (debug) console.log('getChild(',label,data,count,')');
         if (!data) console.error('No Data!', label);
         var val = data.value;
@@ -83,6 +120,18 @@ var SOL = function () {
         var type = data.__traits.type;
         var val_class;
         var o = {};
+        var path = parentPath ? parentPath + ' › ' + label : label;
+        var origin;
+
+        if (origins && isReferenceable(type)) {
+            origin = origins.get(data);
+            if (origin && ancestors.has(data)) return getReference(label, origin);
+            if (!origin) {
+                origin = { id: nextOriginId++, path: path };
+                origins.set(data, origin);
+            }
+            ancestors.add(data);
+        }
 
         if (type == 'DictionaryItem') {
             val = { Key: data.key, Value: data.value };
@@ -130,7 +179,7 @@ var SOL = function () {
 
         // If complex object, populate children
         if ((type == 'Object' || type == 'ECMAArray' || type == 'Array' || type.indexOf('Vector') === 0 || type == 'Dictionary' || type == 'DictionaryItem') && val) {
-            o.children = getChildren(val, type);
+            o.children = getChildren(val, type, path, type == 'Object' ? data.__traits.members : null);
         }
 
         // Set rollOver title to data type
@@ -140,12 +189,14 @@ var SOL = function () {
         if (type == 'Object') o.li_attr.title += ' : ' + val_class;
 
         o.data = {};
-        o.data.__traits = {};
+        // Keep what the reader recorded (e.g. Dictionary weakKeys, Date timezone) so it's written back
+        o.data.__traits = Object.assign({}, data.__traits);
         //o.data.title = type;
 
         // Get traits of Object
+        // Copied per node: the reader shares one traits object between all objects of a class
         if (type == 'Object') {
-            o.data.__traits = data.__traits;
+            o.data.__traits = Object.assign({}, data.__traits);
             o.data.__traits.class = val_class;
             o.data.__traits.canRename = true;
             val = {};
@@ -154,7 +205,7 @@ var SOL = function () {
         // Extract class type for Vector
         // Set vector as an indexed only type, dictionary is but user can't change the index
         if (normal_type == 'Vector' /* || type == 'Dictionary'*/) {
-            o.data.__traits = data.__traits;
+            o.data.__traits = Object.assign({}, data.__traits);
             o.data.__traits.canBeIndexed = true;
             val = [];
         }
@@ -217,22 +268,31 @@ var SOL = function () {
 
         o.data.__traits.type = normal_type;
         o.data.value = val;
+        if (origin) {
+            o.data.originId = origin.id;
+            ancestors.delete(data);
+        }
         return o;
     }
 
-    function getChildren(obj, parType) {
+    function getChildren(obj, parType, path, sealedMembers) {
         var arrChildren = [],
             count = 1,
             prop,
             o;
         for (prop in obj) {
-            o = getChild(prop, obj[prop], count++);
+            o = getChild(prop, obj[prop], count++, path);
             // Since these items have special name or indices, they cannot be renamed
             if (parType.indexOf('Vector') === 0 || parType == 'DictionaryItem') {
                 o.data.__traits.canRename = false;
             }
             if (parType == 'Array' || parType == 'ECMAArray') {
                 o.data.__traits.canRename = true;
+            }
+            // Members declared by the class always exist in AS3, so they can't be removed or renamed
+            if (sealedMembers && sealedMembers.indexOf(prop) != -1) {
+                o.data.__traits.canRename = false;
+                o.data.__traits.canDelete = false;
             }
             // DictionaryItem is not a real type and cannot contain any more children
             // Can't edit the dictionary item children since they don't really exist in AS3
@@ -397,6 +457,9 @@ var SOL = function () {
 
     this.obj2Tree = function (data) {
         amfVersion = data.header.amfVersion;
+        origins = new Map();
+        ancestors = new Set();
+        nextOriginId = 0;
 
         var json = {
             text: data.fileName,
@@ -419,6 +482,7 @@ var SOL = function () {
                 title: data.header.fileName + ' : AMF' + data.header.amfVersion,
             },
         };
+        origins = ancestors = null;
         return json;
     };
 
@@ -436,7 +500,13 @@ var SOL = function () {
             }
             if (e.data.type == 'alert') {
                 if (debug) console.warn(e.data.message);
-                Alert.show(e.data.message, Alert.WARNING);
+                Alert.show(util.htmlEntities(e.data.message), Alert.WARNING);
+                return;
+            }
+            if (e.data.type == 'error') {
+                worker.terminate();
+                Alert.show('Error reading file: ' + util.htmlEntities(e.data.message), Alert.ERROR);
+                onComplete({ text: 'Error reading file', icon: 'error' }, file);
                 return;
             }
 

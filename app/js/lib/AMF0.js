@@ -38,6 +38,7 @@ var AMF0;
 
         // The actual object cache used to store references
         this.readObjectCache = [];
+        this.writeObjectCache = new Map();
 
         // The raw binary data
         this._rawData;
@@ -90,6 +91,7 @@ var AMF0;
 
         reset: function () {
             this.readObjectCache = [];
+            this.writeObjectCache = new Map();
 
             if (this._amf3 != null) this._amf3.reset();
         },
@@ -180,6 +182,10 @@ var AMF0;
                 amf3.writeData(ba, value);
             }*/
             trace('writeData ' + type, node.value);
+
+            // Writers register the current node as an object reference before writing any
+            // children, so this only has to be correct until then
+            this._writeNode = node;
             switch (type) {
                 case 'Undefined':
                     this.writeUndefined(ba);
@@ -192,7 +198,7 @@ var AMF0;
                     break;
                 case 'Integer': // Fall through for the editor guessing data types
                 case 'Number':
-                    this.writeNumber(ba, node.value);
+                    this.writeNumber(ba, node.value, node.__traits);
                     break;
                 case 'String':
                     /*if(node.value == "__unsupported") {
@@ -205,13 +211,13 @@ var AMF0;
                     this.writeLongString(ba, node.value);
                     break;
                 case 'Date':
-                    this.writeDate(ba, node.value);
+                    this.writeDate(ba, node.value, node.__traits);
                     break;
                 case 'Array':
                     this.writeArray(ba, node.value);
                     break; // TODO: Could not generate a demo to test
                 case 'ECMAArray':
-                    this.writeECMAArray(ba, node.value);
+                    this.writeECMAArray(ba, node.value, node.__traits);
                     break;
                 case 'Object':
                     if (node.__traits.class == 'Object') {
@@ -229,21 +235,23 @@ var AMF0;
         },
 
         readNumber: function (ba) {
-            return {
+            var node = {
                 value: ba.readDouble(),
                 __traits: {
                     type: 'Number',
                 },
             };
+            if (isNaN(node.value)) node.__traits.nanBytes = ba.readNaNBytes();
+            return node;
         },
 
         /**
          * writeNumber writes the number code (0x00) and the numeric data to the output stream
          * All numbers passed through remoting are floats.
          */
-        writeNumber: function (ba, value) {
+        writeNumber: function (ba, value, traits) {
             ba.writeByte(this.NUMBER_TYPE);
-            ba.writeDouble(value);
+            ba.writeDoubleOrNaNBytes(value, traits && traits.nanBytes);
         },
 
         readBoolean: function (ba) {
@@ -289,11 +297,21 @@ var AMF0;
 
         readObject: function (ba, internal) {
             var obj = {},
-                varName = ba.readUTF(),
-                type = ba.readByte(),
-                val;
+                val = {
+                    value: obj,
+                    __traits: {
+                        type: 'Object',
+                    },
+                },
+                varName,
+                type;
+
+            // Register before reading members, which may reference this object
+            if (!internal) this.readObjectCache.push(val);
 
             // 0x00 0x00 (varname) 0x09 (end object type)
+            varName = ba.readUTF();
+            type = ba.readByte();
             while (varName.length > 0 && type != this.OBJECT_END_TYPE) {
                 obj[varName] = this.readData(ba, type);
                 varName = ba.readUTF();
@@ -301,13 +319,6 @@ var AMF0;
             }
             if (internal) return obj;
 
-            val = {
-                value: obj,
-                __traits: {
-                    type: 'Object',
-                },
-            };
-            this.readObjectCache.push(val);
             return val;
         },
 
@@ -363,9 +374,20 @@ var AMF0;
         readECMAArray: function (ba) {
             var arr = {},
                 l = ba.readUnsignedInt(),
-                varName = ba.readUTF(),
-                type = ba.readByte(),
-                val;
+                val = {
+                    value: arr,
+                    __traits: {
+                        type: 'ECMAArray',
+                        length: l,
+                    },
+                },
+                varName,
+                type;
+
+            // Register before reading members, which may reference this array
+            this.readObjectCache.push(val);
+            varName = ba.readUTF();
+            type = ba.readByte();
 
             // 0x00 0x00 (varname) 0x09 (end object type)
             while (varName.length > 0 && type != this.OBJECT_END_TYPE) {
@@ -374,27 +396,28 @@ var AMF0;
                 type = ba.readByte();
             }
 
-            val = {
-                value: arr,
-                __traits: {
-                    type: 'ECMAArray',
-                },
-            };
-            this.readObjectCache.push(val);
             return val;
         },
 
-        writeECMAArray: function (ba, value) {
+        writeECMAArray: function (ba, value, traits) {
             trace('writeECMAArray');
             if (this.setObjectReference(ba, value)) {
                 var l = 0,
+                    maxIndex = -1,
                     key;
                 ba.writeByte(this.ECMA_ARRAY_TYPE);
 
                 // Count only indexes, not prop names
                 for (key in value) {
-                    if (!isNaN(key)) l++;
+                    if (!isNaN(key)) {
+                        l++;
+                        maxIndex = Math.max(maxIndex, Number(key));
+                    }
                 }
+
+                // Flash writes the array's length, which for a sparse array is more than its
+                // index count, so keep the length it was read with
+                if (traits && traits.length != null) l = Math.max(traits.length, maxIndex + 1);
                 ba.writeUnsignedInt(l);
 
                 for (key in value) {
@@ -413,19 +436,20 @@ var AMF0;
             var l = ba.readUnsignedInt(),
                 arr = new Array(l),
                 i,
-                val;
+                val = {
+                    value: arr,
+                    __traits: {
+                        type: 'Array',
+                        strict: true,
+                    },
+                };
+
+            // Register before reading elements, which may reference this array
+            this.readObjectCache.push(val);
             for (i = 0; i < l; ++i) {
                 arr[i] = this.readData(ba);
             }
 
-            val = {
-                value: arr,
-                __traits: {
-                    type: 'Array',
-                    strict: true,
-                },
-            };
-            this.readObjectCache.push(val);
             return val;
         },
 
@@ -454,6 +478,7 @@ var AMF0;
             timezones.
             */
             var timezone = ba.readShort(); // reserved, not supported. should be set to 0x0000
+            var rawTimezone = timezone;
             if (timezone > 720) timezone = -(65536 - timezone);
             timezone *= -60;
 
@@ -462,6 +487,7 @@ var AMF0;
                 __traits: {
                     type: 'Date',
                     timezone: timezone,
+                    rawTimezone: rawTimezone,
                 },
             };
         },
@@ -469,14 +495,15 @@ var AMF0;
         /**
          * writeData writes the date code (0x0B) and the date value to the output stream
          */
-        writeDate: function (ba, value) {
+        writeDate: function (ba, value, traits) {
             ba.writeByte(this.DATE_TYPE);
 
             // Convert numbers to dates
             if (!(value instanceof Date)) value = new Date(value);
 
             ba.writeDouble(value.getTime()); // write date (milliseconds from 1970)
-            ba.writeShort(value.getTimezoneOffset()); // Apparenlty this is used according to Flash CS5
+            // Keep the timezone the file was saved with; new dates get this machine's, as Flash CS5 does
+            ba.writeShort(traits && traits.rawTimezone != null ? traits.rawTimezone : value.getTimezoneOffset());
             //ba.writeShort(0); // timezone reserved, not supported. should be set to 0x0000
         },
 
@@ -514,36 +541,34 @@ var AMF0;
          * @param string $d The XML string
          */
         writeXML: function (ba, value) {
-            if (this.setObjectReference(ba, value)) {
-                ba.writeByte(this.XML_OBJECT_TYPE);
-                var strXML = value.toString();
-                strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
-                //strXML = strXML.replace(/\>(\n|\r|\r\n| |\t)*\</g, "><"); // Strip whitespaces, not done by native encoder
-                ba.writeUnsignedInt(strXML.length);
-                ba.writeUTFBytes(strXML);
-            }
+            ba.writeByte(this.XML_OBJECT_TYPE);
+            var strXML = value.toString();
+            strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
+            //strXML = strXML.replace(/\>(\n|\r|\r\n| |\t)*\</g, "><"); // Strip whitespaces, not done by native encoder
+            ba.writeUnsignedInt(strXML.length);
+            ba.writeUTFBytes(strXML);
         },
 
         readTypedObject: function (ba) {
             var className = ba.readUTF(),
-                obj,
-                val;
+                val = {
+                    value: {},
+                    __traits: {
+                        type: 'Object',
+                        class: className,
+                    },
+                };
+
+            // Register before reading members, which may reference this object
+            this.readObjectCache.push(val);
             try {
-                obj = this.readObject(ba, true);
+                val.value = this.readObject(ba, true);
             } catch (e) {
                 ERROR('AMF0::readTypedObject - Error : Cannot parse custom class');
             }
             trace('readTypedObject');
-            trace(obj);
+            trace(val.value);
             trace(className);
-            val = {
-                value: obj,
-                __traits: {
-                    type: 'Object',
-                    class: className,
-                },
-            };
-            this.readObjectCache.push(val);
             return val;
         },
 
@@ -568,40 +593,18 @@ var AMF0;
             return this.readObjectCache[ref];
         },
 
-        setObjectReference: function (/*ba, o*/) {
-            // Disabled for issue #71
-            // Now correctly writes and reads references which wasn't working before
-            // But it's not writing them in the correct order, then upon reading
-            // some references aren't available in time and breaks. Just disabling for now.
-            return true;
-
-            /*var refNum;
-            var json = JSON.stringify(o);
-            trace(
-                'setObjectReference is cached?',
-                this.writeObjectCache,
-                json,
-                this.writeObjectCache
-                    ? this.writeObjectCache.indexOf(json)
-                    : 'not yet'
-            );
-            //
-            if (
-                this.writeObjectCache != null &&
-                (refNum = this.writeObjectCache.indexOf(json)) != -1
-            ) {
-                trace('setObjectReference', o, refNum);
+        // Objects are matched by identity: the node being written (see writeData), so shared
+        // objects in the editor tree are written once and referenced afterwards
+        setObjectReference: function (ba) {
+            var node = this._writeNode;
+            var refNum = this.writeObjectCache.get(node);
+            if (refNum !== undefined) {
                 ba.writeByte(this.REFERENCE_TYPE);
-                //this.writeUnsignedShort(ba, refNum);
-                ba.writeUnsignedShort(refNum, false);
+                ba.writeUnsignedShort(refNum);
                 return false;
-            } else {
-                if (this.writeObjectCache == null) this.writeObjectCache = [];
-                if (this.writeObjectCache.length < this.MAX_STORED_OBJECTS) {
-                    this.writeObjectCache.push(json);
-                }
-                return true;
-            }*/
+            }
+            this.writeObjectCache.set(node, this.writeObjectCache.size);
+            return true;
         },
 
         writeUnsignedShort: function (ba, value) {

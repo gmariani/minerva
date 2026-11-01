@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { debug } from '../util.js';
+import { debug, util } from '../util.js';
 
 var ObjectView = function() {
     /////////////////
@@ -24,7 +24,7 @@ var ObjectView = function() {
         if (node.data.__traits.hasOwnProperty('class'))
             str +=
                 '<p><strong>Class:</strong> <code>' +
-                node.data.__traits.class +
+                util.htmlEntities(node.data.__traits.class) +
                 '</code></p>';
         // AMF3 and up
         if (node.data.__traits.hasOwnProperty('dynamic')) {
@@ -61,7 +61,7 @@ var ObjectView = function() {
         if (node.data.__traits.hasOwnProperty('members'))
             str +=
                 '<p><strong>Members:</strong> <code>' +
-                JSON.stringify(node.data.__traits.members, null, '\t') +
+                util.htmlEntities(JSON.stringify(node.data.__traits.members, null, '\t')) +
                 '</code></p>';
         // Don't display JSON until we can verify the child nodes are editing the same object as parent
         // Otherwise, the data displayed here is not updated when a child is updated

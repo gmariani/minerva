@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { debug } from '../util.js';
+import { debug, util } from '../util.js';
 
 var DictionaryItemView = function() {
     /////////////////
@@ -25,7 +25,7 @@ var DictionaryItemView = function() {
         str +=
             '<p><strong>Key:</strong> ' +
             key.type +
-            (key.class ? ' : ' + key.class : '') +
+            (key.class ? ' : ' + util.htmlEntities(key.class) : '') +
             '</p>';
         str += '<p><strong>Value:</strong> ' + val.type + '</p>';
 

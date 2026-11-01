@@ -354,6 +354,22 @@ a.disabled {
 .jstree-icon.xml:before {
     content: 'x';
 }
+.jstree-icon.reference {
+    border-radius: 50px;
+    width: 16px !important;
+    height: 16px !important;
+    margin: 4px;
+    background-color: #9a9a9a;
+}
+.jstree-icon.reference:before {
+    content: '\2192';
+    font-style: normal;
+    line-height: 14px;
+    margin: 0;
+    padding: 0;
+    display: block;
+    font-size: 14px;
+}
 
 /***** Body Details *****/
 #details > nav {

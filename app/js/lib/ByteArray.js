@@ -26,8 +26,8 @@ var ByteArray;
     ByteArray = function(data, endian) {
         var t = this;
         if (data == undefined) {
-            data = new ArrayBuffer(1024 * 1024 * 5); // 5 mb max size
-            t.length = 0; // we track this since the arraybuffer is 5mb
+            data = new ArrayBuffer(64 * 1024); // grows as needed, see ensureCapacity
+            t.length = 0; // we track this since the arraybuffer is larger than the data
         } else {
             t.length = data.byteLength;
         }
@@ -54,7 +54,6 @@ var ByteArray;
             writeByte: 'writeSI8',
             writeShort: 'writeSI16',
             writeInt: 'writeSI32',
-            writeBoolean: 'writeUI8',
         };
         for (var func in funcMap) {
             t[func] = t[funcMap[func]];
@@ -70,6 +69,13 @@ var ByteArray;
             new Int8Array(buffer).set(new Int8Array(this._buffer));
             this._buffer = buffer;
             this._dataview = new DataView(buffer);
+        },
+
+        // Makes room to write numBytes at the current position
+        ensureCapacity: function(numBytes) {
+            var needed = this.position + numBytes;
+            if (needed <= this._buffer.byteLength) return;
+            this.resizeBuffer(Math.max(needed, this._buffer.byteLength * 2));
         },
 
         getBytesAvailable: function() {
@@ -171,6 +177,7 @@ var ByteArray;
         },
 
         writeSI8: function(value) {
+            this.ensureCapacity(1);
             var val = this._dataview.setInt8(this.position, parseInt(value));
             this.position += 1;
             this.length += 1;
@@ -186,6 +193,7 @@ var ByteArray;
         },
 
         writeSI16: function(value, bigEnd) {
+            this.ensureCapacity(2);
             var val = this._dataview.setInt16(this.position, value, bigEnd);
             this.position += 2;
             this.length += 2;
@@ -201,6 +209,7 @@ var ByteArray;
         },
 
         writeSI32: function(value, bigEnd) {
+            this.ensureCapacity(4);
             var val = this._dataview.setInt32(this.position, value, bigEnd);
             this.position += 4;
             this.length += 4;
@@ -215,7 +224,13 @@ var ByteArray;
             return val;
         },
 
+        // writeUI8 parses its value, which turns true into NaN (written as 0)
+        writeBoolean: function(value) {
+            return this.writeUI8(value ? 1 : 0);
+        },
+
         writeUI8: function(value) {
+            this.ensureCapacity(1);
             var val = this._dataview.setUint8(this.position, parseInt(value));
             this.position += 1;
             this.length += 1;
@@ -231,6 +246,7 @@ var ByteArray;
         },
 
         writeUI16: function(value, bigEnd) {
+            this.ensureCapacity(2);
             var val = this._dataview.setUint16(this.position, value, bigEnd);
             this.position += 2;
             this.length += 2;
@@ -254,6 +270,7 @@ var ByteArray;
         },
 
         writeUI32: function(value, bigEnd) {
+            this.ensureCapacity(4);
             var val = this._dataview.setUint32(this.position, value, bigEnd);
             this.position += 4;
             this.length += 4;
@@ -296,6 +313,7 @@ var ByteArray;
         },
 
         writeFloat: function(value, bigEnd) {
+            this.ensureCapacity(4);
             var val = this._dataview.setFloat32(this.position, value, bigEnd);
             this.position += 4;
             this.length += 4;
@@ -312,11 +330,29 @@ var ByteArray;
         },
 
         writeDouble: function(value, bigEnd) {
+            this.ensureCapacity(8);
             var val = this._dataview.setFloat64(this.position, value, bigEnd);
             this.position += 8;
             this.length += 8;
             this.align();
             return val;
+        },
+
+        // NaN payload bits don't survive as a JS number, so AMF keeps the raw bytes of a NaN
+        // double to write it back unchanged
+        readNaNBytes: function() {
+            var bytes = [];
+            for (var i = 8; i > 0; i--) bytes.push(this._dataview.getUint8(this.position - i));
+            return bytes;
+        },
+
+        // Writes a double, reusing the raw bytes it was read from if it's still NaN
+        writeDoubleOrNaNBytes: function(value, nanBytes) {
+            if (nanBytes && isNaN(value)) {
+                for (var i = 0; i < 8; i++) this.writeByte(nanBytes[i]);
+            } else {
+                this.writeDouble(value);
+            }
         },
 
         /////////////////////////////////////////////////////////
@@ -535,10 +571,8 @@ var ByteArray;
         },
 
         writeUTFBytes: function(value) {
-            var chars = value.split(''),
-                l = value.length;
-            while (l--) {
-                this.writeUTFChar(chars.shift());
+            for (var i = 0, l = value.length; i < l; i++) {
+                this.writeUTFChar(value.charAt(i));
             }
         },
 

@@ -110,9 +110,9 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         this.readStringCache = [];
         this.readTraitsCache = [];
 
-        this.writeStringCache = [];
-        this.writeObjectCache = [];
-        this.writeTraitsCache = [];
+        this.writeStringCache = new Map();
+        this.writeObjectCache = new Map();
+        this.writeTraitsCache = new Map();
 
         //--------------------------------------
         //  Constructor
@@ -154,6 +154,9 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         INT28_MIN_VALUE: -268435456,
 
         EMPTY_STRING: '',
+
+        // Member that holds the data of an externalizable class we can't decode
+        EXTERNALIZED_KEY: '??? Warning: Externalized ???',
 
         /**
          * Internal use only.
@@ -225,9 +228,11 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             this.readStringCache = [];
             this.readTraitsCache = [];
 
-            this.writeStringCache = [];
-            this.writeObjectCache = [];
-            this.writeTraitsCache = [];
+            // Value -> index in the reference table; Maps keep lookups fast in files with
+            // tens of thousands of objects
+            this.writeStringCache = new Map();
+            this.writeObjectCache = new Map();
+            this.writeTraitsCache = new Map();
         },
 
         readData: function (ba, internal) {
@@ -280,6 +285,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             var type = node.__traits.type;
             if (node.__traits.hasOwnProperty('origType')) type = node.__traits.origType;
             //trace('writeData', type, node);
+
+            // Writers register the current node as an object reference before writing any
+            // children, so this only has to be correct until then
+            this._writeNode = node;
             switch (type) {
                 case 'Undefined':
                     this.writeUndefined(ba);
@@ -297,7 +306,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     this.writeInt(ba, node.value);
                     break;
                 case 'Number':
-                    this.writeDouble(ba, node.value);
+                    this.writeDouble(ba, node.value, node.__traits);
                     break;
                 case 'String':
                     ba.writeByte(this.STRING_TYPE);
@@ -510,12 +519,14 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
          * @param	value
          */
         readDouble: function (ba) {
-            return { value: ba.readDouble(), __traits: { type: 'Number' } };
+            var node = { value: ba.readDouble(), __traits: { type: 'Number' } };
+            if (isNaN(node.value)) node.__traits.nanBytes = ba.readNaNBytes();
+            return node;
         },
 
-        writeDouble: function (ba, value) {
+        writeDouble: function (ba, value, traits) {
             ba.writeByte(this.DOUBLE_TYPE);
-            ba.writeDouble(value);
+            ba.writeDoubleOrNaNBytes(value, traits && traits.nanBytes);
         },
 
         /**
@@ -560,7 +571,8 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 ba.writeByte(0x01);
             } else {
                 // Get actual byte length, sometimes foreign languages require more bytes
-                var b = new ByteArray();
+                var b = this._lengthBuffer || (this._lengthBuffer = new ByteArray());
+                b.position = b.length = 0;
                 b.writeUTFBytes(value);
                 var len = b.length;
 
@@ -696,6 +708,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             var l = ref >> 1;
             var arr = new Array(l);
             var isStrict = true;
+            var val = {
+                value: arr,
+                __traits: { type: 'Array', strict: isStrict },
+            };
+
+            // Register before reading children, which may reference this array
+            this.readObjectCache.push(val);
 
             // Associative values
             var strKey = this.readString(ba).value;
@@ -710,75 +729,37 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 arr[i] = this.readData(ba);
             }
 
-            var val = {
-                value: arr,
-                __traits: { type: 'Array', strict: isStrict },
-            };
-            this.readObjectCache.push(val);
+            val.__traits.strict = isStrict;
 
             return val;
         },
 
         writeArray: function (ba, value) {
-            var arrNumeric = [], // holder to store the numeric keys
-                objString = {}, // holder to store the string keys
-                l = value.length, // get the total number of entries for the array
-                numElements = 0,
+            var denseLength = 0,
                 key,
-                i,
-                isSparse = false,
-                isAssociative = false,
-                // Find the numeric and string key values
-                strLen = 0;
-            for (key in value) {
-                numElements++;
-                if (!isNaN(key) && key >= 0) {
-                    // make sure the keys are numeric
-                    arrNumeric[key] = value[key]; // The key is an index in an array
-                } else {
-                    objString[key] = value[key]; // The key is a property of an object
-                    strLen++;
-                }
-            }
+                i;
 
-            // Sparse arrays will have a different number of actual items but length reports different
-            isSparse = Boolean(numElements < l);
-            isAssociative = Boolean(strLen > 0);
+            // Like Flash, the dense portion is the run of indices from 0 up to the first gap;
+            // every other key (names and indices past a gap) goes in the associative portion
+            while (Object.prototype.hasOwnProperty.call(value, denseLength)) denseLength++;
 
             // Array tag
             ba.writeByte(this.ARRAY_TYPE);
 
             if (this.setObjectReference(ba, value)) {
-                // This is a mixed array
-                if (isAssociative || isSparse) {
-                    // Dynamic object, no classname to write
-                    this.writeUInt29(ba, (0 << 1) | 1);
+                this.writeUInt29(ba, (denseLength << 1) | 1);
 
-                    for (key in value) {
-                        this.writeString(ba, key);
-                        this.writeData(ba, value[key]);
-                    }
-
-                    // Since this is a dynamic object, add closing tag
-                    this.writeString(ba, this.EMPTY_STRING);
+                for (key in value) {
+                    if (/^\d+$/.test(key) && Number(key) < denseLength) continue;
+                    this.writeString(ba, key);
+                    this.writeData(ba, value[key]);
                 }
 
-                // This is just an array
-                else {
-                    var numLen = arrNumeric.length;
-                    this.writeUInt29(ba, (numLen << 1) | 1);
+                // End of associative portion
+                this.writeString(ba, this.EMPTY_STRING);
 
-                    for (key in objString) {
-                        this.writeString(ba, key);
-                        this.writeData(ba, objString[key]);
-                    }
-
-                    // End start hash
-                    this.writeString(ba, this.EMPTY_STRING);
-
-                    for (i = 0; i < numLen; i++) {
-                        this.writeData(ba, arrNumeric[i]);
-                    }
+                for (i = 0; i < denseLength; i++) {
+                    this.writeData(ba, value[i]);
                 }
             }
         },
@@ -874,6 +855,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             if (aliasedClass != null) traits.class = aliasedClass;
             //trace('Object Traits', traits);
             var obj = {};
+            var val = { __traits: traits, value: obj };
 
             // Add to references as circular references may search for this
             // object
@@ -894,7 +876,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                         }
                         // We will attempt to read it as an object or die trying...
                     } else {
-                        obj['??? Warning: Externalized ???'] = this.readData(ba);
+                        obj[this.EXTERNALIZED_KEY] = this.readData(ba);
                         ALERT(
                             'Externalized object (' +
                                 traits.class +
@@ -903,7 +885,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     }
                 } catch (e) {
                     ALERT("Unable to read externalizable data type '" + traits.class + "'  |  " + e);
-                    obj['??? Warning: Externalized ???'] = {
+                    obj[this.EXTERNALIZED_KEY] = {
                         value: "Unable to read externalizable data type '" + traits.class + "'",
                         __type: 'String',
                     };
@@ -913,9 +895,8 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 var key;
 
                 for (var j = 0; j < l; ++j) {
-                    val = this.readData(ba);
                     key = traits.members[j];
-                    obj[key] = val;
+                    obj[key] = this.readData(ba);
                 }
 
                 if (traits.dynamic) {
@@ -928,8 +909,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 }
             }
 
-            var val = {};
-            val.__traits = traits;
+            // Externalizable readers may have replaced obj
             val.value = obj;
 
             // For use in a different function
@@ -941,6 +921,9 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         writeObject: function (ba, value, traits) {
             // Write the object tag
             ba.writeByte(this.OBJECT_TYPE);
+
+            // A previously written object is sent as a reference alone, without traits
+            if (!this.setObjectReference(ba, value)) return;
 
             var v2;
 
@@ -978,22 +961,29 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                         } else {
                             this.writeData(ba, value);
                         }
+                    } else {
+                        // Unknown externalizable classes are read as a single value (see readObject)
+                        this.writeData(ba, value[this.EXTERNALIZED_KEY]);
                     }
                 } catch (e) {
                     throw Error("AMF3::writeObject - Error : Unable to write externalizable data type '" + traits.class + "' | " + e);
                 }
             } else {
-                if (this.setObjectReference(ba, value)) {
-                    //} else if (traits.count > 0) {
-                    if (traits.class != 'Object' || traits.dynamic == false) {
-                        for (v2 in traits.members) {
-                            this.writeData(ba, value[traits.members[v2]]);
-                        }
+                // Sealed members by position, then (for dynamic classes) everything else by name
+                for (v2 in traits.members) {
+                    var member = value[traits.members[v2]];
+                    if (member) {
+                        this.writeData(ba, member);
                     } else {
-                        for (v2 in value) {
-                            this.writeString(ba, v2);
-                            this.writeData(ba, value[v2]);
-                        }
+                        // Every sealed member has to be written; a missing one becomes undefined
+                        this.writeUndefined(ba);
+                    }
+                }
+                if (traits.dynamic) {
+                    for (v2 in value) {
+                        if (traits.members.indexOf(v2) != -1) continue;
+                        this.writeString(ba, v2);
+                        this.writeData(ba, value[v2]);
                     }
                 }
 
@@ -1190,6 +1180,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     value: ba.readDouble(),
                     __traits: { type: 'Number' },
                 };
+                if (isNaN(vect[i].value)) vect[i].__traits.nanBytes = ba.readNaNBytes();
             }
 
             var traits = {
@@ -1209,7 +1200,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 this.writeUInt29(ba, (value.length << 1) | 1);
                 ba.writeBoolean(traits.fixed ? 1 : 0); // Fixed Length?
                 for (var i = 0, l = value.length; i < l; i++) {
-                    ba.writeDouble(value[i].value);
+                    ba.writeDoubleOrNaNBytes(value[i].value, value[i].__traits.nanBytes);
                 }
             }
         },
@@ -1243,13 +1234,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             var aliasedClass = this.CLASS_ALIAS_REGISTRY[traits.class];
             if (aliasedClass != null) traits.class = aliasedClass;
 
-            // Store traits somewhere
+            var val = { value: vect, __traits: traits };
+            this.readObjectCache.push(val);
+
             for (var j = 0; j < l; j++) {
                 vect[j] = this.readData(ba);
             }
 
-            var val = { value: vect, __traits: traits };
-            this.readObjectCache.push(val);
             return val;
         },
 
@@ -1293,6 +1284,12 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             var dict = new Array(l);
 
             var hasWeakKeys = Boolean(ba.readBoolean());
+            var val = {
+                value: dict,
+                __traits: { weakKeys: hasWeakKeys, type: 'Dictionary' },
+            };
+            this.readObjectCache.push(val);
+
             for (var i = 0; i < l; i++) {
                 dict[i] = {
                     key: this.readData(ba),
@@ -1301,11 +1298,6 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 };
             }
 
-            var val = {
-                value: dict,
-                __traits: { weakKeys: hasWeakKeys, type: 'Dictionary' },
-            };
-            this.readObjectCache.push(dict);
             return val;
         },
 
@@ -1339,17 +1331,13 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         },
 
         setStringReference: function (ba, s) {
-            var refNum;
-            if (this.writeStringCache != null && (refNum = this.writeStringCache.indexOf(s)) != -1) {
+            var refNum = this.writeStringCache.get(s);
+            if (refNum !== undefined) {
                 this.writeUInt29(ba, refNum << 1);
                 return false;
-            } else {
-                if (this.writeStringCache == null) this.writeStringCache = new Array();
-                // 64 limit copied from BlazeDS, not Adobe spec
-                //if (this.writeStringCache.length < 64) this.writeStringCache.push(s);
-                this.writeStringCache.push(s);
-                return true;
             }
+            this.writeStringCache.set(s, this.writeStringCache.size);
+            return true;
         },
 
         /////////////////////
@@ -1368,18 +1356,15 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         },
 
         setTraitReference: function (ba, traits) {
-            var refNum,
-                json = JSON.stringify(traits); // Convert to JSON to make comparison easy
-            if (this.writeTraitsCache != null && (refNum = this.writeTraitsCache.indexOf(json)) != -1) {
+            // Only what's written to the file identifies traits (not editor flags)
+            var json = JSON.stringify([traits.class, traits.members, traits.dynamic, traits.externalizable, traits.count]),
+                refNum = this.writeTraitsCache.get(json);
+            if (refNum !== undefined) {
                 this.writeUInt29(ba, (refNum << 2) | 1);
                 return false;
-            } else {
-                if (this.writeTraitsCache == null) this.writeTraitsCache = [];
-                // 10 limit copied from BlazeDS, not Adobe spec
-                //if (this.writeTraitsCache.length < 10) this.writeTraitsCache.push(json);
-                this.writeTraitsCache.push(json);
-                return true;
             }
+            this.writeTraitsCache.set(json, this.writeTraitsCache.size);
+            return true;
         },
 
         //////////////////////
@@ -1397,54 +1382,17 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             return this.readObjectCache[ref];
         },
 
-        setObjectReference: function (ba, o) {
-            var refNum;
-
-            // Clean object and return it to a normal AS3 object
-            // TODO: Create a hash of the object and store that instead
-            // https://github.com/apache/flex-blazeds/blob/master/core/src/main/java/flex/messaging/io/amf/Amf3Output.java
-            /*
-            if (objectTable == null)
-                objectTable = new IdentityHashMap<Object, Integer>(64);
-            objectTable.put(o, Integer.valueOf(objectTable.size()));
-            */
-            var oClean = this.cleanObject(o, {});
-
-            //var json = JSON.stringify(oClean);
-            //if (this.writeObjectCache != null && (refNum = this.writeObjectCache.indexOf(json)) != -1) {
-            if (this.writeObjectCache != null && (refNum = this.cacheIndexOf(this.writeObjectCache, oClean)) != -1) {
+        // Objects are matched by identity: the node being written (see writeData), so shared
+        // objects in the editor tree are written once and referenced afterwards
+        setObjectReference: function (ba) {
+            var node = this._writeNode;
+            var refNum = this.writeObjectCache.get(node);
+            if (refNum !== undefined) {
                 this.writeUInt29(ba, refNum << 1);
                 return false;
-            } else {
-                if (this.writeObjectCache == null) this.writeObjectCache = [];
-                // 64 limit copied from BlazeDS, not Adobe spec
-                //if (this.writeObjectCache.length < 64) this.writeObjectCache.push(json);
-                this.writeObjectCache.push(oClean);
-                //this.writeObjectCache.push(json);
-                return true;
             }
-        },
-
-        cacheIndexOf: function (arr, o) {
-            for (var i = 0, l = arr.length; i < l; i++) {
-                //trace(arr[i], o, arr[i] === o);
-                if (arr[i] === o) return i;
-            }
-            return -1;
-        },
-
-        cleanObject: function (dirtyObj, cleanObj) {
-            for (var key in dirtyObj) {
-                var val = dirtyObj[key].value;
-                if (typeof val == 'string' || typeof val == 'number' || typeof val == 'boolean') {
-                    cleanObj[key] = val;
-                } else if (Array.isArray(val)) {
-                    cleanObj[key] = this.cleanObject(dirtyObj[key].value, []);
-                } else {
-                    cleanObj[key] = this.cleanObject(dirtyObj[key].value, {});
-                }
-            }
-            return cleanObj;
+            this.writeObjectCache.set(node, this.writeObjectCache.size);
+            return true;
         },
     };
 
@@ -1725,6 +1673,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         return this;
     };
 
+    AMF3.Flex.ArrayCollection.prototype.writeExternal = function (ba, parser, value) {
+        parser.writeData(ba, value.source);
+    };
+
     // Array List //
     AMF3.Flex.ArrayList = function () {};
     AMF3.Flex.ArrayList.prototype = new AMF3.Flex.ArrayCollection();
@@ -1738,6 +1690,14 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             this[i] = obj[i];
         }
         return this;
+    };
+
+    // The proxied object's own traits aren't kept when reading, so write it back as an anonymous object
+    AMF3.Flex.ObjectProxy.prototype.writeExternal = function (ba, parser, value) {
+        parser.writeData(ba, {
+            __traits: { type: 'Object', class: 'Object', members: [], count: 0, externalizable: false, dynamic: true },
+            value: value,
+        });
     };
 
     // Managed Object Proxy //
@@ -1775,6 +1735,10 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
         }
 
         return this;
+    };
+
+    AMF3.Flex.SerializationProxy.prototype.writeExternal = function (ba, parser, value) {
+        parser.writeData(ba, value.defaultInstance);
     };
 })();
 

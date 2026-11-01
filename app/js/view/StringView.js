@@ -179,9 +179,8 @@ var StringView = function() {
                     str = decodeURIComponent(str);
                     break;
                 case 'html':
-                    str = $('<div/>')
-                        .html(str)
-                        .text();
+                    // DOMParser doesn't run scripts or event handlers, unlike setting innerHTML
+                    str = new DOMParser().parseFromString(str, 'text/html').documentElement.textContent;
                     break;
                 case 'hex':
                     var str2 = '';
@@ -242,8 +241,12 @@ var StringView = function() {
     }
 
     function isURL(str) {
-        var test = decodeURIComponent(str);
-        return test != str;
+        try {
+            return decodeURIComponent(str) != str;
+        } catch (e) {
+            // A stray '%' isn't valid URL encoding
+            return false;
+        }
     }
 
     ////////////

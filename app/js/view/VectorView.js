@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { debug } from '../util.js';
+import { debug, util } from '../util.js';
 
 var VectorView = function() {
     /////////////////
@@ -16,7 +16,7 @@ var VectorView = function() {
         if (debug) console.log(node.data);
         var str =
             '<p><strong>Class:</strong> <code>' +
-            node.data.__traits.class +
+            util.htmlEntities(node.data.__traits.class) +
             '</code></p>';
         if (node.data.__traits.hasOwnProperty('fixed'))
             str +=
@@ -36,7 +36,7 @@ var VectorView = function() {
         el.children('div').html(str);
         el
             .children('h1')
-            .html('Vector.&lt;' + node.data.__traits.class + '&gt;');
+            .html('Vector.&lt;' + util.htmlEntities(node.data.__traits.class) + '&gt;');
     }
 
     function validate(input /*:Array */) /*:void */ {

@@ -69,14 +69,31 @@ import AMF3 from '../lib/AMF3.js';
             while (ba.getBytesAvailable() > 1 && ba.position < this.header.contentLength) {
                 var varName = '';
                 var varVal;
-                if (this.header.amfVersion == 3) {
-                    varName = amf3.readString(ba).value;
-                    varVal = amf3.readData(ba);
-                } else {
-                    varName = ba.readUTF();
-                    varVal = amf0.readData(ba);
+                try {
+                    if (this.header.amfVersion == 3) {
+                        varName = amf3.readString(ba).value;
+                        varVal = amf3.readData(ba);
+                    } else {
+                        varName = ba.readUTF();
+                        varVal = amf0.readData(ba);
+                    }
+                    ba.readUnsignedByte(); // Ending byte
+                } catch (e) {
+                    // Reading past the end of the data means the file was cut short
+                    if (!(e instanceof RangeError)) throw e;
+                    var where = varName ? ' while reading "' + varName + '"' : '';
+                    if (Object.keys(this.body).length === 0) {
+                        throw new Error('The file ends unexpectedly' + where + '. It is probably truncated or corrupt.');
+                    }
+                    postMessage({
+                        type: 'alert',
+                        message:
+                            'The file ends unexpectedly' +
+                            where +
+                            ', so only the variables before it are shown. It is probably truncated or corrupt; saving it will leave out the rest.',
+                    });
+                    break;
                 }
-                ba.readUnsignedByte(); // Ending byte
                 //trace('variable-- ', varName, varVal, varVal.__traits.type);
                 this.body[varName] = varVal;
             }
@@ -156,7 +173,12 @@ import AMF3 from '../lib/AMF3.js';
         amf0.reset();
         amf3.reset();
 
-        obj = readTags(ba);
+        try {
+            obj = readTags(ba);
+        } catch (e) {
+            postMessage({ type: 'error', message: e.message });
+            return;
+        }
 
         postMessage({ fileID: id, data: obj });
     };
