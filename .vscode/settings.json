@@ -8,7 +8,7 @@
     "nextgenas.sdk.framework": "c:\\Users\\Gabriel\\Documents\\Web Development\\sdks\\AIR 30.0.0.107",
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#ef7853",
-        "activityBar.activeBorder": "#8af4a3",
+        "activityBar.activeBorder": "#15202b",
         "activityBar.background": "#ef7853",
         "activityBar.foreground": "#15202b",
         "activityBar.inactiveForeground": "#15202b99",
@@ -18,13 +18,22 @@
         "statusBar.background": "#eb5424",
         "statusBar.foreground": "#e7e7e7",
         "statusBarItem.hoverBackground": "#ef7853",
-        "statusBarItem.remoteBackground": "#eb5424",
+        "statusBarItem.remoteBackground": "#15ea49",
         "statusBarItem.remoteForeground": "#e7e7e7",
         "titleBar.activeBackground": "#eb5424",
         "titleBar.activeForeground": "#e7e7e7",
         "titleBar.inactiveBackground": "#eb542499",
         "titleBar.inactiveForeground": "#e7e7e799",
-        "commandCenter.border": "#e7e7e799"
+        "commandCenter.border": "#e7e7e799",
+        "activityBarTop.activeBackground": "#ef7853",
+        "activityBarTop.activeBorder": "#15202b",
+        "activityBarTop.background": "#ef7853",
+        "activityBarTop.foreground": "#15202b",
+        "activityBarTop.inactiveForeground": "#15202b99",
+        "commandCenter.foreground": "#e7e7e7",
+        "statusBar.debuggingBackground": "#eb5424",
+        "statusBar.debuggingForeground": "#e7e7e7",
+        "statusBar.inactiveBackground": "#eb5424"
     },
     "peacock.color": "#eb5424"
 }
