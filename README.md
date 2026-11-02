@@ -2,6 +2,34 @@
 
 **.minerva** is capable of reading and writing all known data types successfully.
 
+## License
+
+Available under your choice of the ISC, MIT or Apache 2.0 license (`ISC OR MIT OR Apache-2.0`). See [LICENSE.md](LICENSE.md), which also lists the third-party material that keeps its own terms.
+
+## JSON export
+
+Exports use [superjson](https://github.com/flightcontrolhq/superjson)'s layout: the values as plain JSON under `json`, and their AMF types under `meta.values`, keyed by path. Values without an entry get a guessed type on import, so hand-added values work, and plain JSON (without `json`/`meta`) can be imported too. See `app/src/model/typedJSON.ts` for the details.
+
+## Scripting
+
+With a file open, the browser console has a `minerva` object for reading and changing values, importing/exporting JSON and opening/saving files. Run `minerva.help()` for the commands.
+
+## Sample files
+
+`SOL Samples/` holds the files used to test reading and writing. Most of them were collected for .minerva; [Ruffle](https://github.com/ruffle-rs/ruffle)'s [flash-lso](https://github.com/ruffle-rs/rust-flash-lso) crate uses them in its own tests ([credited here](https://github.com/ruffle-rs/rust-flash-lso/blob/88b315f1712ca6816b5834b81506b84cf9ecff8f/flash-lso/tests/README.md)).
+
+These come from flash-lso's test suite (MIT License, Copyright (c) 2020 Callum Thomson):
+
+- `AS2-ECMAArray-Demo2.sol`, `AS2-half-life-2-flash.sol`, `fishtycoon.sol`, `Johngame5.sol`, `mainprofile.sol`, `self-referential.sol`
+- `AMF3-*.sol`: flash-lso's single-value AMF3 tests (`tests/amf/*.amf`), each wrapped in an AMF3 SOL file as the variable `v`. `AMF3-externalizable-object-back-reference.sol` is expected to open with a warning: it uses a made-up externalizable class whose data can't be decoded.
+
+`Test-*.sol` were built with .minerva to cover cases the real files don't. A separate reader written from the specs checked them, and the code before these fixes misreads all three:
+
+- `Test-AMF3-Strings.sol` and `Test-AMF0-Strings.sol`: emoji and other characters above U+FFFF (in values and names), CJK text, pretty-printed XML and XMLDocument, and strings past 64 KB in bytes but not in characters. The AMF0 file also has the String/LongString boundary at exactly 65,535 and 65,536 bytes.
+- `Test-AMF0-References.sol`: AS2 object references that follow primitive values, including a shared object and an object that contains itself. Flash numbers AMF0 references by every value in the file, not only objects as the AMF0 specification says.
+
+`2.sol` is truncated and is expected to fail to open.
+
 ## Development
 
 Requires Node.js 20.19+ (or 22.12+).

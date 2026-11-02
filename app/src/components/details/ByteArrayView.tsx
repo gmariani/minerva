@@ -142,7 +142,14 @@ export function ByteArrayView({ node, onChange, onImport }: ByteArrayViewProps) 
                 tryCodec(() => deflateRaw(input, { strategy: constants.Z_FIXED }));
                 break;
             case 'lzma':
-                showAlert('Feature not available yet.', 'Notice');
+                // Mode 4 uses a 1 MB dictionary, as Flash's ByteArray.compress(LZMA) does
+                LZMA.compress(bytes, 4, (result, error) => {
+                    if (!result) {
+                        showAlert('Error compressing via LZMA: ' + error, 'Error');
+                        return;
+                    }
+                    update(Array.from(result, (b) => b & 0xff));
+                });
                 break;
         }
     };
@@ -156,9 +163,9 @@ export function ByteArrayView({ node, onChange, onImport }: ByteArrayViewProps) 
                 tryCodec(() => inflateRaw(Uint8Array.from(bytes)));
                 break;
             case 'lzma':
-                LZMA.decompress(bytes, (result) => {
-                    if (result === false) {
-                        showAlert('Error decompressing via LZMA.', 'Error');
+                LZMA.decompress(bytes, (result, error) => {
+                    if (result == null) {
+                        showAlert('Error decompressing via LZMA: ' + error, 'Error');
                         return;
                     }
                     update(typeof result === 'string' ? Array.from(new TextEncoder().encode(result)) : Array.from(result, (b) => b & 0xff));

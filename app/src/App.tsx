@@ -12,9 +12,12 @@ import { CreateWindow, ImportBinaryWindow, ImportJSONWindow, NewFileWindow, Open
 import { Tree } from './components/tree/Tree';
 import { ContextMenu } from './components/tree/ContextMenu';
 import { DetailsPane } from './components/details/DetailsPane';
-import { numberType } from './components/details/ValueViews';
+import { setNodeValue } from './model/actions';
+import { exportTypedJSON, importTypedJSON, isTypedJSON } from './model/typedJSON';
+import { createConsoleAPI } from './api';
 
 const SORT_COOKIE = 'enableSort';
+const TYPES_COOKIE = 'exportTypes';
 
 export function App() {
     const showAlert = useAlert();
@@ -26,10 +29,15 @@ export function App() {
     const [dialog, setDialog] = useState<DialogName | null>(null);
     const [aboutOpen, setAboutOpen] = useState(false);
     const [sortEnabled, setSortEnabled] = useState(() => getCookie(SORT_COOKIE) === 'true');
+    // On unless turned off
+    const [exportTypes, setExportTypes] = useState(() => getCookie(TYPES_COOKIE) !== 'false');
     const [menu, setMenu] = useState<{ node: TreeNode; x: number; y: number } | null>(null);
     const [createTarget, setCreateTarget] = useState<{ node: TreeNode; context: CreateContext } | null>(null);
     const binaryTarget = useRef<((buffer: ArrayBuffer) => void) | null>(null);
     const sidebarRef = useRef<HTMLElement>(null);
+    // The open file as of now, for code that runs before the next render (the console API)
+    const solRef = useRef<SolTree | null>(null);
+    const fileRef = useRef<FileInfo | null>(null);
 
     const closeDialog = useCallback(() => setDialog(null), []);
     const closeMenu = useCallback(() => setMenu(null), []);
@@ -59,14 +67,14 @@ export function App() {
     const loadTree = (tree: SolTree, json: NodeJSON | null, info: FileInfo) => {
         store.search('');
         store.load(json, sortEnabled);
-        setSol(tree);
-        setFile(info);
+        setSol((solRef.current = tree));
+        setFile((fileRef.current = info));
     };
 
     const closeFile = () => {
         store.load(null, sortEnabled);
-        setSol(null);
-        setFile(null);
+        setSol((solRef.current = null));
+        setFile((fileRef.current = null));
     };
 
     ///////////////
@@ -96,13 +104,13 @@ export function App() {
         return true;
     };
 
-    const parseFile = async (buffer: ArrayBuffer, f: File) => {
+    // Rejects (after showing the error) if the file can't be read
+    const openBuffer = async (buffer: ArrayBuffer, info: FileInfo) => {
         const tree = new SolTree();
-        const info = { name: f.name, size: f.size, lastModified: f.lastModified };
         try {
             const parsed = await readSOL(buffer, (warning) => showAlert(warning, 'Warning'));
-            parsed.fileSize = f.size;
-            parsed.fileName = f.name;
+            parsed.fileSize = info.size;
+            parsed.fileName = info.name;
             loadTree(tree, tree.obj2Tree(parsed), info);
         } catch (e) {
             console.error(e);
@@ -113,7 +121,41 @@ export function App() {
                 'Error'
             );
             loadTree(tree, { text: 'Error reading file', icon: 'error', data: null }, info);
+            throw e;
         }
+    };
+
+    const parseFile = (buffer: ArrayBuffer, f: File) =>
+        openBuffer(buffer, { name: f.name, size: f.size, lastModified: f.lastModified }).catch(() => {
+            // Already shown
+        });
+
+    // Loads plain JSON, or typed JSON (see model/typedJSON.ts) as the file it was exported from
+    const loadJSON = (o: unknown, name: string): string | null => {
+        // JSON.parse also accepts numbers, strings and null
+        if (!o || typeof o !== 'object' || Array.isArray(o)) return 'Invalid JSON, base data is not an object.';
+        const tree = new SolTree();
+        let parsed: ParsedSOL;
+        if (isTypedJSON(o)) {
+            const typed = importTypedJSON(o);
+            parsed = {
+                header: { amfVersion: typed.amfVersion, dataLength: '?', fileName: typed.fileName ?? name },
+                flex: typed.filePath ? { filePath: typed.filePath } : undefined,
+                fileName: name + '.sol',
+                fileSize: '?',
+                body: typed.body,
+            };
+        } else {
+            parsed = {
+                header: { amfVersion: 3, dataLength: '?', fileName: name },
+                fileName: name + '.sol',
+                fileSize: '?',
+                body: formatChildren(o, 3),
+            };
+        }
+        loadTree(tree, tree.obj2Tree(parsed), { name: parsed.fileName, size: '?' });
+        closeDialog();
+        return null;
     };
 
     const importJSON = (name: string, json: string): string | null => {
@@ -123,34 +165,29 @@ export function App() {
         } catch (e) {
             return 'Invalid JSON: ' + (e as Error).message;
         }
-        // JSON.parse also accepts numbers, strings and null
-        if (!o || typeof o !== 'object') return 'Invalid JSON, base data is not an object.';
-        const tree = new SolTree();
-        tree.amfVersion = 3;
-        const parsed: ParsedSOL = {
-            header: { amfVersion: 3, dataLength: '?', fileName: name },
-            fileName: name + '.sol',
-            fileSize: '?',
-            body: formatChildren(o, 3),
-        };
-        loadTree(tree, tree.obj2Tree(parsed), { name: parsed.fileName, size: '?' });
-        closeDialog();
-        return null;
+        try {
+            return loadJSON(o, name);
+        } catch (e) {
+            console.error(e);
+            return 'Unable to import: ' + (e as Error).message;
+        }
     };
 
     //////////////////
     // Save/Export  //
     //////////////////
 
-    const save = async () => {
+    // Writes the file, optionally downloading it. Rejects (after showing the error) if it can't be written.
+    const writeFile = async (download: boolean): Promise<ArrayBuffer> => {
         const root = store.root;
-        if (!root?.data || !file) return;
+        const file = fileRef.current;
+        if (!root?.data || !file) throw new Error('No file is open');
         let body;
         try {
             body = buildSOLBody(root.children);
         } catch (e) {
             showAlert('Unable to save: ' + (e as Error).message, 'Error');
-            return;
+            throw e;
         }
         setDialog('saving');
         try {
@@ -161,7 +198,8 @@ export function App() {
                 filePath: root.data.value2 ? root.data.value2.filePath : null,
                 data: body,
             });
-            saveFile(new Blob([new Int8Array(buffer)], { type: 'application/octet-stream' }), file.name);
+            if (download) saveFile(new Blob([new Int8Array(buffer)], { type: 'application/octet-stream' }), file.name);
+            return buffer;
         } catch (e) {
             console.error(e);
             showAlert(
@@ -170,17 +208,46 @@ export function App() {
                 </p>,
                 'Error'
             );
+            throw e;
         } finally {
             setDialog((d) => (d === 'saving' ? null : d));
         }
     };
 
+    const save = () =>
+        writeFile(true).catch(() => {
+            // Already shown
+        });
+
+    // The file as JSON; typed JSON throws like save if a Reference's target was deleted
+    const toJSON = (types: boolean) => (types ? exportTypedJSON(store.root!) : treeToJSON(store.root!));
+
     const exportJSON = () => {
         const root = store.root;
         if (!root?.data || !file) return;
+        let json;
+        try {
+            json = toJSON(exportTypes);
+        } catch (e) {
+            showAlert('Unable to export: ' + (e as Error).message, 'Error');
+            return;
+        }
         const name = file.name.toLowerCase().endsWith('.sol') ? file.name.slice(0, -4) : file.name;
-        saveFile(new Blob([JSON.stringify(treeToJSON(root))], { type: 'application/json' }), (name || 'JSON Export') + '.json');
+        saveFile(new Blob([JSON.stringify(json)], { type: 'application/json' }), (name || 'JSON Export') + '.json');
     };
+
+    // window.minerva, refreshed each render so it sees the current file
+    useEffect(() => {
+        window.minerva = createConsoleAPI({
+            store,
+            getSol: () => solRef.current,
+            getFile: () => fileRef.current,
+            importJSON: loadJSON,
+            exportJSON: toJSON,
+            open: (buffer, name) => openBuffer(buffer, { name, size: buffer.byteLength }),
+            save: writeFile,
+        });
+    });
 
     /////////////////
     // Create item //
@@ -221,6 +288,8 @@ export function App() {
                     key = label;
                 }
                 if (typeof key === 'string' && Date.parse(key)) key = new Date(key);
+                // Flash serializes number keys as their base-10 strings (AMF3 spec 3.16)
+                if (typeof key === 'number') key = String(key);
                 value = { key: formatObject(key, sol.amfVersion), value, __traits: { type: 'DictionaryItem' } };
                 label = '';
             }
@@ -248,22 +317,7 @@ export function App() {
 
     // Sets the value of one node, or of every node in a batch edit
     const onValueChange = (nodes: TreeNode[], value: unknown) => {
-        for (const node of nodes) {
-            const traits = node.data!.__traits;
-            // Integer/Number nodes switch type with the value
-            if (traits.type === 'Integer' || traits.type === 'Number') {
-                traits.type = numberType(value as number);
-                node.icon = traits.type.toLowerCase();
-            }
-            // AMF3 stores booleans as separate True/False types
-            if (traits.origType === 'False' || traits.origType === 'True') {
-                traits.origType = value ? 'True' : 'False';
-                node.icon = traits.origType.toLowerCase();
-                node.title = traits.origType;
-            }
-            // Each node gets its own Date so they stay independent
-            node.data!.value = value instanceof Date ? new Date(value) : value;
-        }
+        for (const node of nodes) setNodeValue(node, value);
         store.touch();
     };
 
@@ -289,6 +343,11 @@ export function App() {
                 onSortChange={(enabled) => {
                     setSortEnabled(enabled);
                     setCookie(SORT_COOKIE, String(enabled), 365);
+                }}
+                exportTypes={exportTypes}
+                onExportTypesChange={(enabled) => {
+                    setExportTypes(enabled);
+                    setCookie(TYPES_COOKIE, String(enabled), 365);
                 }}
             />
 

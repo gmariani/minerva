@@ -141,7 +141,16 @@ export function Footer() {
     );
 }
 
-export function AboutOverlay({ show, onClose, sortEnabled, onSortChange }: { show: boolean; onClose: () => void; sortEnabled: boolean; onSortChange: (enabled: boolean) => void }) {
+interface AboutProps {
+    show: boolean;
+    onClose: () => void;
+    sortEnabled: boolean;
+    onSortChange: (enabled: boolean) => void;
+    exportTypes: boolean;
+    onExportTypesChange: (enabled: boolean) => void;
+}
+
+export function AboutOverlay({ show, onClose, sortEnabled, onSortChange, exportTypes, onExportTypesChange }: AboutProps) {
     const downloads = [
         ['Minerva-3-5-0-resigned.air', 'Version 3.5.0 (Re-packaged to avoid install errors)'],
         ['Minerva-3-4-0.air', 'Version 3.4.0'],
@@ -192,6 +201,18 @@ export function AboutOverlay({ show, onClose, sortEnabled, onSortChange }: { sho
                         <input type="checkbox" id="enableSort" name="enableSort" checked={sortEnabled} onChange={(e) => onSortChange(e.target.checked)} />
                         <label htmlFor="enableSort" className="tick">
                             <span>Enable Sidebar Sort (Re-open file to see change)</span>
+                        </label>
+                    </div>
+                    <div>
+                        <input
+                            type="checkbox"
+                            id="exportTypes"
+                            name="exportTypes"
+                            checked={exportTypes}
+                            onChange={(e) => onExportTypesChange(e.target.checked)}
+                        />
+                        <label htmlFor="exportTypes" className="tick">
+                            <span>Include data types in JSON exports (so importing restores Integers, Dates, classes, etc.)</span>
                         </label>
                     </div>
 

@@ -5,6 +5,18 @@
     - Rebuilt the interface with React and TypeScript, replacing jQuery, jQuery UI and jsTree (which had known vulnerabilities)
     - Large files open much faster: the sidebar only draws the rows on screen
     - Select several Numbers, Booleans, Strings, XML or Dates (Shift/Ctrl-click) to set them all to the same value at once
+    - JSON exports now include each value's data type (superjson format), so importing them restores Integers, Dates, ByteArrays, classes, shared objects and the AMF version. Turn this off in About > Settings for plain JSON
+    - Added a console API for scripting: open the browser console and run minerva.help()
+    - Fixed JSON import treating any object with a "value" property as that value
+    - Fixed AMF0 (AS2) object references pointing at the wrong object, or crashing the file open. Flash numbers them by every value in the file, not only objects
+    - Fixed files with an unreadable externalized class failing to open instead of showing a warning
+    - ByteArrays can now be compressed with LZMA (updated LZMA-JS to 2.3.2)
+    - Fixed emoji and other characters above U+FFFF being read wrong and saved as invalid UTF-8
+    - Fixed AS2 (AMF0) long strings and XML with non-ASCII text being saved with the wrong length, corrupting the file
+    - XML is now saved exactly as written; it was having its leading/trailing whitespace (and, for XMLDocument, whitespace between tags) removed
+    - New items in a Vector.<*> are no longer created as objects of class "*"
+    - Number keys for new Dictionary entries are saved as strings, as Flash does
+    - .minerva is now available under the ISC, MIT or Apache 2.0 license
     - Fixed error thrown when writing an invalid UTF-8 character
     - Fixed workers not being cleaned up after opening/saving files
     - Removed defunct Universal Analytics tracking

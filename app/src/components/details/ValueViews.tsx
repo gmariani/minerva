@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { TreeNode } from '../../types';
 import { timeAgo } from '../../util';
+import { numberType } from '../../model/actions';
 
 export interface ValueViewProps {
     node: TreeNode;
@@ -12,14 +13,6 @@ export interface ValueViewProps {
 }
 
 const VARIOUS = 'Various';
-
-const INT_MIN = -2147483648;
-const INT_MAX = 2147483647;
-
-// Whole numbers in the 32-bit range are Integers, anything else is a Number
-export function numberType(value: number): 'Integer' | 'Number' {
-    return String(value).indexOf('.') > -1 || value < INT_MIN || value > INT_MAX ? 'Number' : 'Integer';
-}
 
 function isValidNumber(input: string): boolean {
     const n = parseFloat(input);

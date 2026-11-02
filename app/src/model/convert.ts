@@ -8,7 +8,7 @@ import type { NodeJSON } from '../types';
 
 // Gives every distinct node content a number, so copies can be compared without
 // re-serializing their whole subtree at each level. Editor-only flags are ignored.
-const EDITOR_KEYS: Record<string, 1> = { canCreate: 1, canRename: 1, canDelete: 1, canEdit: 1, canBeIndexed: 1, originId: 1, path: 1 };
+export const EDITOR_KEYS: Record<string, 1> = { canCreate: 1, canRename: 1, canDelete: 1, canEdit: 1, canBeIndexed: 1, originId: 1, path: 1 };
 
 function isNode(v: any): boolean {
     return v !== null && typeof v === 'object' && '__traits' in v;
@@ -131,7 +131,8 @@ export function buildSOLBody(children: NodeJSON[] | undefined): Record<string, a
 // Tree -> JSON    //
 /////////////////////
 
-function exportNode(node: NodeJSON): any {
+// A node as plain JSON (Dates stay Date objects)
+export function exportNode(node: NodeJSON): any {
     const data = node.data!;
     const value = data.value;
     switch (data.__traits.type) {
@@ -203,8 +204,8 @@ export function getDataType(val: any, amfVersion: number | '?'): string {
         }
     }
 
-    // Is XML? (DOMParser reports non-XML as a parsererror document)
-    if (type === 'String') {
+    // Is XML? (DOMParser reports non-XML as a parsererror document; XML always starts with a tag)
+    if (type === 'String' && /^\s*</.test(val)) {
         const dom = new DOMParser().parseFromString(val, 'text/xml');
         if (dom.getElementsByTagName('parsererror').length === 0) type = 'XML';
     }
@@ -223,7 +224,7 @@ export function formatChildren(o: any, amfVersion: number | '?'): Record<string,
 
 // Wraps a plain value in the { __traits, value } form the readers produce
 export function formatObject(val: any, amfVersion: number | '?'): any {
-    const type = getDataType(val && val.value ? val.value : val, amfVersion);
+    const type = getDataType(val, amfVersion);
     if (type === 'Object') {
         const traits =
             amfVersion === 3 ? { type, class: type, members: [], count: 0, externalizable: false, dynamic: true } : { type };

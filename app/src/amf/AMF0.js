@@ -39,6 +39,7 @@ var AMF0;
         // The actual object cache used to store references
         this.readObjectCache = [];
         this.writeObjectCache = new Map();
+        this._writeIndex = 0;
 
         // The raw binary data
         this._rawData;
@@ -89,15 +90,22 @@ var AMF0;
             this._data = this.readData(this._rawData);
         },
 
+        // Flash numbers AMF0 references by every value in the file, not just objects: strings, numbers and even
+        // references take a slot too (as in Ruffle's flash-lso; e.g. a reference after one string and one
+        // object is 1, not 0). Only objects and arrays can be referenced, so the other slots stay empty.
         reset: function () {
             this.readObjectCache = [];
             this.writeObjectCache = new Map();
+            this._writeIndex = 0;
 
             if (this._amf3 != null) this._amf3.reset();
         },
 
         readData: function (ba, type) {
             if (type == null) type = ba.readByte();
+            // This value's reference slot; objects and arrays fill it in before reading their children
+            this._readSlot = this.readObjectCache.length;
+            this.readObjectCache.push(null);
             switch (type) {
                 case this.NUMBER_TYPE:
                     return this.readNumber(ba);
@@ -186,6 +194,7 @@ var AMF0;
             // Writers register the current node as an object reference before writing any
             // children, so this only has to be correct until then
             this._writeNode = node;
+            this._writeSlot = this._writeIndex++;
             switch (type) {
                 case 'Undefined':
                     this.writeUndefined(ba);
@@ -227,6 +236,7 @@ var AMF0;
                     }
                     break;
                 case 'XML':
+                case 'XMLDocument': // AMF0's XML type is the XMLDocument type (spec 2.17)
                     this.writeXML(ba, node.value);
                     break;
                 default:
@@ -287,7 +297,8 @@ var AMF0;
          * to send longer strings
          */
         writeString: function (ba, value) {
-            if (value.length < 65536) {
+            // The limit is on the UTF-8 byte length, not the number of characters
+            if (ba.utf8Length(value) <= 0xffff) {
                 ba.writeByte(this.STRING_TYPE);
                 ba.writeUTF(value);
             } else {
@@ -307,7 +318,7 @@ var AMF0;
                 type;
 
             // Register before reading members, which may reference this object
-            if (!internal) this.readObjectCache.push(val);
+            if (!internal) this.readObjectCache[this._readSlot] = val;
 
             // 0x00 0x00 (varname) 0x09 (end object type)
             varName = ba.readUTF();
@@ -385,7 +396,7 @@ var AMF0;
                 type;
 
             // Register before reading members, which may reference this array
-            this.readObjectCache.push(val);
+            this.readObjectCache[this._readSlot] = val;
             varName = ba.readUTF();
             type = ba.readByte();
 
@@ -445,7 +456,7 @@ var AMF0;
                 };
 
             // Register before reading elements, which may reference this array
-            this.readObjectCache.push(val);
+            this.readObjectCache[this._readSlot] = val;
             for (i = 0; i < l; ++i) {
                 arr[i] = this.readData(ba);
             }
@@ -517,11 +528,12 @@ var AMF0;
         },
 
         writeLongString: function (ba, value) {
-            if (value.length < 65536) {
+            var len = ba.utf8Length(value);
+            if (len <= 0xffff) {
                 this.writeString(ba, value);
             } else {
                 ba.writeByte(this.LONG_STRING_TYPE);
-                ba.writeUnsignedInt(value.length);
+                ba.writeUnsignedInt(len);
                 ba.writeUTFBytes(value);
             }
         },
@@ -536,16 +548,13 @@ var AMF0;
         },
 
         /**
-         * writeXML writes the xml code (0x0F) and the XML string to the output stream
-         * Note: strips whitespace
+         * writeXML writes the xml code (0x0F) and the XML string, as is, to the output stream
          * @param string $d The XML string
          */
         writeXML: function (ba, value) {
             ba.writeByte(this.XML_OBJECT_TYPE);
             var strXML = value.toString();
-            strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
-            //strXML = strXML.replace(/\>(\n|\r|\r\n| |\t)*\</g, "><"); // Strip whitespaces, not done by native encoder
-            ba.writeUnsignedInt(strXML.length);
+            ba.writeUnsignedInt(ba.utf8Length(strXML));
             ba.writeUTFBytes(strXML);
         },
 
@@ -560,7 +569,7 @@ var AMF0;
                 };
 
             // Register before reading members, which may reference this object
-            this.readObjectCache.push(val);
+            this.readObjectCache[this._readSlot] = val;
             try {
                 val.value = this.readObject(ba, true);
             } catch (e) {
@@ -585,9 +594,10 @@ var AMF0;
         },
 
         getObjectReference: function (ref) {
-            if (ref >= this.readObjectCache.length) {
+            if (!this.readObjectCache[ref]) {
+                // Out of range, or a value that isn't an object. Flash reads these as undefined.
                 ERROR("AMF0::getObjectReference - Error : Undefined object reference '" + ref + "'");
-                return null;
+                return { value: null, __traits: { type: 'Undefined' } };
             }
             trace('getObjectReference', ref, this.readObjectCache);
             return this.readObjectCache[ref];
@@ -603,7 +613,8 @@ var AMF0;
                 ba.writeUnsignedShort(refNum);
                 return false;
             }
-            this.writeObjectCache.set(node, this.writeObjectCache.size);
+            // References are 16-bit
+            if (this._writeSlot <= 0xffff) this.writeObjectCache.set(node, this._writeSlot);
             return true;
         },
 

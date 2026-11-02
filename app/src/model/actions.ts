@@ -75,3 +75,29 @@ export function pasteNode(store: TreeStore, target: TreeNode): void {
 export function startRename(store: TreeStore, node: TreeNode): void {
     if (can.rename(node) && node.parent) store.edit(node);
 }
+
+const INT_MIN = -2147483648;
+const INT_MAX = 2147483647;
+
+// Whole numbers in the 32-bit range are Integers, anything else is a Number
+export function numberType(value: number): 'Integer' | 'Number' {
+    return String(value).indexOf('.') > -1 || value < INT_MIN || value > INT_MAX ? 'Number' : 'Integer';
+}
+
+// Sets a value node's value, keeping its type, icon and tooltip in step. Call store.touch() afterwards.
+export function setNodeValue(node: TreeNode, value: unknown): void {
+    const traits = node.data!.__traits;
+    // Integer/Number nodes switch type with the value
+    if (traits.type === 'Integer' || traits.type === 'Number') {
+        traits.type = numberType(value as number);
+        node.icon = traits.type.toLowerCase();
+    }
+    // AMF3 stores booleans as separate True/False types
+    if (traits.origType === 'False' || traits.origType === 'True') {
+        traits.origType = value ? 'True' : 'False';
+        node.icon = traits.origType.toLowerCase();
+        node.title = traits.origType;
+    }
+    // Each node gets its own Date so they stay independent
+    node.data!.value = value instanceof Date ? new Date(value) : value;
+}

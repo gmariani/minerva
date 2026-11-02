@@ -290,6 +290,7 @@ export class SolTree {
                         value.value = validateData(value.value, 'Integer');
                         return this.getChild(indexLabel, value);
                     case 'Object':
+                    case '*': // Vector.<*>, the any type
                         value.value = validateData(value.value, valueType);
                         return this.getChild(indexLabel, value);
                     default:

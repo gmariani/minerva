@@ -524,7 +524,8 @@ var ByteArray;
                 if ((code_unit3 & 0xc0) != 0x80) return error3();
                 code_unit4 = this.readUI8();
                 if ((code_unit4 & 0xc0) != 0x80) return error4();
-                return String.fromCharCode(
+                // fromCharCode can't represent code points above U+FFFF (emoji etc.)
+                return String.fromCodePoint(
                     (code_unit1 << 18) +
                         (code_unit2 << 12) +
                         (code_unit3 << 6) +
@@ -538,7 +539,7 @@ var ByteArray;
         },
 
         writeUTFChar: function(rawChar) {
-            var code_point = rawChar.charCodeAt(0);
+            var code_point = rawChar.codePointAt(0);
             if (code_point < 0x80) {
                 this.writeUI8(code_point);
             } else if (code_point <= 0x7ff) {
@@ -570,10 +571,21 @@ var ByteArray;
             return str;
         },
 
+        // By code point, so characters above U+FFFF are written as one 4-byte sequence, not two surrogates
         writeUTFBytes: function(value) {
-            for (var i = 0, l = value.length; i < l; i++) {
-                this.writeUTFChar(value.charAt(i));
+            for (var ch of value) {
+                this.writeUTFChar(ch);
             }
+        },
+
+        // The number of bytes writeUTFBytes writes for a string
+        utf8Length: function(value) {
+            var n = 0;
+            for (var ch of value) {
+                var c = ch.codePointAt(0);
+                n += c < 0x80 ? 1 : c < 0x800 ? 2 : c < 0x10000 ? 3 : 4;
+            }
+            return n;
         },
 
         /**

@@ -1,5 +1,3 @@
-import ByteArray from './ByteArray.js';
-
 var AMF3;
 (function () {
     /*
@@ -571,10 +569,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                 ba.writeByte(0x01);
             } else {
                 // Get actual byte length, sometimes foreign languages require more bytes
-                var b = this._lengthBuffer || (this._lengthBuffer = new ByteArray());
-                b.position = b.length = 0;
-                b.writeUTFBytes(value);
-                var len = b.length;
+                var len = ba.utf8Length(value);
 
                 if (writeRef) {
                     if (this.setStringReference(ba, value)) {
@@ -624,10 +619,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             ba.writeByte(this.XML_DOC_TYPE);
 
             if (this.setObjectReference(ba, value)) {
-                var strXML = value.toString();
-                strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
-                strXML = strXML.replace(/>(\n|\r|\r\n| |\t)*</g, '><'); // Strip whitespaces
-                this.writeString(ba, strXML, false);
+                this.writeString(ba, String(value), false);
             }
         },
 
@@ -887,7 +879,7 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
                     ALERT("Unable to read externalizable data type '" + traits.class + "'  |  " + e);
                     obj[this.EXTERNALIZED_KEY] = {
                         value: "Unable to read externalizable data type '" + traits.class + "'",
-                        __type: 'String',
+                        __traits: { type: 'String' },
                     };
                 }
             } else {
@@ -1024,10 +1016,8 @@ NaN (FF F8 00 00 00 00 00 00), Infinity (FF F0 00 00 00 00 00 00), and -Infinity
             ba.writeByte(this.XML_TYPE);
 
             if (this.setObjectReference(ba, value)) {
-                var strXML = value; // value.toXMLString();
-                strXML = strXML.replace(/^\s+|\s+$/g, ''); // Trim
-                //strXML = strXML.replace(/\>(\n|\r|\r\n| |\t)*\</g, "><"); // Strip whitespaces, not done by native encoder
-                this.writeString(ba, strXML, false);
+                // Written as is: the editor keeps the text the file had or the user typed
+                this.writeString(ba, String(value), false);
             }
         },
 
