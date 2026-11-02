@@ -207,7 +207,7 @@ export function SaveWindow({ show }: { show: boolean }) {
     return (
         <div id="saveWindow" className={show ? 'show' : undefined}>
             <h1>Saving File</h1>
-            <img src="/img/Mega_Man_Running.gif" height="100" width="96" alt="looping loading graphic" />
+            <img src={import.meta.env.BASE_URL + 'img/Mega_Man_Running.gif'} height="100" width="96" alt="looping loading graphic" />
         </div>
     );
 }

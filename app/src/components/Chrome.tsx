@@ -167,7 +167,7 @@ export function AboutOverlay({ show, onClose, sortEnabled, onSortChange, exportT
                 <section className="clearfix">
                     <div className="row">
                         <div>
-                            <img className="spin" src="/img/favicon-196x196.png" alt=".minerva's logo, a cartoon cloud" />
+                            <img className="spin" src={import.meta.env.BASE_URL + 'img/favicon-196x196.png'} alt=".minerva's logo, a cartoon cloud" />
                         </div>
                         <div className="col about-content">
                             <p>
