@@ -33,6 +33,8 @@ export class TreeStore {
     selected = new Set<string>();
     // The node shown in the details pane and moved by the keyboard
     focusedId: string | null = null;
+    // Where Shift-click ranges start: the last node clicked without Shift
+    anchorId: string | null = null;
     editingId: string | null = null;
 
     private nodes = new Map<string, TreeNode>();
@@ -79,7 +81,7 @@ export class TreeStore {
     load(json: NodeJSON | null, sortEnabled: boolean): void {
         this.nodes.clear();
         this.selected.clear();
-        this.focusedId = this.editingId = null;
+        this.focusedId = this.anchorId = this.editingId = null;
         this.searchMatches = this.searchVisible = null;
         this.openedBySearch.clear();
         this.sortEnabled = sortEnabled;
@@ -113,6 +115,7 @@ export class TreeStore {
             this.nodes.delete(n.id);
             this.selected.delete(n.id);
             if (this.focusedId === n.id) this.focusedId = null;
+            if (this.anchorId === n.id) this.anchorId = null;
             n.children?.forEach(forget);
         };
         forget(node);
@@ -159,15 +162,17 @@ export class TreeStore {
             else this.selected.add(node.id);
         } else {
             const rows = this.rows();
-            const from = rows.findIndex((r) => r.node.id === this.focusedId);
+            const from = rows.findIndex((r) => r.node.id === (this.anchorId ?? this.focusedId));
             const to = rows.findIndex((r) => r.node === node);
             if (from === -1) {
                 this.selected = new Set([node.id]);
+                this.anchorId = node.id;
             } else {
                 const [a, b] = from < to ? [from, to] : [to, from];
                 this.selected = new Set(rows.slice(a, b + 1).map((r) => r.node.id));
             }
         }
+        if (mode !== 'range') this.anchorId = node.id;
         this.focusedId = node.id;
         // Opening ancestors makes sure the selection is visible
         for (let p = node.parent; p; p = p.parent) p.open = true;

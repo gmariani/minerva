@@ -5,9 +5,13 @@ import { timeAgo } from '../../util';
 
 export interface ValueViewProps {
     node: TreeNode;
+    // Several nodes are being edited and their values differ: show "Various" until the user edits
+    various?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- each view has its own value type
     onChange: (value: any) => void;
 }
+
+const VARIOUS = 'Various';
 
 const INT_MIN = -2147483648;
 const INT_MAX = 2147483647;
@@ -22,7 +26,7 @@ function isValidNumber(input: string): boolean {
     return !isNaN(n) && Math.abs(n) <= Number.MAX_VALUE && (input.match(/\./g) || []).length <= 1 && (input.match(/-/g) || []).length <= 1;
 }
 
-export function NumberView({ node, onChange }: ValueViewProps) {
+export function NumberView({ node, various, onChange }: ValueViewProps) {
     const [type, setType] = useState(node.data!.__traits.type);
     const [error, setError] = useState(false);
     const initial = parseFloat(node.data!.value);
@@ -45,7 +49,8 @@ export function NumberView({ node, onChange }: ValueViewProps) {
                     id="NumberValue"
                     inputMode="decimal"
                     className={error ? 'error' : undefined}
-                    defaultValue={isNaN(initial) ? 'NaN' : String(initial)}
+                    placeholder={various ? VARIOUS : undefined}
+                    defaultValue={various ? '' : isNaN(initial) ? 'NaN' : String(initial)}
                     onChange={(e) => {
                         const input = e.target.value;
                         if (!isValidNumber(input)) {
@@ -64,21 +69,26 @@ export function NumberView({ node, onChange }: ValueViewProps) {
     );
 }
 
-export function BooleanView({ node, onChange }: ValueViewProps) {
+export function BooleanView({ node, various, onChange }: ValueViewProps) {
     const value = node.data!.value;
+    const [mixed, setMixed] = useState(!!various);
     return (
         <>
             <h1>Boolean</h1>
             <div className="field">
-                <div className="slide-chk">
+                <div className={'slide-chk' + (mixed ? ' various' : '')}>
                     <input
                         id="BooleanValue"
                         type="checkbox"
-                        defaultChecked={value === 1 || value === true}
-                        onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                        defaultChecked={!mixed && (value === 1 || value === true)}
+                        onChange={(e) => {
+                            setMixed(false);
+                            onChange(e.target.checked ? 1 : 0);
+                        }}
                     />
                     <label htmlFor="BooleanValue" />
                 </div>
+                {mixed && <span className="various-label">{VARIOUS}</span>}
             </div>
         </>
     );
@@ -91,8 +101,9 @@ function xmlError(input: string): string | null {
     return error ? error.textContent : null;
 }
 
-export function XMLView({ node, onChange }: ValueViewProps) {
-    const [error, setError] = useState(() => xmlError(node.data!.value));
+export function XMLView({ node, various, onChange }: ValueViewProps) {
+    const [error, setError] = useState(() => (various ? null : xmlError(node.data!.value)));
+    const [edited, setEdited] = useState(false);
     return (
         <>
             <h1>XML</h1>
@@ -102,16 +113,18 @@ export function XMLView({ node, onChange }: ValueViewProps) {
                     rows={20}
                     cols={50}
                     className={'message' + (error ? ' error' : '')}
-                    defaultValue={node.data!.value}
+                    placeholder={various ? VARIOUS : undefined}
+                    defaultValue={various ? '' : node.data!.value}
                     onChange={(e) => {
                         const err = xmlError(e.target.value);
+                        setEdited(true);
                         setError(err);
                         if (!err) onChange(e.target.value);
                     }}
                 />
                 <span className="comment-icon icon" />
             </div>
-            <pre className="XMLError">{error ?? 'XML is valid'}</pre>
+            <pre className="XMLError">{error ?? (various && !edited ? 'Values differ' : 'XML is valid')}</pre>
         </>
     );
 }
@@ -186,13 +199,17 @@ function getEncodingType(str: string): string {
     return types.length ? types.join(',') : 'None';
 }
 
-export function StringView({ node, onChange }: ValueViewProps) {
-    const [text, setText] = useState<string>(String(node.data!.value));
+export function StringView({ node, various, onChange }: ValueViewProps) {
+    const [text, setText] = useState<string>(various ? '' : String(node.data!.value));
+    const [mixed, setMixed] = useState(!!various);
     const [encoding, setEncoding] = useState<Encoding>('html');
     const update = (value: string) => {
+        setMixed(false);
         setText(value);
         onChange(value);
     };
+    // Encoding the empty "Various" field would overwrite every value
+    const codecTitle = mixed ? 'The selected values differ' : undefined;
     return (
         <>
             <h1>String</h1>
@@ -208,14 +225,36 @@ export function StringView({ node, onChange }: ValueViewProps) {
                     <div className="arrow-select" />
                     <svg className="arrow-select-svg" />
                 </div>
-                <input type="button" id="btnDecode" className="send" value="Decode" onClick={() => update(decode(text, encoding))} />
-                <input type="button" id="btnEncode" className="send" value="Encode" onClick={() => update(encode(text, encoding))} />
+                <input
+                    type="button"
+                    id="btnDecode"
+                    className="send"
+                    value="Decode"
+                    disabled={mixed}
+                    title={codecTitle}
+                    onClick={() => update(decode(text, encoding))}
+                />
+                <input
+                    type="button"
+                    id="btnEncode"
+                    className="send"
+                    value="Encode"
+                    disabled={mixed}
+                    title={codecTitle}
+                    onClick={() => update(encode(text, encoding))}
+                />
             </nav>
             <p>
-                <strong>Possible Encoding:</strong> <span id="encodingType">{getEncodingType(text)}</span>
+                <strong>Possible Encoding:</strong> <span id="encodingType">{mixed ? VARIOUS : getEncodingType(text)}</span>
             </p>
             <div className="field">
-                <textarea id="StringValue" className="message" value={text} onChange={(e) => update(e.target.value)} />
+                <textarea
+                    id="StringValue"
+                    className="message"
+                    placeholder={mixed ? VARIOUS : undefined}
+                    value={text}
+                    onChange={(e) => update(e.target.value)}
+                />
                 <span className="comment-icon icon" />
             </div>
         </>
@@ -247,9 +286,10 @@ function toLocalInput(d: Date): string {
     );
 }
 
-export function DateView({ node, onChange }: ValueViewProps) {
+export function DateView({ node, various, onChange }: ValueViewProps) {
     // Copy: the node's value mustn't change unless the user edits it
     const [date, setDate] = useState(() => new Date(node.data!.value));
+    const [mixed, setMixed] = useState(!!various);
     const valid = !isNaN(date.getTime());
     const offset = -date.getTimezoneOffset();
     const zone = 'UTC' + (offset >= 0 ? '+' : '-') + pad(Math.floor(Math.abs(offset) / 60)) + ':' + pad(Math.abs(offset) % 60);
@@ -261,18 +301,19 @@ export function DateView({ node, onChange }: ValueViewProps) {
                     type="datetime-local"
                     id="DateValue"
                     step="0.001"
-                    defaultValue={valid ? toLocalInput(date) : ''}
+                    defaultValue={valid && !mixed ? toLocalInput(date) : ''}
                     onChange={(e) => {
                         const d = new Date(e.target.value);
                         if (isNaN(d.getTime())) return;
+                        setMixed(false);
                         setDate(d);
                         onChange(d);
                     }}
                 />
                 <span className="right-circled-icon icon" />
             </div>
-            <p className="description" title={valid ? 'Shown in your local time (' + zone + ')' : undefined}>
-                {valid ? timeAgo(date) + ' (' + date.toISOString().replace('T', ' ').replace('Z', ' UTC') + ')' : 'Invalid date'}
+            <p className="description" title={valid && !mixed ? 'Shown in your local time (' + zone + ')' : undefined}>
+                {mixed ? VARIOUS : valid ? timeAgo(date) + ' (' + date.toISOString().replace('T', ' ').replace('Z', ' UTC') + ')' : 'Invalid date'}
             </p>
         </>
     );

@@ -435,6 +435,54 @@ a.disabled {
 #details.BooleanType .slide-chk {
     width: 75px;
 }
+/* Mixed values: park the slider in the middle until it's clicked */
+.slide-chk.various label,
+.slide-chk.various label:hover {
+    /* Full width so either half is clickable, with a notch drawn in the middle */
+    width: 100%;
+    background: linear-gradient(to right, transparent calc(50% - 5px), #9a9a9a calc(50% - 5px), #9a9a9a calc(50% + 5px), transparent calc(50% + 5px));
+}
+#details > nav input[type='button']:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+#details .various-label {
+    display: inline-block;
+    margin-left: 12px;
+    line-height: 26px;
+    font-size: 1.3em;
+    color: #999;
+    font-style: italic;
+}
+
+/* Editing several nodes at once */
+#details.multi {
+    box-shadow: inset 4px 0 0 #ff2424;
+}
+#details .multi-banner {
+    background: #333;
+    color: #fff;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    border-left: 4px solid #ff2424;
+}
+#details .multi-banner strong {
+    display: block;
+    font-size: 1.15em;
+}
+#details .multi-banner .multi-names {
+    display: block;
+    color: #bbb;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#details input::placeholder,
+#details textarea::placeholder {
+    font-style: italic;
+}
 
 /* ByteArray Panel */
 #details.ByteArrayType .hex {

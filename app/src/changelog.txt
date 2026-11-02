@@ -1,9 +1,10 @@
 ####################################################
-4.4.0 - 2026-11-01
+5.0.0 - 2026-11-01
 ####################################################
     - Replaced Gulp build with Vite
     - Rebuilt the interface with React and TypeScript, replacing jQuery, jQuery UI and jsTree (which had known vulnerabilities)
     - Large files open much faster: the sidebar only draws the rows on screen
+    - Select several Numbers, Booleans, Strings, XML or Dates (Shift/Ctrl-click) to set them all to the same value at once
     - Fixed error thrown when writing an invalid UTF-8 character
     - Fixed workers not being cleaned up after opening/saving files
     - Removed defunct Universal Analytics tracking

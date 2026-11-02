@@ -246,20 +246,24 @@ export function App() {
     // Value edits  //
     //////////////////
 
-    const onValueChange = (node: TreeNode, value: unknown) => {
-        const traits = node.data!.__traits;
-        // Integer/Number nodes switch type with the value
-        if (traits.type === 'Integer' || traits.type === 'Number') {
-            traits.type = numberType(value as number);
-            node.icon = traits.type.toLowerCase();
+    // Sets the value of one node, or of every node in a batch edit
+    const onValueChange = (nodes: TreeNode[], value: unknown) => {
+        for (const node of nodes) {
+            const traits = node.data!.__traits;
+            // Integer/Number nodes switch type with the value
+            if (traits.type === 'Integer' || traits.type === 'Number') {
+                traits.type = numberType(value as number);
+                node.icon = traits.type.toLowerCase();
+            }
+            // AMF3 stores booleans as separate True/False types
+            if (traits.origType === 'False' || traits.origType === 'True') {
+                traits.origType = value ? 'True' : 'False';
+                node.icon = traits.origType.toLowerCase();
+                node.title = traits.origType;
+            }
+            // Each node gets its own Date so they stay independent
+            node.data!.value = value instanceof Date ? new Date(value) : value;
         }
-        // AMF3 stores booleans as separate True/False types
-        if (traits.origType === 'False' || traits.origType === 'True') {
-            traits.origType = value ? 'True' : 'False';
-            node.icon = traits.origType.toLowerCase();
-            node.title = traits.origType;
-        }
-        node.data!.value = value;
         store.touch();
     };
 
@@ -321,6 +325,7 @@ export function App() {
                     </section>
                     <DetailsPane
                         node={store.focused}
+                        selection={store.selectedNodes()}
                         file={file}
                         onValueChange={onValueChange}
                         onImportBinary={(receive) => {
