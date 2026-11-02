@@ -8,7 +8,7 @@
     - JSON exports now include each value's data type (superjson format), so importing them restores Integers, Dates, ByteArrays, classes, shared objects and the AMF version. Turn this off in About > Settings for plain JSON
     - Added a console API for scripting: open the browser console and run minerva.help()
     - Fixed JSON import treating any object with a "value" property as that value
-    - Fixed AMF0 (AS2) object references pointing at the wrong object, or crashing the file open. Flash numbers them by every value in the file, not only objects
+    - Fixed AMF0 object references pointing at the wrong object. Flash Player numbers them differently for ActionScript 2 and ActionScript 3 (neither exactly as the AMF0 spec says); .minerva now works out which a file uses and saves it the same way
     - Fixed files with an unreadable externalized class failing to open instead of showing a warning
     - ByteArrays can now be compressed with LZMA (updated LZMA-JS to 2.3.2)
     - Fixed emoji and other characters above U+FFFF being read wrong and saved as invalid UTF-8

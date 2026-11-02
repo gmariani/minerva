@@ -39,7 +39,8 @@ var AMF0;
         // The actual object cache used to store references
         this.readObjectCache = [];
         this.writeObjectCache = new Map();
-        this._writeIndex = 0;
+        // How references are numbered, see reset(). Set before reset().
+        this.referenceRule = 'as2';
 
         // The raw binary data
         this._rawData;
@@ -83,6 +84,20 @@ var AMF0;
 
         EMPTY_STRING: '',
 
+        // Stands in for the SharedObject's data object, reference 0 under the 'as2' rule
+        ROOT_REFERENCE: { value: null, __traits: { type: 'Undefined' } },
+
+        // Whether a value of this kind ('object', 'xml' or 'date') gets a reference number
+        countsAsReference: function (kind) {
+            return kind !== 'date' || this.referenceRule !== 'as2';
+        },
+
+        // Gives a value read from the file its reference number
+        registerReference: function (val, kind) {
+            if (this.referenceRule === 'values') this.readObjectCache[this._readSlot] = val;
+            else if (this.countsAsReference(kind)) this.readObjectCache.push(val);
+        },
+
         deserialize: function (data) {
             this.reset();
 
@@ -90,22 +105,32 @@ var AMF0;
             this._data = this.readData(this._rawData);
         },
 
-        // Flash numbers AMF0 references by every value in the file, not just objects: strings, numbers and even
-        // references take a slot too (as in Ruffle's flash-lso; e.g. a reference after one string and one
-        // object is 1, not 0). Only objects and arrays can be referenced, so the other slots stay empty.
+        // AMF0 references are numbers in a table of the values written so far. Which values get a number depends
+        // on what wrote the file, as tested with Flash Player 11.4:
+        //   'as2'    ActionScript 2: the SharedObject's data object is 0, then objects, arrays and XML documents
+        //            (not Dates) in order
+        //   'as3'    ActionScript 3 with AMF0 encoding: objects, arrays, XML documents and Dates, from 0
+        //   'values' every value, from 0 (Ruffle's 2023 writer)
+        // The AMF0 spec only says "complex objects" from 0. SOLReaderWorker works out which rule a file uses.
         reset: function () {
-            this.readObjectCache = [];
+            this.readObjectCache = this.referenceRule === 'as2' ? [this.ROOT_REFERENCE] : [];
             this.writeObjectCache = new Map();
             this._writeIndex = 0;
+            this._nextReference = this.readObjectCache.length;
+            // References read so far, and those that pointed at nothing (a sign of the wrong rule)
+            this.referenceCount = 0;
+            this.badReferences = 0;
 
             if (this._amf3 != null) this._amf3.reset();
         },
 
         readData: function (ba, type) {
             if (type == null) type = ba.readByte();
-            // This value's reference slot; objects and arrays fill it in before reading their children
-            this._readSlot = this.readObjectCache.length;
-            this.readObjectCache.push(null);
+            // Under the 'values' rule every value takes a slot; objects fill theirs in before reading their children
+            if (this.referenceRule === 'values') {
+                this._readSlot = this.readObjectCache.length;
+                this.readObjectCache.push(null);
+            }
             switch (type) {
                 case this.NUMBER_TYPE:
                     return this.readNumber(ba);
@@ -220,7 +245,7 @@ var AMF0;
                     this.writeLongString(ba, node.value);
                     break;
                 case 'Date':
-                    this.writeDate(ba, node.value, node.__traits);
+                    if (this.setObjectReference(ba, 'date')) this.writeDate(ba, node.value, node.__traits);
                     break;
                 case 'Array':
                     this.writeArray(ba, node.value);
@@ -237,7 +262,7 @@ var AMF0;
                     break;
                 case 'XML':
                 case 'XMLDocument': // AMF0's XML type is the XMLDocument type (spec 2.17)
-                    this.writeXML(ba, node.value);
+                    if (this.setObjectReference(ba, 'xml')) this.writeXML(ba, node.value);
                     break;
                 default:
                     throw Error("Undefined AMF0 type encountered '" + type + "'");
@@ -318,7 +343,7 @@ var AMF0;
                 type;
 
             // Register before reading members, which may reference this object
-            if (!internal) this.readObjectCache[this._readSlot] = val;
+            if (!internal) this.registerReference(val, 'object');
 
             // 0x00 0x00 (varname) 0x09 (end object type)
             varName = ba.readUTF();
@@ -396,7 +421,7 @@ var AMF0;
                 type;
 
             // Register before reading members, which may reference this array
-            this.readObjectCache[this._readSlot] = val;
+            this.registerReference(val, 'object');
             varName = ba.readUTF();
             type = ba.readByte();
 
@@ -456,7 +481,7 @@ var AMF0;
                 };
 
             // Register before reading elements, which may reference this array
-            this.readObjectCache[this._readSlot] = val;
+            this.registerReference(val, 'object');
             for (i = 0; i < l; ++i) {
                 arr[i] = this.readData(ba);
             }
@@ -493,7 +518,7 @@ var AMF0;
             if (timezone > 720) timezone = -(65536 - timezone);
             timezone *= -60;
 
-            return {
+            var val = {
                 value: new Date(ms),
                 __traits: {
                     type: 'Date',
@@ -501,6 +526,8 @@ var AMF0;
                     rawTimezone: rawTimezone,
                 },
             };
+            this.registerReference(val, 'date');
+            return val;
         },
 
         /**
@@ -539,12 +566,14 @@ var AMF0;
         },
 
         readXML: function (ba) {
-            return {
+            var val = {
                 value: this.readLongString(ba).value,
                 __traits: {
                     type: 'XML',
                 },
             };
+            this.registerReference(val, 'xml');
+            return val;
         },
 
         /**
@@ -569,7 +598,7 @@ var AMF0;
                 };
 
             // Register before reading members, which may reference this object
-            this.readObjectCache[this._readSlot] = val;
+            this.registerReference(val, 'object');
             try {
                 val.value = this.readObject(ba, true);
             } catch (e) {
@@ -594,8 +623,12 @@ var AMF0;
         },
 
         getObjectReference: function (ref) {
-            if (!this.readObjectCache[ref]) {
-                // Out of range, or a value that isn't an object. Flash reads these as undefined.
+            this.referenceCount++;
+            var target = this.readObjectCache[ref];
+            if (!target || target === this.ROOT_REFERENCE) {
+                // Out of range, or not a referenceable value (or the data object itself, which can't hold itself):
+                // the file uses a different numbering. Flash reads these as undefined.
+                this.badReferences++;
                 ERROR("AMF0::getObjectReference - Error : Undefined object reference '" + ref + "'");
                 return { value: null, __traits: { type: 'Undefined' } };
             }
@@ -603,9 +636,12 @@ var AMF0;
             return this.readObjectCache[ref];
         },
 
-        // Objects are matched by identity: the node being written (see writeData), so shared
-        // objects in the editor tree are written once and referenced afterwards
-        setObjectReference: function (ba) {
+        // Writes a reference if this node was written before, otherwise numbers it and returns true to write it in full.
+        // Objects are matched by identity: the node being written (see writeData), so shared objects in the editor
+        // tree are written once and referenced afterwards. kind is 'object' (the default), 'xml' or 'date'.
+        setObjectReference: function (ba, kind) {
+            if (typeof kind !== 'string') kind = 'object';
+            if (!this.countsAsReference(kind)) return true;
             var node = this._writeNode;
             var refNum = this.writeObjectCache.get(node);
             if (refNum !== undefined) {
@@ -613,8 +649,9 @@ var AMF0;
                 ba.writeUnsignedShort(refNum);
                 return false;
             }
+            var num = this.referenceRule === 'values' ? this._writeSlot : this._nextReference++;
             // References are 16-bit
-            if (this._writeSlot <= 0xffff) this.writeObjectCache.set(node, this._writeSlot);
+            if (num <= 0xffff) this.writeObjectCache.set(node, num);
             return true;
         },
 

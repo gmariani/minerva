@@ -26,7 +26,18 @@ These come from flash-lso's test suite (MIT License, Copyright (c) 2020 Callum T
 `Test-*.sol` were built with .minerva to cover cases the real files don't. A separate reader written from the specs checked them, and the code before these fixes misreads all three:
 
 - `Test-AMF3-Strings.sol` and `Test-AMF0-Strings.sol`: emoji and other characters above U+FFFF (in values and names), CJK text, pretty-printed XML and XMLDocument, and strings past 64 KB in bytes but not in characters. The AMF0 file also has the String/LongString boundary at exactly 65,535 and 65,536 bytes.
-- `Test-AMF0-References.sol`: AS2 object references that follow primitive values, including a shared object and an object that contains itself. Flash numbers AMF0 references by every value in the file, not only objects as the AMF0 specification says.
+- `Test-AMF0-References.sol`: AS2 object references that follow primitive values, including a shared object and an object that contains itself, numbered the way Flash Player's ActionScript 2 does. Flash Player 11 reads it correctly.
+
+`Flash11-*.sol` were written by Flash Player 11.4 itself (the debug projector), from the test SWFs in `tools/flash/`. They're the reference for how Flash really encodes things:
+
+- Emoji and other characters above U+FFFF are written as standard 4-byte UTF-8 in both AMF0 and AMF3.
+- AMF0 object references are numbered differently by ActionScript 2 and ActionScript 3:
+  - ActionScript 2: the SharedObject's data object is 0, then objects, arrays and XML documents. Dates don't take a number.
+  - ActionScript 3 (with AMF0 encoding): objects, arrays, XML documents and Dates, from 0.
+  - The AMF0 specification only says "complex objects" from 0. .minerva tries the ActionScript 2 rule first, then the ActionScript 3 one, and saves a file with the rule it was read with.
+  - An ActionScript 3 file whose references never point back into themselves can look valid under both rules. `Flash11-AS3-AMF0-Array-XML.sol` is one: it opens with the ActionScript 2 rule, which shows one reference pointing at the wrong item. It still saves byte for byte.
+
+`fishtycoon.sol` is not a Flash Player file. flash-lso's history shows it was replaced, the day after flash-lso added a reference writer, with a version whose references use that writer's numbering (every value counted). flash-lso later disabled that writer. .minerva reads the file as Flash Player would.
 
 `2.sol` is truncated and is expected to fail to open.
 
@@ -41,6 +52,8 @@ npm run build      # type check, then production build into dist/
 npm run preview    # serve the production build locally
 npm run lint       # ESLint
 npm run typecheck  # TypeScript only
+npm run check:blazeds  # compare the AMF readers with Adobe's BlazeDS (needs Java), see tools/blazeds/
+npm run check:flash    # test against Flash Player itself (needs your own copy), see tools/flash/
 ```
 
 The app lives in `app/` (Vite root):

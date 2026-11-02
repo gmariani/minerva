@@ -6,6 +6,8 @@ import AMF3 from '../amf/AMF3.js';
     var amf0 = new AMF0();
     var amf3 = new AMF3();
     var debug = false;
+    // Alerts from the reading that's kept (the file may be read more than once, see onmessage)
+    var pendingAlerts = [];
 
     function trace() {
         if (!debug) return;
@@ -85,7 +87,7 @@ import AMF3 from '../amf/AMF3.js';
                     if (Object.keys(this.body).length === 0) {
                         throw new Error('The file ends unexpectedly' + where + '. It is probably truncated or corrupt.');
                     }
-                    postMessage({
+                    pendingAlerts.push({
                         type: 'alert',
                         message:
                             'The file ends unexpectedly' +
@@ -169,17 +171,39 @@ import AMF3 from '../amf/AMF3.js';
     onmessage = function (event) {
         var id = event.data.fileID;
         var ba = new ByteArray(event.data.text, ByteArray.BIG_ENDIAN);
-        var obj = {};
-        amf0.reset();
-        amf3.reset();
+        var best = null;
 
-        try {
-            obj = readTags(ba);
-        } catch (e) {
-            postMessage({ type: 'error', message: e.message });
-            return;
+        // AMF0 files number object references in one of several ways (see AMF0.reset). Try the most common first
+        // and keep the first reading where every reference points at something; ActionScript 3's rule is next.
+        var rules = ['as2', 'as3', 'values'];
+        for (var i = 0; i < rules.length; i++) {
+            amf0.referenceRule = rules[i];
+            amf0.reset();
+            amf3.reset();
+            pendingAlerts = [];
+            ba.position = 0;
+            var obj;
+            try {
+                obj = readTags(ba);
+            } catch (e) {
+                postMessage({ type: 'error', message: e.message });
+                return;
+            }
+            if (!best || amf0.badReferences < best.bad) best = { rule: rules[i], obj: obj, bad: amf0.badReferences, alerts: pendingAlerts };
+            if (amf0.badReferences === 0 || !obj.header || obj.header.amfVersion !== 0) break;
         }
 
-        postMessage({ fileID: id, data: obj });
+        // Saving numbers references the same way, so the game can read the file back
+        if (best.obj.header && best.obj.header.amfVersion === 0) best.obj.header.amf0References = best.rule;
+        best.alerts.forEach(function (alert) {
+            postMessage(alert);
+        });
+        if (best.bad > 0) {
+            postMessage({
+                type: 'alert',
+                message: best.bad + ' object reference(s) in this file point at nothing and are shown as undefined. The file may be damaged.',
+            });
+        }
+        postMessage({ fileID: id, data: best.obj });
     };
 })();

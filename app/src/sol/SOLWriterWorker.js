@@ -37,6 +37,8 @@ import AMF3 from '../amf/AMF3.js';
         var ba = new ByteArray(null, ByteArray.LITTLE_ENDIAN);
         var baBody = new ByteArray(null, ByteArray.LITTLE_ENDIAN);
 
+        // Number AMF0 references the way the file did (see AMF0.reset); new files follow ActionScript 2
+        amf0.referenceRule = event.data.amf0References || 'as2';
         amf0.reset();
         amf3.reset();
 

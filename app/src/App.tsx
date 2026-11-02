@@ -139,7 +139,7 @@ export function App() {
         if (isTypedJSON(o)) {
             const typed = importTypedJSON(o);
             parsed = {
-                header: { amfVersion: typed.amfVersion, dataLength: '?', fileName: typed.fileName ?? name },
+                header: { amfVersion: typed.amfVersion, dataLength: '?', fileName: typed.fileName ?? name, amf0References: typed.amf0References },
                 flex: typed.filePath ? { filePath: typed.filePath } : undefined,
                 fileName: name + '.sol',
                 fileSize: '?',
@@ -196,6 +196,7 @@ export function App() {
                 fileName: header.fileName,
                 amfVersion: header.amfVersion,
                 filePath: root.data.value2 ? root.data.value2.filePath : null,
+                amf0References: header.amf0References,
                 data: body,
             });
             if (download) saveFile(new Blob([new Int8Array(buffer)], { type: 'application/octet-stream' }), file.name);

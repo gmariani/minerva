@@ -34,6 +34,8 @@ export interface SOLContents {
     fileName: string;
     amfVersion: number;
     filePath: string | null;
+    // How AMF0 object references are numbered: 'as2', 'as3' or 'values' (see AMF0.reset)
+    amf0References?: string;
     data: Record<string, any>;
 }
 

@@ -34,7 +34,7 @@ export default [
         },
     },
     {
-        files: ['*.config.js'],
+        files: ['*.config.js', 'tools/**/*.mjs'],
         languageOptions: { globals: { ...globals.node } },
     },
 ];

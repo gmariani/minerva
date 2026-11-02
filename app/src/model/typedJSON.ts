@@ -25,7 +25,7 @@ export const TYPED_JSON_VERSION = 1;
 export interface TypedJSON {
     json: Record<string, any>;
     meta: {
-        minerva?: { version: number; amfVersion?: number; fileName?: string; filePath?: string | null };
+        minerva?: { version: number; amfVersion?: number; fileName?: string; filePath?: string | null; amf0References?: string };
         values?: Record<string, string | Traits>;
         referentialEqualities?: Record<string, string[]>;
     };
@@ -36,6 +36,7 @@ export interface TypedImport {
     amfVersion: number;
     fileName?: string;
     filePath?: string | null;
+    amf0References?: string;
     body: Record<string, any>;
 }
 
@@ -176,6 +177,7 @@ export function exportTypedJSON(root: NodeJSON): TypedJSON {
         minerva: { version: TYPED_JSON_VERSION, amfVersion, fileName: header.fileName },
     };
     if (root.data!.value2?.filePath) meta.minerva!.filePath = root.data!.value2.filePath;
+    if (amfVersion === 0 && header.amf0References) meta.minerva!.amf0References = header.amf0References;
     if (Object.keys(exporter.values).length) meta.values = exporter.values;
     if (Object.keys(exporter.refs).length) meta.referentialEqualities = exporter.refs;
     return { json, meta };
@@ -316,5 +318,5 @@ export function importTypedJSON(o: TypedJSON): TypedImport {
     const body: Record<string, any> = {};
     for (const key of Object.keys(o.json)) body[key] = importer.place(body, key, o.json[key], joinPath('', key));
     if (o.meta.referentialEqualities) importer.link(o.meta.referentialEqualities);
-    return { amfVersion, fileName: info.fileName, filePath: info.filePath, body };
+    return { amfVersion, fileName: info.fileName, filePath: info.filePath, amf0References: info.amf0References, body };
 }

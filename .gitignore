@@ -22,3 +22,9 @@ dist/
 
 # Optional eslint cache
 .eslintcache
+# BlazeDS jars downloaded by tools/blazeds/run.sh
+tools/blazeds/lib/
+
+# Build output, Wine prefix and Flash Player data from tools/flash/run.sh
+tools/flash/work/
+__pycache__/
